@@ -28,7 +28,8 @@ public enum ResponseCode {
     /***************************************************
      *    其他模块错误码
      **************************************************/
-    LINE_ENDS_NOT_EXIST(601,"连线端点不存在");
+    LINE_ENDS_NOT_VALID(601,"本次实验中不存在这样的连线"),
+    LINE_CONNECT_ERROR(602, "存在错误布线");
 
     private int code;
     private String message;
