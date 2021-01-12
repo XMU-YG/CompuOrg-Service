@@ -6,6 +6,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>CompuOrgService</module>
+        <module>Core</module>
     </modules>
 
     <parent>
