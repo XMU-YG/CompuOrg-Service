@@ -1,0 +1,83 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+server:
+  port: 8081
+  servlet:
+    threads:
+      max: 1000
+  tomcat:
+    threads:
+      max: 1000
+
+spring:
+  application:
+    name: compuOrg-service
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    initialization-mode: never
+#    schema: classpath:OrderSchema.sql
+#    data: classpath:orderData.sql
+    druid:
+      #初始化时建立物理连接的个数
+      initial-size: 3
+      #最小连接池数量
+      min-idle: 3
+      #最大连接池数量
+      max-active: 100
+      #获取连接时最大等待时间
+      max-wait: 60000
+      filter:
+        stat:
+          #是否开启慢sql查询监控
+          log-slow-sql: true
+          #慢SQL执行时间
+          slow-sql-millis: 100
+      validation-query: select 1
+    sql-script-encoding: UTF-8
+
+
+mybatis:
+  #po对象的包
+  type-aliases-package: cn.xmu.edu.compuOrg.model
+  #mapper.xml所在的位置
+  mapper-locations: classpath*:cn.xmu.edu.compuOrg.mapper/*.xml
+  #自动将SQL中查出来的带下划线的字段，转换为驼峰标志，再去匹配类中的属性
+  configuration:
+    #输出产生的SQL
+    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+
+CompuOrgService:
+  #是否对数据库中的未初始化的数据初始化
+  initialization: true
+  #分布式锁失效时间（秒）
+  lockerExpireTime: 30
+  #dav信息配置
+  dav:
+    username: oomall
+    password: admin
+    baseUrl: http://127.0.0.1:8888/webdav/
+
+  user:
+    # user的权限字在Redis中失效秒数
+    expiretime: 600
+  role:
+    # role的权限字在Redis中失效秒数
+    expiretime: 600
+  login:
+    #是否允许重复登录
+    multiply: false
+    #jwt过期的时间(秒)
+    jwtExpire: 3600
+
+
+#pagehelper分页插件配置
+pagehelper:
+  helper-dialect: mysql
