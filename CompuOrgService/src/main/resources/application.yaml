@@ -71,11 +71,11 @@ CompuOrgService:
   role:
     # role的权限字在Redis中失效秒数
     expiretime: 600
-  login:
-    #是否允许重复登录
-    multiply: false
-    #jwt过期的时间(秒)
-    jwtExpire: 3600
+  student:
+    departId: 1
+    login:
+      #jwt过期的时间(秒)
+      jwtExpire: 3600
 
 
 #pagehelper分页插件配置
