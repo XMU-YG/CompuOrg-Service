@@ -365,5 +365,42 @@ public class CompuOrgController {
         return Common.decorateReturnObject(compuOrgService.teacherModifyPassword(modifyPasswordVo));
     }
 
+    /**
+     * 管理员登录
+     * @author snow create 2021/01/19 00:11
+     * @param loginVo
+     * @param bindingResult
+     * @param httpServletResponse
+     * @return
+     */
+    @ApiOperation(value = "管理员登录", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "body", dataType = "UserLoginVo", name = "loginVo", value = "管理员号与密码", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
+    })
+    @PostMapping("admin/login")
+    public Object adminLogin(@Validated @RequestBody UserLoginVo loginVo,
+                               BindingResult bindingResult,
+                               HttpServletResponse httpServletResponse){
+
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+
+        ReturnObject<String> jwt = compuOrgService.adminLogin(loginVo.getUserNo(), loginVo.getPassword());
+
+        if(jwt.getData() == null){
+            return ResponseUtil.fail(jwt.getCode(), jwt.getErrmsg());
+        }else{
+            httpServletResponse.setStatus(HttpStatus.CREATED.value());
+            return ResponseUtil.ok(jwt.getData());
+        }
+    }
+
 
 }
