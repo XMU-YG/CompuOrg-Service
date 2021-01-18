@@ -21,9 +21,9 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
-    initialization-mode: never
-#    schema: classpath:OrderSchema.sql
-#    data: classpath:orderData.sql
+    initialization-mode: always
+    schema: classpath:schema.sql
+    data: classpath:data.sql
     druid:
       #初始化时建立物理连接的个数
       initial-size: 3
@@ -71,11 +71,13 @@ CompuOrgService:
   role:
     # role的权限字在Redis中失效秒数
     expiretime: 600
-  login:
-    #是否允许重复登录
-    multiply: false
-    #jwt过期的时间(秒)
-    jwtExpire: 3600
+  student:
+    departId: 1
+    login:
+      #jwt过期的时间(秒)
+      jwtExpire: 7200
+  teacher:
+    departId: 2
 
 
 #pagehelper分页插件配置

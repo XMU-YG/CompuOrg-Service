@@ -1,10 +1,10 @@
 package cn.xmu.edu.compuOrg.dao;
 
+import cn.xmu.edu.compuOrg.model.vo.LineVo;
 import cn.xmu.edu.compuOrg.model.vo.LinesVo;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -98,24 +98,24 @@ public class ExperimentLinesDao {
         experimentLines.put(5, experimentFive);
     }
 
-    public Boolean validAllLines(Integer experimentId, List<LinesVo> linesVos){
-        for(LinesVo linesVo : linesVos){
-            if(!validSingleConnection(experimentId, linesVo))
+    public Boolean validAllLines(Integer experimentId, LinesVo lines){
+        for(LineVo lineVo : lines.getLines()){
+            if(!validSingleConnection(experimentId, lineVo))
                 return false;
         }
         return true;
     }
 
-    public Boolean validSingleConnection(Integer experimentId, LinesVo linesVo){
+    public Boolean validSingleConnection(Integer experimentId, LineVo lineVo){
         Map<String, String> experimentLine = this.experimentLines.get(experimentId);
         if(experimentLine != null){
-            if(experimentLine.get(linesVo.getEndA()) == null){
-                if(experimentLine.get(linesVo.getEndB()) != null &&
-                        experimentLine.get(linesVo.getEndB()).equals(linesVo.getEndA()))
+            if(experimentLine.get(lineVo.getEndA()) == null){
+                if(experimentLine.get(lineVo.getEndB()) != null &&
+                        experimentLine.get(lineVo.getEndB()).equals(lineVo.getEndA()))
                     return true;
             }
             else{
-                if(experimentLine.get(linesVo.getEndA()).equals(linesVo.getEndB()))
+                if(experimentLine.get(lineVo.getEndA()).equals(lineVo.getEndB()))
                     return true;
             }
         }

@@ -3,15 +3,16 @@ package cn.xmu.edu.compuOrg.model.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @Data
-public class LinesVo {
+public class LineVo {
 
-    @ApiModelProperty(value = "连线列表")
+    @ApiModelProperty(value = "连线A端")
     @NotNull
-    @Valid
-    private List<LineVo> lines;
+    private String endA;
+
+    @ApiModelProperty(value = "连线B端")
+    @NotNull
+    private String endB;
 }

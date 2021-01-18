@@ -29,7 +29,29 @@ public enum ResponseCode {
      *    其他模块错误码
      **************************************************/
     LINE_ENDS_NOT_VALID(601,"本次实验中不存在这样的连线"),
-    LINE_CONNECT_ERROR(602, "存在错误布线");
+    LINE_CONNECT_ERROR(602, "存在错误布线"),
+
+    /***************************************************
+     *    权限模块错误码
+     **************************************************/
+    AUTH_INVALID_ACCOUNT(700, "用户名不存在或者密码错误"),
+    AUTH_ID_NOT_EXIST(701,"登录用户id不存在"),
+    AUTH_USER_FORBIDDEN(702,"用户被禁止登录"),
+    AUTH_NEED_LOGIN(704, "需要先登录"),
+    AUTH_NOT_ALLOW(705,"无权限访问"),
+    STUDENT_NO_REGISTERED( 731,"学号已被注册"),
+    EMAIL_REGISTERED(732, "邮箱已被注册"),
+    MOBILE_REGISTERED(733,"电话已被注册"),
+    TEACHER_NO_REGISTERED( 734,"工号已被注册"),
+    ROLE_REGISTERED(736, "角色名已存在"),
+    USER_ROLE_REGISTERED(737, "用户已拥有该角色"),
+    PASSWORD_SAME(741,"新密码不能与旧密码相同"),
+    PRIVILEGE_BIT_SAME(744,"权限位重复"),
+    EMAIL_WRONG(745,"与系统预留的邮箱不一致"),
+    MOBILE_WRONG(746,"与系统预留的电话不一致"),
+    EMAIL_NOT_VERIFIED(748,"Email未确认"),
+    MOBILE_NOT_VERIFIED(749,"电话号码未确认"),
+    VERIFY_CODE_EXPIRE(750, "验证码不正确或已过期");
 
     private int code;
     private String message;
