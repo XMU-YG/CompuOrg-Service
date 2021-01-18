@@ -3,17 +3,21 @@ package cn.xmu.edu.compuOrg.model.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 public class UserVo {
 
     @ApiModelProperty(value = "学号/工号")
+    @NotNull
     private String userNo;
 
     @ApiModelProperty(value = "密码")
+    @NotNull
     private String password;
 
     @ApiModelProperty(value = "真实姓名")
-    private String studentName;
+    private String realName;
 
     @ApiModelProperty(value = "性别")
     private String gender;
