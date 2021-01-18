@@ -20,7 +20,7 @@ public class StudentRetVo {
     private String studentName;
 
     @ApiModelProperty(value = "性别")
-    private Byte gender; //true for female
+    private String gender; //true for female
 
     @ApiModelProperty(value = "邮箱")
     private String email;
@@ -30,11 +30,11 @@ public class StudentRetVo {
 
     public StudentRetVo(Student student){
         this.id = student.getId();
-        this.studentNo = student.getStudentNo();
-        this.password = student.getPassword();
-        this.studentName = student.getStudentName();
         this.gender = student.getGender();
+        this.studentNo = student.getUserNo();
+        this.password = student.getPassword();
         this.email = student.getDecryptEmail();
         this.mobile = student.getDecryptMobile();
+        this.studentName = student.getRealName();
     }
 }
