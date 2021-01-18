@@ -8,11 +8,11 @@ import lombok.Data;
  * @author snow create 2021/01/17 22:48
  */
 @Data
-@ApiModel(description = "学生重置密码对象")
-public class StudentResetPasswordVo {
+@ApiModel(description = "用户重置密码对象")
+public class UserPasswordVo {
 
-    @ApiModelProperty(value = "学号")
-    private String studentNo;
+    @ApiModelProperty(value = "学号/工号")
+    private String userNo;
 
     @ApiModelProperty(value = "邮箱")
     private String email;
