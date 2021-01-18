@@ -181,7 +181,7 @@ public class CompuOrgController {
      */
     @ApiOperation(value = "学生找回密码", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "body", dataType = "UserResetPasswordVo", name = "studentVo", value = "学生验证身份信息", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "UserPasswordVo", name = "studentVo", value = "学生验证身份信息", required = true),
 
     })
     @ApiResponses({
@@ -306,6 +306,64 @@ public class CompuOrgController {
         }
     }
 
+    /**
+     * 教师找回密码
+     * @author snow create 2021/01/18 23:00
+     * @param teacherVo
+     * @param bindingResult
+     * @return
+     */
+    @ApiOperation(value = "教师找回密码", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "body", dataType = "UserPasswordVo", name = "teacherVo", value = "教师验证身份信息", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 702, message = "用户被禁止登录"),
+            @ApiResponse(code = 745, message = "与系统预留的邮箱不一致"),
+    })
+    @PutMapping("teacher/password/reset")
+    public Object teacherResetPassword(@Validated @RequestBody UserPasswordVo teacherVo,
+                                       BindingResult bindingResult,
+                                       HttpServletRequest httpServletRequest){
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+
+        String ip = IpUtil.getIpAddr(httpServletRequest);
+        return Common.decorateReturnObject(compuOrgService.teacherResetPassword(teacherVo, ip));
+    }
+
+    /**
+     * 教师修改密码
+     * @author snow create 2021/01/18 23:01
+     * @param modifyPasswordVo
+     * @param bindingResult
+     * @return
+     */
+    @ApiOperation(value = "教师修改密码", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "body", dataType = "UserModifyPasswordVo", name = "modifyPasswordVo", value = "修改密码对象", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
+            @ApiResponse(code = 741, message = "新密码不能与旧密码相同"),
+            @ApiResponse(code = 750, message = "验证码不正确或已过期"),
+    })
+    @PutMapping("teacher/password")
+    public Object teacherModifyPassword(@Validated @RequestBody UserModifyPasswordVo modifyPasswordVo,
+                                        BindingResult bindingResult){
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+
+        return Common.decorateReturnObject(compuOrgService.teacherModifyPassword(modifyPasswordVo));
+    }
 
 
 }
