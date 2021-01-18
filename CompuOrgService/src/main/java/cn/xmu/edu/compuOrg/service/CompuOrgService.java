@@ -1,10 +1,8 @@
 package cn.xmu.edu.compuOrg.service;
 
 import cn.xmu.edu.Core.util.*;
-import cn.xmu.edu.compuOrg.dao.ExperimentLinesDao;
-import cn.xmu.edu.compuOrg.dao.StudentDao;
-import cn.xmu.edu.compuOrg.dao.TeacherDao;
-import cn.xmu.edu.compuOrg.dao.UserDao;
+import cn.xmu.edu.compuOrg.dao.*;
+import cn.xmu.edu.compuOrg.model.bo.Admin;
 import cn.xmu.edu.compuOrg.model.bo.Student;
 import cn.xmu.edu.compuOrg.model.bo.Teacher;
 import cn.xmu.edu.compuOrg.model.bo.User;
@@ -19,6 +17,9 @@ public class CompuOrgService {
     @Value("${CompuOrgService.student.login.jwtExpire}")
     private Integer jwtExpireTime;
 
+    @Value("${CompuOrgService.admin.departId}")
+    private Long adminDepartId;
+
     @Value("${CompuOrgService.student.departId}")
     private Long studentDepartId;
 
@@ -32,6 +33,9 @@ public class CompuOrgService {
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private AdminDao adminDao;
 
     @Autowired
     private StudentDao studentDao;
@@ -89,6 +93,30 @@ public class CompuOrgService {
             return new ReturnObject<>(ResponseCode.AUTH_INVALID_ACCOUNT);
         }
         String jwt = new JwtHelper().createToken(user.getId(), departId, jwtExpireTime);
+        return new ReturnObject<>(jwt);
+    }
+
+    /**
+     * 管理员登录
+     * @author snow create 2021/01/19 00:28
+     * @param adminNo
+     * @param password
+     * @return
+     */
+    public ReturnObject<String> adminLogin(String adminNo, String password){
+        ReturnObject retObj = adminDao.findAdminBySno(adminNo);
+        if(retObj.getData() == null){
+            return retObj;
+        }
+        Admin admin = (Admin) retObj.getData();
+        if(admin.isSignatureBeenModify()){
+            return new ReturnObject<>(ResponseCode.RESOURCE_FALSIFY);
+        }
+        password = AES.encrypt(password, User.AES_PASS);
+        if(admin == null || !password.equals(admin.getPassword())){
+            return new ReturnObject<>(ResponseCode.AUTH_INVALID_ACCOUNT);
+        }
+        String jwt = new JwtHelper().createToken(admin.getId(), adminDepartId, jwtExpireTime);
         return new ReturnObject<>(jwt);
     }
 
