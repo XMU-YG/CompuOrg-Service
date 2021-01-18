@@ -13,6 +13,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
+
 @SpringBootTest(classes = CompuOrgServiceApplication.class)
 @AutoConfigureMockMvc
 @Slf4j
@@ -24,9 +26,17 @@ public class ArithmeticServiceTest {
         ArithmeticExperimentVo arithmeticExperimentVo=new ArithmeticExperimentVo();
         arithmeticExperimentVo.setCn(cn);
         arithmeticExperimentVo.setCommandOfS3_0(s3_0);
-        int []a={1,0,0,0,0,0,0,1};
+        ArrayList<Integer> a=new ArrayList<>(8){
+            {
+                add(1);add(0);add(0);add(0);add(0);add(0);add(0);add(1);
+            }
+        };
         arithmeticExperimentVo.setMemA(a);
-        int []b={0,0,1,1,0,0,1,0};
+        ArrayList<Integer> b=new ArrayList<>(8){
+            {
+                add(0);add(0);add(1);add(1);add(0);add(0);add(1);add(0);
+            }
+        };
         arithmeticExperimentVo.setMemB(b);
         return arithmeticExperimentVo;
     }

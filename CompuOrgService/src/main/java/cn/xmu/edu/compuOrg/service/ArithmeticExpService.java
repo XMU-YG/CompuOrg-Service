@@ -5,6 +5,7 @@ import cn.xmu.edu.compuOrg.model.vo.ArithmeticExperimentRetVo;
 import cn.xmu.edu.compuOrg.model.vo.ArithmeticExperimentVo;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -49,18 +50,19 @@ public class ArithmeticExpService {
         return ret;
     }
 
+
     private ArithmeticExperimentRetVo _1101_X(ArithmeticExperimentVo arithmeticExperimentVo) {
         //F=A 加 1
         ArithmeticExperimentRetVo arithmeticExperimentRetVo=new ArithmeticExperimentRetVo(arithmeticExperimentVo);
         int flag=0;
         int index = 0;
-        int []temp = {0,0,0,0,0,0,0,0};
+        ArrayList<Integer> temp=new ArrayList<>(8);
         for(;index<8;index++) {
             if(index==0)
-                temp[7-index] = arithmeticExperimentVo.getMemA()[7-index]+1+flag;
-            else temp[7-index] = arithmeticExperimentVo.getMemA()[7-index]+flag;
-            if (temp[7-index]>=2){
-                temp[7-index]-=2;
+                temp.set(7 - index, arithmeticExperimentVo.getMemA().get(7 - index) + 1 + flag);
+            else temp.set(7 - index, arithmeticExperimentVo.getMemA().get(7 - index) + flag);
+            if (temp.get(7 - index) >=2){
+                temp.set(7 - index, 2);
                 if (index==7){
                     arithmeticExperimentRetVo.setFC(1);
                 }
@@ -71,9 +73,23 @@ public class ArithmeticExpService {
             }
         }
         arithmeticExperimentRetVo.setF(temp);
-        int []zero = {0,0,0,0,0,0,0,0};
-        arithmeticExperimentRetVo.setFZ(Arrays.equals(temp, zero) ?1:0);
+        arithmeticExperimentRetVo.setFZ(isFZ(arithmeticExperimentRetVo.getF()));
         return arithmeticExperimentRetVo;
+    }
+
+    /**
+     * 判断FZ位
+     * @param f 运算结果
+     * @return 1；0
+     * @author yg
+     */
+    private int isFZ(ArrayList<Integer> f) {
+        for (Integer integer : f) {
+            if (integer!=0){
+                return 0;
+            }
+        }
+        return 1;
     }
 
     private ArithmeticExperimentRetVo _1100_X(ArithmeticExperimentVo arithmeticExperimentVo) {
@@ -81,14 +97,14 @@ public class ArithmeticExpService {
         ArithmeticExperimentRetVo arithmeticExperimentRetVo=new ArithmeticExperimentRetVo(arithmeticExperimentVo);
         int flag=0;
         int index = 0;
-        int []temp = {0,0,0,0,0,0,0,0};
+        ArrayList<Integer> temp=new ArrayList<>(8);
         for(;index<8;index++) {
             if (index==0)
-                temp[7-index] = arithmeticExperimentVo.getMemA()[7-index] -1 - flag;
+                temp.set(7 - index, arithmeticExperimentVo.getMemA().get(7 - index) - 1 - flag);
             else
-                temp[7-index] = arithmeticExperimentVo.getMemA()[7-index] - flag;
-            if (temp[7-index]<0){
-                temp[7-index]+=2;
+                temp.set(7 - index, arithmeticExperimentVo.getMemA().get(7 - index) - flag);
+            if (temp.get(7 - index) <0){
+                temp.set(7 - index, 2);
                 if (index==7){
                     arithmeticExperimentRetVo.setFC(1);
                 }
@@ -98,7 +114,7 @@ public class ArithmeticExpService {
         }
         arithmeticExperimentRetVo.setF(temp);
         int []zero = {0,0,0,0,0,0,0,0};
-        arithmeticExperimentRetVo.setFZ(Arrays.equals(temp, zero) ?1:0);
+        arithmeticExperimentRetVo.setFZ(isFZ(arithmeticExperimentRetVo.getF()));
         return arithmeticExperimentRetVo;
     }
 
@@ -107,11 +123,11 @@ public class ArithmeticExpService {
         ArithmeticExperimentRetVo arithmeticExperimentRetVo=new ArithmeticExperimentRetVo(arithmeticExperimentVo);
         int flag=0;
         int index = 0;
-        int []temp = {0,0,0,0,0,0,0,0};
+        ArrayList<Integer> temp=new ArrayList<>(8);
         for(;index<8;index++) {
-            temp[7-index]=arithmeticExperimentVo.getMemA()[7-index]-arithmeticExperimentVo.getMemB()[7-index]-flag;
-            if (temp[7-index]<0){
-                temp[7-index]+=2;
+            temp.set(7 - index, arithmeticExperimentVo.getMemA().get(7 - index) - arithmeticExperimentVo.getMemB().get(7 - index) - flag);
+            if (temp.get(7 - index) <0){
+                temp.set(7 - index, 2);
                 if (index==7){
                     arithmeticExperimentRetVo.setFC(1);
                 }
@@ -123,7 +139,7 @@ public class ArithmeticExpService {
         }
         arithmeticExperimentRetVo.setF(temp);
         int []zero = {0,0,0,0,0,0,0,0};
-        arithmeticExperimentRetVo.setFZ(Arrays.equals(temp, zero) ?1:0);
+        arithmeticExperimentRetVo.setFZ(isFZ(arithmeticExperimentRetVo.getF()));
         return arithmeticExperimentRetVo;
     }
 
@@ -132,17 +148,17 @@ public class ArithmeticExpService {
         ArithmeticExperimentRetVo arithmeticExperimentRetVo=this._1001_X(arithmeticExperimentVo);
         int flag=0;
         int index = 0;
-        int []temp = {0,0,0,0,0,0,0,0};
+        ArrayList<Integer> temp=new ArrayList<>(8);
         for(;index<8;index++) {
             if(index==0)
             {
-                temp[7-index] = arithmeticExperimentRetVo.getF()[7-index] +arithmeticExperimentRetVo.getFC();
+                temp.set(7 - index, arithmeticExperimentRetVo.getF().get(7 - index) + arithmeticExperimentRetVo.getFC());
             }
             else {
-                temp[7-index] = arithmeticExperimentRetVo.getF()[7-index] +flag;
+                temp.set(7 - index, arithmeticExperimentRetVo.getF().get(7 - index) + flag);
             }
-            if (temp[7-index]>=2){
-                temp[7-index]-=2;
+            if (temp.get(7 - index) >=2){
+                temp.set(7 - index, 2);
                 if (index==7){
                     arithmeticExperimentRetVo.setFC(1);
                 }
@@ -153,8 +169,7 @@ public class ArithmeticExpService {
             }
         }
         arithmeticExperimentRetVo.setF(temp);
-        int []zero = {0,0,0,0,0,0,0,0};
-        arithmeticExperimentRetVo.setFZ(Arrays.equals(temp, zero) ?1:0);
+        arithmeticExperimentRetVo.setFZ(isFZ(arithmeticExperimentRetVo.getF()));
         return arithmeticExperimentRetVo;
     }
 
@@ -163,11 +178,12 @@ public class ArithmeticExpService {
         ArithmeticExperimentRetVo arithmeticExperimentRetVo=new ArithmeticExperimentRetVo(arithmeticExperimentVo);
         int flag=0;
         int index = 0;
-        int []temp = {0,0,0,0,0,0,0,0};
+        ArrayList<Integer> temp=new ArrayList<>(8);
         for(;index<8;index++) {
-            temp[7-index]=arithmeticExperimentVo.getMemA()[7-index]+arithmeticExperimentVo.getMemB()[7-index]+flag;
-            if (temp[7-index]>=2){
-                temp[7-index]-=2;
+            temp.set(7 - index, arithmeticExperimentVo.getMemA().get(7 - index) + arithmeticExperimentVo.getMemB().get(7 - index) + flag);
+            if (temp.get(7 - index) >=2){
+                Integer a= temp.get(7-index)-2;
+                temp.set(7 - index, a);
                 if (index==7){
                     arithmeticExperimentRetVo.setFC(1);
                 }
@@ -178,8 +194,8 @@ public class ArithmeticExpService {
             }
         }
         arithmeticExperimentRetVo.setF(temp);
-        int []zero = {0,0,0,0,0,0,0,0};
-        arithmeticExperimentRetVo.setFZ(Arrays.equals(temp, zero) ?1:0);
+
+        arithmeticExperimentRetVo.setFZ(isFZ(arithmeticExperimentRetVo.getF()));
         return arithmeticExperimentRetVo;
     }
 
@@ -193,116 +209,110 @@ public class ArithmeticExpService {
     private ArithmeticExperimentRetVo _0111_1(ArithmeticExperimentVo arithmeticExperimentVo) {
         //F=A 带进位左移一位
         ArithmeticExperimentRetVo arithmeticExperimentRetVo=new ArithmeticExperimentRetVo(arithmeticExperimentVo);
-        int []temp = {0,0,0,0,0,0,0,0};
+        ArrayList<Integer> temp=new ArrayList<>(8);
         int index = 0;
         for(;index<8;index++) {
             if (index==7){
-                arithmeticExperimentRetVo.setFC(arithmeticExperimentVo.getMemA()[0]);
-                temp[7]=arithmeticExperimentRetVo.getFC();
+                arithmeticExperimentRetVo.setFC(arithmeticExperimentVo.getMemA().get(0));
+                temp.set(7, arithmeticExperimentRetVo.getFC());
             }
             else{
-                temp[index]=arithmeticExperimentVo.getMemA()[index+1];
+                temp.set(index, arithmeticExperimentVo.getMemA().get(index + 1));
             }
         }
         arithmeticExperimentRetVo.setF(temp);
         arithmeticExperimentRetVo.setMemA(temp);
-        int []zero = {0,0,0,0,0,0,0,0};
-        arithmeticExperimentRetVo.setFZ(Arrays.equals(temp, zero) ?1:0);
+        arithmeticExperimentRetVo.setFZ(isFZ(arithmeticExperimentRetVo.getF()));
         return arithmeticExperimentRetVo;
     }
 
     private ArithmeticExperimentRetVo _0111_0(ArithmeticExperimentVo arithmeticExperimentVo) {
         //F=A 逻辑左移一位
         ArithmeticExperimentRetVo arithmeticExperimentRetVo=new ArithmeticExperimentRetVo(arithmeticExperimentVo);
-        int []temp = {0,0,0,0,0,0,0,0};
+        ArrayList<Integer> temp=new ArrayList<>(8);
         int index = 0;
         for(;index<8;index++) {
             if (index==7){
-                temp[7] = 0;
+                temp.set(7, 0);
             }
             else{
-                temp[index]=arithmeticExperimentVo.getMemA()[index+1];
+                temp.set(index, arithmeticExperimentVo.getMemA().get(index + 1));
             }
         }
         arithmeticExperimentRetVo.setF(temp);
         arithmeticExperimentRetVo.setMemA(temp);
-        int []zero = {0,0,0,0,0,0,0,0};
-        arithmeticExperimentRetVo.setFZ(Arrays.equals(temp, zero) ?1:0);
+        arithmeticExperimentRetVo.setFZ(isFZ(arithmeticExperimentRetVo.getF()));
         return arithmeticExperimentRetVo;
     }
 
     private ArithmeticExperimentRetVo _0110_1(ArithmeticExperimentVo arithmeticExperimentVo) {
         //F=A 带进位右移一位
         ArithmeticExperimentRetVo arithmeticExperimentRetVo=new ArithmeticExperimentRetVo(arithmeticExperimentVo);
-        int []temp = {0,0,0,0,0,0,0,0};
+        ArrayList<Integer> temp=new ArrayList<>(8);
         int index = 0;
         for(;index<8;index++) {
             if (index==0){
-                arithmeticExperimentRetVo.setFC(arithmeticExperimentVo.getMemA()[7]);
-                temp[0] = arithmeticExperimentRetVo.getFC();
+                arithmeticExperimentRetVo.setFC(arithmeticExperimentVo.getMemA().get(7));
+                temp.set(0, arithmeticExperimentRetVo.getFC());
             }
             else{
-                temp[index]=arithmeticExperimentVo.getMemA()[index-1];
+                temp.set(index, arithmeticExperimentVo.getMemA().get(index - 1));
             }
         }
         arithmeticExperimentRetVo.setF(temp);
         arithmeticExperimentRetVo.setMemA(temp);
-        int []zero = {0,0,0,0,0,0,0,0};
-        arithmeticExperimentRetVo.setFZ(Arrays.equals(temp, zero) ?1:0);
+        arithmeticExperimentRetVo.setFZ(isFZ(arithmeticExperimentRetVo.getF()));
         return arithmeticExperimentRetVo;
     }
 
     private ArithmeticExperimentRetVo _0110_0(ArithmeticExperimentVo arithmeticExperimentVo) {
         //F=A 逻辑右移一位
         ArithmeticExperimentRetVo arithmeticExperimentRetVo=new ArithmeticExperimentRetVo(arithmeticExperimentVo);
-        int []temp = {0,0,0,0,0,0,0,0};
+        ArrayList<Integer> temp=new ArrayList<>(8);
         int index = 0;
         for(;index<8;index++) {
             if (index==0){
-                temp[0] = 0;
+                temp.set(0, 0);
             }
             else{
-                temp[index]=arithmeticExperimentVo.getMemA()[index-1];
+                temp.set(index, arithmeticExperimentVo.getMemA().get(index - 1));
             }
         }
         arithmeticExperimentRetVo.setF(temp);
         arithmeticExperimentRetVo.setMemA(temp);
-        int []zero = {0,0,0,0,0,0,0,0};
-        arithmeticExperimentRetVo.setFZ(Arrays.equals(temp, zero) ?1:0);
+        arithmeticExperimentRetVo.setFZ(isFZ(arithmeticExperimentRetVo.getF()));
         return arithmeticExperimentRetVo;
     }
 
     private ArithmeticExperimentRetVo _0101_X(ArithmeticExperimentVo arithmeticExperimentVo) {
         //F=A 不带进位循环右移 B（取低 3 位）位
         ArithmeticExperimentRetVo arithmeticExperimentRetVo=new ArithmeticExperimentRetVo(arithmeticExperimentVo);
-        int count=arithmeticExperimentVo.getMemB()[7]+arithmeticExperimentVo.getMemB()[6]*2+arithmeticExperimentVo.getMemB()[5]*4;
-        int []temp = {0,0,0,0,0,0,0,0};
+        int count= arithmeticExperimentVo.getMemB().get(7) + arithmeticExperimentVo.getMemB().get(6) *2+ arithmeticExperimentVo.getMemB().get(5) *4;
+        ArrayList<Integer> temp=new ArrayList<>(8);
         int index = 0;
         for(;index<8;index++) {
-            int v=arithmeticExperimentVo.getMemA()[(index-count+8)%8];
-            temp[index] = v;
+            int v= arithmeticExperimentVo.getMemA().get((index - count + 8) % 8);
+            temp.set(index, v);
         }
         arithmeticExperimentRetVo.setF(temp);
         arithmeticExperimentRetVo.setMemA(temp);
-        int []zero = {0,0,0,0,0,0,0,0};
-        arithmeticExperimentRetVo.setFZ(Arrays.equals(temp, zero) ?1:0);
+        arithmeticExperimentRetVo.setFZ(isFZ(arithmeticExperimentRetVo.getF()));
         return arithmeticExperimentRetVo;
     }
 
     private ArithmeticExperimentRetVo _0100_X(ArithmeticExperimentVo arithmeticExperimentVo) {
         //F=/A
-        int []temp=new int[10];
+        ArrayList<Integer> temp=new ArrayList<>(8);
         int i=0;
         ArithmeticExperimentRetVo arithmeticExperimentRetVo=new ArithmeticExperimentRetVo(arithmeticExperimentVo);
         for (int v:arithmeticExperimentVo.getMemA()
         ) {
-            temp[i]=v==0?1:0;
+            temp.set(i, v == 0 ? 1 : 0);
             i++;
         }
         arithmeticExperimentRetVo.setMemA(temp);
         arithmeticExperimentRetVo.setF(temp);
-        int []zero = {0,0,0,0,0,0,0,0};
-        arithmeticExperimentRetVo.setFZ(Arrays.equals(temp, zero) ?1:0);
+        arithmeticExperimentRetVo.setFZ(isFZ(arithmeticExperimentRetVo.getF()));
         return arithmeticExperimentRetVo;
     }
 
@@ -322,35 +332,33 @@ public class ArithmeticExpService {
 
     private ArithmeticExperimentRetVo _0010_X(ArithmeticExperimentVo arithmeticExperimentVo) {
         //F=A与B
-        int []temp=new int[8];
+        ArrayList<Integer> temp=new ArrayList<>(8);
         int i=0;
-        int []memB=arithmeticExperimentVo.getMemB();
+        ArrayList<Integer> memB=arithmeticExperimentVo.getMemB();
         ArithmeticExperimentRetVo arithmeticExperimentRetVo=new ArithmeticExperimentRetVo(arithmeticExperimentVo);
         for (int v:arithmeticExperimentVo.getMemA()
              ) {
-            temp[i]=v&memB[i];
+            temp.set(i, v & memB.get(i));
             i++;
         }
         arithmeticExperimentRetVo.setF(temp);
-        int []zero = {0,0,0,0,0,0,0,0};
-        arithmeticExperimentRetVo.setFZ(Arrays.equals(temp, zero) ?1:0);
+        arithmeticExperimentRetVo.setFZ(isFZ(arithmeticExperimentRetVo.getF()));
         return arithmeticExperimentRetVo;
     }
     //F=A|B
     private ArithmeticExperimentRetVo _0011_X(ArithmeticExperimentVo arithmeticExperimentVo) {
 
-        int []temp=new int[10];
+        ArrayList<Integer> temp=new ArrayList<>(8);
         int i=0;
-        int []memB=arithmeticExperimentVo.getMemB();
+        ArrayList<Integer> memB=arithmeticExperimentVo.getMemB();
         ArithmeticExperimentRetVo arithmeticExperimentRetVo=new ArithmeticExperimentRetVo(arithmeticExperimentVo);
         for (int v:arithmeticExperimentVo.getMemA()
         ) {
-            temp[i]=v|memB[i];
+            temp.set(i, v | memB.get(i));
             i++;
         }
         arithmeticExperimentRetVo.setF(temp);
-        int []zero = {0,0,0,0,0,0,0,0};
-        arithmeticExperimentRetVo.setFZ(Arrays.equals(temp, zero) ?1:0);
+        arithmeticExperimentRetVo.setFZ(isFZ(arithmeticExperimentRetVo.getF()));
         return arithmeticExperimentRetVo;
     }
 
