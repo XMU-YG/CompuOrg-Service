@@ -8,11 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 
 @Api(value = "计组项目后端", tags = "compuOrg")
 @RestController /*Restful的Controller对象*/
@@ -29,16 +30,17 @@ public class CompuOrgController {
 
     /**
      * 检验单个实验单个连线
-     * @author snow 2021/01/12 20:23
+     * @author snow create 2021/01/12 20:23
+     *            modified 2021/01/18 13:15
      * @param eid
-     * @param linesVo
+     * @param lineVo
      * @return
      */
     @ApiOperation(value = "实验连线", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = false),
             @ApiImplicitParam(paramType = "path", dataType = "int", name = "eid", value = "实验序号", required = true),
-            @ApiImplicitParam(paramType = "body", dataType = "LinesVo", name = "linesVo", value = "连线端点", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "LineVo", name = "lineVo", value = "连线端点", required = true),
 
     })
     @ApiResponses({
@@ -46,20 +48,24 @@ public class CompuOrgController {
             @ApiResponse(code = 601, message = "本次实验中不存在这样的连线"),
     })
     @PostMapping("experiment/{eid}/lines/connect")
-    public Object connectLines(@PathVariable(value = "eid") Integer eid, @RequestBody LinesVo linesVo){
-        logger.debug("experimentId: " + eid + ", lines: " + linesVo.toString());
+    public Object connectLines(@PathVariable(value = "eid") Integer eid,
+                               @Validated @RequestBody LineVo lineVo,
+                               BindingResult bindingResult){
         if(eid < 1 || eid > 5){
             return Common.decorateReturnObject(new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST));
         }
-        if(linesVo.getEndA() == null || linesVo.getEndB() == null){
-            return Common.decorateReturnObject(new ReturnObject(ResponseCode.FIELD_NOTVALID));
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if (null != returnObject) {
+            return returnObject;
         }
-        return Common.decorateReturnObject(compuOrgService.connectLines(eid, linesVo));
+        return Common.decorateReturnObject(compuOrgService.connectLines(eid, lineVo));
     }
 
 
     /**
      * 检验单个实验所有连线
+     * @author snow create 2021/01/12 21:30
+     *            modified 2021/01/18 13:15
      * @param eid
      * @param linesVos
      * @return
@@ -68,7 +74,7 @@ public class CompuOrgController {
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = false),
             @ApiImplicitParam(paramType = "path", dataType = "int", name = "eid", value = "实验序号", required = true),
-            @ApiImplicitParam(paramType = "body", dataType = "LinesVo", name = "linesVos", allowMultiple = true, value = "连线", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "LinesVo", name = "linesVo", allowMultiple = true, value = "连线", required = true),
 
     })
     @ApiResponses({
@@ -76,10 +82,15 @@ public class CompuOrgController {
             @ApiResponse(code = 602, message = "存在错误布线"),
     })
     @PostMapping("experiment/{eid}/lines/validation")
-    public Object validLines(@PathVariable(value = "eid") Integer eid, @RequestBody List<LinesVo> linesVos){
-        logger.debug("experimentId: " + eid + ", lines: " + linesVos.toString());
+    public Object validLines(@PathVariable(value = "eid") Integer eid,
+                             @Validated @RequestBody LinesVo linesVos,
+                             BindingResult bindingResult){
         if(eid < 1 || eid > 5){
             return Common.decorateReturnObject(new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST));
+        }
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if (null != returnObject) {
+            return returnObject;
         }
         return Common.decorateReturnObject(compuOrgService.validAllLines(eid, linesVos));
     }
@@ -87,13 +98,15 @@ public class CompuOrgController {
     /**
      * 学生登录
      * @author snow create 2021/01/15 20:00
+     *            modified 2021/01/18 13:18
      * @param loginVo
+     * @param bindingResult
      * @param httpServletResponse
      * @return
      */
     @ApiOperation(value = "学生登录", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "body", dataType = "StudentLoginVo", name = "loginVo", value = "学号与密码", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "UserLoginVo", name = "loginVo", value = "学号与密码", required = true),
 
     })
     @ApiResponses({
@@ -101,11 +114,13 @@ public class CompuOrgController {
             @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
     })
     @PostMapping("student/login")
-    public Object studentLogin(@RequestBody UserLoginVo loginVo,
+    public Object studentLogin(@Validated @RequestBody UserLoginVo loginVo,
+                               BindingResult bindingResult,
                                HttpServletResponse httpServletResponse){
 
-        if(loginVo.getUserNo() == null || loginVo.getPassword() == null){
-            return new ReturnObject(ResponseCode.FIELD_NOTVALID);
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
         }
 
         ReturnObject<String> jwt = compuOrgService.studentLogin(loginVo.getUserNo(), loginVo.getPassword());
@@ -121,12 +136,14 @@ public class CompuOrgController {
     /**
      * 学生注册
      * @author snow create 2021/01/17 21:30
+     *            modified 2021/01/18 13:20
      * @param studentVo
+     * @param bindingResult
      * @return
      */
     @ApiOperation(value = "学生注册", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "body", dataType = "StudentVo", name = "studentVo", value = "学生注册信息", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "UserVo", name = "studentVo", value = "学生注册信息", required = true),
 
     })
     @ApiResponses({
@@ -136,10 +153,12 @@ public class CompuOrgController {
             @ApiResponse(code = 733, message = "电话已被注册"),
     })
     @PostMapping("student/registration")
-    public Object studentSignUp(@RequestBody UserVo studentVo){
+    public Object studentSignUp(@Validated @RequestBody UserVo studentVo,
+                                BindingResult bindingResult){
 
-        if(studentVo.getUserNo() == null || studentVo.getPassword() == null){
-            return new ReturnObject(ResponseCode.FIELD_NOTVALID);
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
         }
 
         ReturnObject retObj = compuOrgService.studentSignUp(studentVo);
@@ -155,12 +174,14 @@ public class CompuOrgController {
     /**
      * 学生找回密码
      * @author snow create 2021/01/17 23:30
+     *            modified 2021/01/18 13:22
      * @param studentVo
+     * @param bindingResult
      * @return
      */
     @ApiOperation(value = "学生找回密码", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "body", dataType = "StudentResetPasswordVo", name = "studentVo", value = "学生验证身份信息", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "UserResetPasswordVo", name = "studentVo", value = "学生验证身份信息", required = true),
 
     })
     @ApiResponses({
@@ -169,11 +190,12 @@ public class CompuOrgController {
             @ApiResponse(code = 745, message = "与系统预留的邮箱不一致"),
     })
     @PutMapping("student/password/reset")
-    public Object studentResetPassword(@RequestBody UserPasswordVo studentVo,
+    public Object studentResetPassword(@Validated @RequestBody UserPasswordVo studentVo,
+                                       BindingResult bindingResult,
                                        HttpServletRequest httpServletRequest){
-
-        if(studentVo.getUserNo() == null || studentVo.getEmail() == null){
-            return new ReturnObject(ResponseCode.FIELD_NOTVALID);
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
         }
 
         String ip = IpUtil.getIpAddr(httpServletRequest);
@@ -183,12 +205,14 @@ public class CompuOrgController {
     /**
      * 学生修改密码
      * @author snow create 2021/01/17 23:30
+     *            modified 2021/01/18 13:23
      * @param modifyPasswordVo
+     * @param bindingResult
      * @return
      */
     @ApiOperation(value = "学生修改密码", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "body", dataType = "StudentModifyPasswordVo", name = "modifyPasswordVo", value = "修改密码对象", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "UserModifyPasswordVo", name = "modifyPasswordVo", value = "修改密码对象", required = true),
 
     })
     @ApiResponses({
@@ -198,15 +222,88 @@ public class CompuOrgController {
             @ApiResponse(code = 750, message = "验证码不正确或已过期"),
     })
     @PutMapping("student/password")
-    public Object studentModifyPassword(@RequestBody UserModifyPasswordVo modifyPasswordVo){
-
-        if(modifyPasswordVo.getUserNo() == null ||
-                modifyPasswordVo.getVerifyCode() == null ||
-                modifyPasswordVo.getPassword() == null){
-            return new ReturnObject(ResponseCode.FIELD_NOTVALID);
+    public Object studentModifyPassword(@Validated @RequestBody UserModifyPasswordVo modifyPasswordVo,
+                                        BindingResult bindingResult){
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
         }
 
         return Common.decorateReturnObject(compuOrgService.studentModifyPassword(modifyPasswordVo));
+    }
+
+    /**
+     * 教师登录
+     * @author snow create 2021/01/18 13:24
+     * @param loginVo
+     * @param bindingResult
+     * @param httpServletResponse
+     * @return
+     */
+    @ApiOperation(value = "教师登录", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "body", dataType = "UserLoginVo", name = "loginVo", value = "工号与密码", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
+    })
+    @PostMapping("teacher/login")
+    public Object teacherLogin(@Validated @RequestBody UserLoginVo loginVo,
+                               BindingResult bindingResult,
+                               HttpServletResponse httpServletResponse){
+
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+
+        ReturnObject<String> jwt = compuOrgService.teacherLogin(loginVo.getUserNo(), loginVo.getPassword());
+
+        if(jwt.getData() == null){
+            return ResponseUtil.fail(jwt.getCode(), jwt.getErrmsg());
+        }else{
+            httpServletResponse.setStatus(HttpStatus.CREATED.value());
+            return ResponseUtil.ok(jwt.getData());
+        }
+    }
+
+    /**
+     * 教师注册
+     * @author snow create 2021/01/18 13:30
+     * @param teacherVo
+     * @param bindingResult
+     * @return
+     */
+    @ApiOperation(value = "教师注册", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "body", dataType = "UserVo", name = "teacherVo", value = "教师注册信息", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 732, message = "邮箱已被注册"),
+            @ApiResponse(code = 733, message = "电话已被注册"),
+            @ApiResponse(code = 734, message = "工号已被注册"),
+    })
+    @PostMapping("teacher/registration")
+    public Object teacherSignUp(@Validated @RequestBody UserVo teacherVo,
+                                BindingResult bindingResult){
+
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+
+        ReturnObject retObj = compuOrgService.teacherSignUp(teacherVo);
+
+        if(retObj.getData() == null){
+            return Common.getNullRetObj(retObj, httpServletResponse);
+        }else{
+            httpServletResponse.setStatus(HttpStatus.CREATED.value());
+            return Common.getRetObject(retObj);
+        }
     }
 
 
