@@ -1,11 +1,16 @@
 package cn.xmu.edu.compuOrg.dao;
 
+import cn.xmu.edu.Core.util.ReturnObject;
+import cn.xmu.edu.compuOrg.model.bo.Teacher;
+import cn.xmu.edu.compuOrg.model.bo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
+@Repository
 public class UserDao {
 
     @Autowired
