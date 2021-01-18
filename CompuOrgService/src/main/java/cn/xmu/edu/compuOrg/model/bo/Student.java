@@ -26,7 +26,7 @@ public class Student extends User implements VoObject, Serializable {
         setGender(studentVo.getGender());
         this.userNo = studentVo.getUserNo();
         this.password = AES.encrypt(studentVo.getPassword(), AES_PASS);
-        this.realName = studentVo.getStudentName();
+        this.realName = studentVo.getRealName();
         if(studentVo.getEmail() != null) {
             this.email = AES.encrypt(studentVo.getEmail(), AES_PASS);
         }
