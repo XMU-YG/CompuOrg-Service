@@ -71,6 +71,8 @@ CompuOrgService:
   role:
     # role的权限字在Redis中失效秒数
     expiretime: 600
+  admin:
+    departId: 0
   student:
     departId: 1
     login:
