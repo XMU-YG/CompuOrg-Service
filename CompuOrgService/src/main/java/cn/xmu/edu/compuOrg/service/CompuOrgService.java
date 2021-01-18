@@ -174,6 +174,7 @@ public class CompuOrgService {
             return new ReturnObject(ResponseCode.PASSWORD_SAME);
         }
         student.setPassword(password);
+        studentDao.disableVerifyCodeAfterSuccessfullyModifyPassword(modifyPasswordVo.getVerifyCode());
         return studentDao.updateStudentPassword(student);
     }
 }

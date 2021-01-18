@@ -198,6 +198,18 @@ public class StudentDao {
     }
 
     /**
+     * 修改密码成功之后让验证码失效
+     * @author snow create 2021/01/18 10:32
+     * @param verifyCode
+     */
+    public void disableVerifyCodeAfterSuccessfullyModifyPassword(String verifyCode){
+        String key = "cp_" + verifyCode;
+        if(redisTemplate.hasKey(key)){
+            redisTemplate.expire(key, 1, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    /**
      * 更新学生密码
      * @author snow create 2021/01/18 00:12
      * @param student
