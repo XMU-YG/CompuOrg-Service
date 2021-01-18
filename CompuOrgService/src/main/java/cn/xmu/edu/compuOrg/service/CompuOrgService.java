@@ -5,9 +5,9 @@ import cn.xmu.edu.compuOrg.dao.ExperimentLinesDao;
 import cn.xmu.edu.compuOrg.dao.StudentDao;
 import cn.xmu.edu.compuOrg.model.bo.Student;
 import cn.xmu.edu.compuOrg.model.vo.LinesVo;
-import cn.xmu.edu.compuOrg.model.vo.StudentModifyPasswordVo;
-import cn.xmu.edu.compuOrg.model.vo.StudentResetPasswordVo;
-import cn.xmu.edu.compuOrg.model.vo.StudentVo;
+import cn.xmu.edu.compuOrg.model.vo.UserModifyPasswordVo;
+import cn.xmu.edu.compuOrg.model.vo.UserPasswordVo;
+import cn.xmu.edu.compuOrg.model.vo.UserVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -90,7 +90,7 @@ public class CompuOrgService {
      * @param studentVo
      * @return
      */
-    public ReturnObject studentSignUp(StudentVo studentVo){
+    public ReturnObject studentSignUp(UserVo studentVo){
         Student student = new Student(studentVo);
         return studentDao.insertStudent(student);
     }
@@ -102,9 +102,9 @@ public class CompuOrgService {
      * @param ip
      * @return
      */
-    public ReturnObject studentResetPassword(StudentResetPasswordVo studentVo, String ip){
+    public ReturnObject studentResetPassword(UserPasswordVo studentVo, String ip){
 
-        ReturnObject retObj= studentDao.findStudentBySno(studentVo.getStudentNo());
+        ReturnObject retObj= studentDao.findStudentBySno(studentVo.getUserNo());
         if(retObj.getData() == null){
             return retObj;
         }
@@ -154,7 +154,7 @@ public class CompuOrgService {
      * @param modifyPasswordVo
      * @return
      */
-    public ReturnObject studentModifyPassword(StudentModifyPasswordVo modifyPasswordVo){
+    public ReturnObject studentModifyPassword(UserModifyPasswordVo modifyPasswordVo){
         Long studentId = studentDao.getStudentIdByVerifyCode(modifyPasswordVo.getVerifyCode());
         if(studentId == null){
             System.out.println("Can't find anything in redis with: " + modifyPasswordVo.getVerifyCode());
@@ -165,8 +165,8 @@ public class CompuOrgService {
             return retObj;
         }
         Student student = (Student)retObj.getData();
-        if(!modifyPasswordVo.getStudentNo().equals(student.getStudentNo())){
-            System.out.println("Pass: " + modifyPasswordVo.getStudentNo() + ", Store: " + student.getStudentNo());
+        if(!modifyPasswordVo.getUserNo().equals(student.getUserNo())){
+            System.out.println("Pass: " + modifyPasswordVo.getUserNo() + ", Store: " + student.getUserNo());
             return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
         }
         String password = AES.encrypt(modifyPasswordVo.getPassword(), Student.AES_PASS);

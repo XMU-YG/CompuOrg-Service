@@ -101,14 +101,14 @@ public class CompuOrgController {
             @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
     })
     @PostMapping("student/login")
-    public Object studentLogin(@RequestBody StudentLoginVo loginVo,
+    public Object studentLogin(@RequestBody UserLoginVo loginVo,
                                HttpServletResponse httpServletResponse){
 
-        if(loginVo.getStudentNo() == null || loginVo.getPassword() == null){
+        if(loginVo.getUserNo() == null || loginVo.getPassword() == null){
             return new ReturnObject(ResponseCode.FIELD_NOTVALID);
         }
 
-        ReturnObject<String> jwt = compuOrgService.studentLogin(loginVo.getStudentNo(), loginVo.getPassword());
+        ReturnObject<String> jwt = compuOrgService.studentLogin(loginVo.getUserNo(), loginVo.getPassword());
 
         if(jwt.getData() == null){
             return ResponseUtil.fail(jwt.getCode(), jwt.getErrmsg());
@@ -136,9 +136,9 @@ public class CompuOrgController {
             @ApiResponse(code = 733, message = "电话已被注册"),
     })
     @PostMapping("student/registration")
-    public Object studentSignUp(@RequestBody StudentVo studentVo){
+    public Object studentSignUp(@RequestBody UserVo studentVo){
 
-        if(studentVo.getStudentNo() == null || studentVo.getPassword() == null){
+        if(studentVo.getUserNo() == null || studentVo.getPassword() == null){
             return new ReturnObject(ResponseCode.FIELD_NOTVALID);
         }
 
@@ -169,10 +169,10 @@ public class CompuOrgController {
             @ApiResponse(code = 745, message = "与系统预留的邮箱不一致"),
     })
     @PutMapping("student/password/reset")
-    public Object studentResetPassword(@RequestBody StudentResetPasswordVo studentVo,
+    public Object studentResetPassword(@RequestBody UserPasswordVo studentVo,
                                        HttpServletRequest httpServletRequest){
 
-        if(studentVo.getStudentNo() == null || studentVo.getEmail() == null){
+        if(studentVo.getUserNo() == null || studentVo.getEmail() == null){
             return new ReturnObject(ResponseCode.FIELD_NOTVALID);
         }
 
@@ -198,9 +198,9 @@ public class CompuOrgController {
             @ApiResponse(code = 750, message = "验证码不正确或已过期"),
     })
     @PutMapping("student/password")
-    public Object studentModifyPassword(@RequestBody StudentModifyPasswordVo modifyPasswordVo){
+    public Object studentModifyPassword(@RequestBody UserModifyPasswordVo modifyPasswordVo){
 
-        if(modifyPasswordVo.getStudentNo() == null ||
+        if(modifyPasswordVo.getUserNo() == null ||
                 modifyPasswordVo.getVerifyCode() == null ||
                 modifyPasswordVo.getPassword() == null){
             return new ReturnObject(ResponseCode.FIELD_NOTVALID);
