@@ -2,6 +2,7 @@ package cn.xmu.edu.Core.util;
 
 import com.sun.mail.util.MailSSLSocketFactory;
 
+
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.Session;
