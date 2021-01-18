@@ -7,22 +7,16 @@ import cn.xmu.edu.compuOrg.model.bo.Student;
 import cn.xmu.edu.compuOrg.model.po.StudentPo;
 import cn.xmu.edu.compuOrg.model.po.StudentPoExample;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Repository
-public class StudentDao {
+public class StudentDao extends UserDao {
 
     @Autowired
     private StudentPoMapper studentPoMapper;
-
-    @Autowired
-    private RedisTemplate<String, Serializable> redisTemplate;
 
     /**
      * 根据id查找学生
@@ -79,7 +73,7 @@ public class StudentDao {
      */
     public ReturnObject<Student> insertStudent(Student student){
         try {
-            if(student.getStudentNo() != null && isStudentNoAlreadyExist(student.getStudentNo())){
+            if(student.getUserNo() != null && isStudentNoAlreadyExist(student.getUserNo())){
                 return new ReturnObject<>(ResponseCode.STUDENT_NO_REGISTERED);
             }
             if(student.getEmail() != null && isEmailAlreadyExist(student.getEmail())){
@@ -153,60 +147,6 @@ public class StudentDao {
             return false;
         }
         return true;
-    }
-
-    /**
-     * 判断是否重复请求验证码
-     * @author snow create 2021/01/17 23:06
-     * @param ipAddress
-     * @return
-     */
-    public Boolean isAllowRequestForVerifyCode(String ipAddress){
-        String key = "ip_" + ipAddress;
-        if(redisTemplate.hasKey(key)){
-            return false;
-        }
-        redisTemplate.opsForValue().set(key, ipAddress);
-        redisTemplate.expire(key, 1, TimeUnit.MINUTES);
-        return true;
-    }
-
-    /**
-     * 将验证码放入Redis
-     * @author snow create 2021/01/17 23:17
-     * @param verifyCode
-     * @param studentId
-     */
-    public void putVerifyCodeIntoRedis(String verifyCode, String studentId){
-        String key = "cp_" + verifyCode;
-        redisTemplate.opsForValue().set(key, studentId);
-        redisTemplate.expire(key, 5, TimeUnit.MINUTES);
-    }
-
-    /**
-     * 从验证码中取出id
-     * @author snow create 2021/01/17 23:58
-     * @param verifyCode
-     * @return
-     */
-    public Long getStudentIdByVerifyCode(String verifyCode){
-        String key = "cp_" + verifyCode;
-        if(!redisTemplate.hasKey(key)){
-            return null;
-        }
-        return Long.valueOf(redisTemplate.opsForValue().get(key).toString());
-    }
-
-    /**
-     * 修改密码成功之后让验证码失效
-     * @author snow create 2021/01/18 10:32
-     * @param verifyCode
-     */
-    public void disableVerifyCodeAfterSuccessfullyModifyPassword(String verifyCode){
-        String key = "cp_" + verifyCode;
-        if(redisTemplate.hasKey(key)){
-            redisTemplate.expire(key, 1, TimeUnit.MILLISECONDS);
-        }
     }
 
     /**
