@@ -3,16 +3,14 @@ package cn.xmu.edu.compuOrg.service;
 import cn.xmu.edu.Core.util.*;
 import cn.xmu.edu.compuOrg.dao.ExperimentLinesDao;
 import cn.xmu.edu.compuOrg.dao.StudentDao;
+import cn.xmu.edu.compuOrg.dao.TeacherDao;
 import cn.xmu.edu.compuOrg.model.bo.Student;
-import cn.xmu.edu.compuOrg.model.vo.LinesVo;
-import cn.xmu.edu.compuOrg.model.vo.UserModifyPasswordVo;
-import cn.xmu.edu.compuOrg.model.vo.UserPasswordVo;
-import cn.xmu.edu.compuOrg.model.vo.UserVo;
+import cn.xmu.edu.compuOrg.model.bo.Teacher;
+import cn.xmu.edu.compuOrg.model.bo.User;
+import cn.xmu.edu.compuOrg.model.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class CompuOrgService {
@@ -23,6 +21,9 @@ public class CompuOrgService {
     @Value("${CompuOrgService.student.departId}")
     private Long studentDepartId;
 
+    @Value("${CompuOrgService.teacher.departId}")
+    private Long teacherDepartId;
+
     private static final String resetPasswordEmailTitle = "【计算机组成原理平台】重置密码通知";
 
     @Autowired
@@ -31,15 +32,18 @@ public class CompuOrgService {
     @Autowired
     private StudentDao studentDao;
 
+    @Autowired
+    private TeacherDao teacherDao;
+
     /**
      * 检验实验单个连线
      * @author snow create 2021/01/12 20:26
      * @param experimentId
-     * @param linesVo
+     * @param lineVo
      * @return
      */
-    public ReturnObject connectLines(Integer experimentId, LinesVo linesVo){
-        if(experimentLinesDao.validSingleConnection(experimentId, linesVo)){
+    public ReturnObject connectLines(Integer experimentId, LineVo lineVo){
+        if(experimentLinesDao.validSingleConnection(experimentId, lineVo)){
             return new ReturnObject(ResponseCode.OK);
         }
         else{
@@ -51,16 +55,37 @@ public class CompuOrgService {
      * 校验实验所有连线
      * @author snow create 2021/01/12 20:50
      * @param experimentId
-     * @param linesVos
+     * @param linesVo
      * @return
      */
-    public ReturnObject validAllLines(Integer experimentId, List<LinesVo> linesVos){
-        if(experimentLinesDao.validAllLines(experimentId, linesVos)){
+    public ReturnObject validAllLines(Integer experimentId, LinesVo linesVo){
+        if(experimentLinesDao.validAllLines(experimentId, linesVo)){
             return new ReturnObject(ResponseCode.OK);
         }
         else {
             return new ReturnObject(ResponseCode.LINE_CONNECT_ERROR);
         }
+    }
+
+    /**
+     * 用户登录
+     * @author snow create 2021/01/18 12:56
+     * @param password
+     * @param departId
+     * @param retObj
+     * @return
+     */
+    public ReturnObject<String> userLogin(String password, Long departId, ReturnObject retObj){
+        if(retObj.getData() == null){
+            return retObj;
+        }
+        User user = (User) retObj.getData();
+        password = AES.encrypt(password, User.AES_PASS);
+        if(user == null || !password.equals(user.getPassword())){
+            return new ReturnObject<>(ResponseCode.AUTH_INVALID_ACCOUNT);
+        }
+        String jwt = new JwtHelper().createToken(user.getId(), departId, jwtExpireTime);
+        return new ReturnObject<>(jwt);
     }
 
     /**
@@ -71,17 +96,18 @@ public class CompuOrgService {
      * @return
      */
     public ReturnObject<String> studentLogin(String studentNo, String password){
-        ReturnObject retObj = studentDao.findStudentBySno(studentNo);
-        if(retObj.getData() == null){
-            return retObj;
-        }
-        Student student = (Student)retObj.getData();
-        password = AES.encrypt(password, Student.AES_PASS);
-        if(student == null || !password.equals(student.getPassword())){
-            return new ReturnObject<>(ResponseCode.AUTH_INVALID_ACCOUNT);
-        }
-        String jwt = new JwtHelper().createToken(student.getId(), studentDepartId, jwtExpireTime);
-        return new ReturnObject<>(jwt);
+        return userLogin(password, studentDepartId, studentDao.findStudentBySno(studentNo));
+    }
+
+    /**
+     * 教师登录
+     * @author snow create 2021/01/18 12:59
+     * @param teacherNo
+     * @param password
+     * @return
+     */
+    public ReturnObject<String> teacherLogin(String teacherNo, String password){
+        return userLogin(password, teacherDepartId, teacherDao.findTeacherBySno(teacherNo));
     }
 
     /**
@@ -93,6 +119,17 @@ public class CompuOrgService {
     public ReturnObject studentSignUp(UserVo studentVo){
         Student student = new Student(studentVo);
         return studentDao.insertStudent(student);
+    }
+
+    /**
+     * 教师注册
+     * @author snow create 2021/01/18 13:28
+     * @param teacherVo
+     * @return
+     */
+    public ReturnObject teacherSignUp(UserVo teacherVo){
+        Teacher teacher = new Teacher(teacherVo);
+        return teacherDao.insertTeacher(teacher);
     }
 
     /**
