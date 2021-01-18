@@ -46,7 +46,7 @@ public class TeacherDao extends UserDao {
      * @param teacherNo
      * @return
      */
-    public ReturnObject<Teacher> findStudentBySno(String teacherNo){
+    public ReturnObject<Teacher> findTeacherBySno(String teacherNo){
         if(teacherNo != null){
             try {
                 TeacherPoExample example = new TeacherPoExample();
@@ -71,10 +71,10 @@ public class TeacherDao extends UserDao {
      * @param teacher
      * @return
      */
-    public ReturnObject<Teacher> insertStudent(Teacher teacher){
+    public ReturnObject<Teacher> insertTeacher(Teacher teacher){
         try {
             if(teacher.getUserNo() != null && isTeacherNoAlreadyExist(teacher.getUserNo())){
-                return new ReturnObject<>(ResponseCode.STUDENT_NO_REGISTERED);
+                return new ReturnObject<>(ResponseCode.TEACHER_NO_REGISTERED);
             }
             if(teacher.getEmail() != null && isEmailAlreadyExist(teacher.getEmail())){
                 return new ReturnObject<>(ResponseCode.EMAIL_REGISTERED);
