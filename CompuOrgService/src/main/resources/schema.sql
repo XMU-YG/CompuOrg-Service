@@ -45,3 +45,26 @@ CREATE TABLE `teacher` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `admin`
+--
+
+DROP TABLE IF EXISTS `admin`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `admin` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `admin_no` varchar(32) NOT NULL,
+  `password` varchar(128) NOT NULL,
+  `admin_name` varchar(45) DEFAULT NULL,
+  `gender` tinyint DEFAULT NULL,
+  `email` varchar(128) DEFAULT NULL,
+  `mobile` varchar(128) DEFAULT NULL,
+  `email_verify` tinyint DEFAULT NULL,
+  `signature` varchar(500) DEFAULT NULL,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
