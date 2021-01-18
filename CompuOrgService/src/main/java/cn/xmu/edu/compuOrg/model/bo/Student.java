@@ -4,38 +4,29 @@ import cn.xmu.edu.Core.model.VoObject;
 import cn.xmu.edu.Core.util.AES;
 import cn.xmu.edu.compuOrg.model.po.StudentPo;
 import cn.xmu.edu.compuOrg.model.vo.StudentRetVo;
-import cn.xmu.edu.compuOrg.model.vo.StudentVo;
+import cn.xmu.edu.compuOrg.model.vo.UserVo;
 import lombok.Data;
 
 import java.io.Serializable;
 
 @Data
-public class Student implements VoObject, Serializable {
-    public static String AES_PASS = "CompuOrg2021/01/17";
-
-    private Long id;
-    private String password;
-    private String studentNo;
-    private String studentName;
-    private String email;
-    private String mobile;
-    private Byte gender;
+public class Student extends User implements VoObject, Serializable {
 
     public Student(StudentPo studentPo){
         this.id = studentPo.getId();
-        this.password = studentPo.getPassword();
-        this.studentNo = studentPo.getStudentNo();
-        this.studentName = studentPo.getStudentName();
+        this.gender = studentPo.getGender();
         this.email = studentPo.getEmail();
         this.mobile = studentPo.getMobile();
-        this.gender = studentPo.getGender();
+        this.userNo = studentPo.getStudentNo();
+        this.password = studentPo.getPassword();
+        this.realName = studentPo.getStudentName();
     }
 
-    public Student(StudentVo studentVo){
-        this.gender = studentVo.getGender();
-        this.studentNo = studentVo.getStudentNo();
+    public Student(UserVo studentVo){
+        setGender(studentVo.getGender());
+        this.userNo = studentVo.getUserNo();
         this.password = AES.encrypt(studentVo.getPassword(), AES_PASS);
-        this.studentName = studentVo.getStudentName();
+        this.realName = studentVo.getStudentName();
         if(studentVo.getEmail() != null) {
             this.email = AES.encrypt(studentVo.getEmail(), AES_PASS);
         }
@@ -47,27 +38,13 @@ public class Student implements VoObject, Serializable {
     public StudentPo createStudentPo(){
         StudentPo studentPo = new StudentPo();
         studentPo.setId(this.id);
-        studentPo.setStudentNo(this.studentNo);
+        studentPo.setStudentNo(this.userNo);
         studentPo.setPassword(this.password);
-        studentPo.setStudentName(this.studentName);
+        studentPo.setStudentName(this.realName);
         studentPo.setGender(this.gender);
         studentPo.setEmail(this.email);
         studentPo.setMobile(this.mobile);
         return studentPo;
-    }
-
-    public String getDecryptEmail(){
-        if(this.email != null) {
-            return AES.decrypt(this.email, AES_PASS);
-        }
-        return null;
-    }
-
-    public String getDecryptMobile(){
-        if(this.mobile != null) {
-            return AES.decrypt(this.mobile, AES_PASS);
-        }
-        return null;
     }
 
     @Override
