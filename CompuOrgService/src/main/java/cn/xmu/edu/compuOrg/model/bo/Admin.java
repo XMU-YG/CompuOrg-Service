@@ -2,6 +2,8 @@ package cn.xmu.edu.compuOrg.model.bo;
 
 import cn.xmu.edu.Core.model.VoObject;
 import cn.xmu.edu.Core.util.AES;
+import cn.xmu.edu.Core.util.SHA256;
+import cn.xmu.edu.Core.util.Common;
 import cn.xmu.edu.compuOrg.model.po.AdminPo;
 import cn.xmu.edu.compuOrg.model.vo.UserVo;
 import lombok.Data;
@@ -55,6 +57,28 @@ public class Admin extends User implements VoObject, Serializable {
         adminPo.setSignature(this.signature);
         adminPo.setEmailVerify(this.emailVerify);
         return adminPo;
+    }
+
+    /**
+     * 生成签名
+     * @author snow create 2021/01/19 00:25
+     * @return
+     */
+    public String createSignature(){
+        StringBuilder signature = Common.concatString("-", this.userNo, this.password, this.email, this.mobile);
+        return SHA256.getSHA256(signature.toString());
+    }
+
+    /**
+     * 判断签名是否被篡改
+     * @author snow create 2021/01/19 00:26
+     * @return
+     */
+    public Boolean isSignatureBeenModify(){
+        if(this.signature.equals(createSignature())){
+            return false;
+        }
+        return true;
     }
 
     @Override
