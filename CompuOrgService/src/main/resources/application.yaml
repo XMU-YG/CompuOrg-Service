@@ -75,7 +75,9 @@ CompuOrgService:
     departId: 1
     login:
       #jwt过期的时间(秒)
-      jwtExpire: 3600
+      jwtExpire: 7200
+  teacher:
+    departId: 2
 
 
 #pagehelper分页插件配置
