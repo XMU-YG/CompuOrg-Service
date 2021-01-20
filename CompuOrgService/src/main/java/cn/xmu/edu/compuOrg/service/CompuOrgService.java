@@ -99,6 +99,7 @@ public class CompuOrgService {
     /**
      * 管理员登录
      * @author snow create 2021/01/19 00:28
+     *            modified 2021/01/19 00:43
      * @param adminNo
      * @param password
      * @return
@@ -111,6 +112,9 @@ public class CompuOrgService {
         Admin admin = (Admin) retObj.getData();
         if(admin.isSignatureBeenModify()){
             return new ReturnObject<>(ResponseCode.RESOURCE_FALSIFY);
+        }
+        if(admin.getEmailVerify() == (byte)0){
+            return new ReturnObject<>(ResponseCode.EMAIL_NOT_VERIFIED);
         }
         password = AES.encrypt(password, User.AES_PASS);
         if(admin == null || !password.equals(admin.getPassword())){

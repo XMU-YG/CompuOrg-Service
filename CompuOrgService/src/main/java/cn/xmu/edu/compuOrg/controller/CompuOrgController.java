@@ -368,6 +368,7 @@ public class CompuOrgController {
     /**
      * 管理员登录
      * @author snow create 2021/01/19 00:11
+     *            modified 2021/01/19 00:45
      * @param loginVo
      * @param bindingResult
      * @param httpServletResponse
@@ -380,7 +381,9 @@ public class CompuOrgController {
     })
     @ApiResponses({
             @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 507, message = "信息签名不正确"),
             @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
+            @ApiResponse(code = 748, message = "Email未确认"),
     })
     @PostMapping("admin/login")
     public Object adminLogin(@Validated @RequestBody UserLoginVo loginVo,
