@@ -41,11 +41,207 @@ public class ArithmeticServiceTest {
         return arithmeticExperimentVo;
     }
 
+    /**
+     * F=A测试
+     * @throws JSONException
+     */
     @Test
     public void _0000_X() throws JSONException {
         ArithmeticExperimentVo arithmeticExperimentVo=initArithmeticVo("0000",1);
         ArithmeticExperimentRetVo arithmeticExperimentRetVo= (ArithmeticExperimentRetVo) arithmeticExpService.operateResult(arithmeticExperimentVo).getData();
         JSONAssert.assertEquals(arithmeticExperimentVo.getMemA().toString(),arithmeticExperimentRetVo.getF().toString(),true);
+    }
+
+    /**
+     * F=B
+     * @throws JSONException
+     */
+
+    @Test
+    public void _0001_X() throws JSONException {
+        ArithmeticExperimentVo arithmeticExperimentVo=initArithmeticVo("0001",1);
+        ArithmeticExperimentRetVo arithmeticExperimentRetVo= (ArithmeticExperimentRetVo) arithmeticExpService.operateResult(arithmeticExperimentVo).getData();
+        JSONAssert.assertEquals(arithmeticExperimentVo.getMemB().toString(),arithmeticExperimentRetVo.getF().toString(),true);
+    }
+
+    /**
+     * F=A&B
+     * @throws JSONException
+     */
+    @Test
+    public void _0010_X() throws JSONException {
+        ArithmeticExperimentVo arithmeticExperimentVo=initArithmeticVo("0010",1);
+        ArithmeticExperimentRetVo arithmeticExperimentRetVo= (ArithmeticExperimentRetVo) arithmeticExpService.operateResult(arithmeticExperimentVo).getData();
+        ArrayList<Integer> expect=new ArrayList<>(8){
+            {
+                add(0);add(0);add(0);add(0);add(0);add(0);add(0);add(0);
+            }
+        };
+        JSONAssert.assertEquals(expect.toString(),arithmeticExperimentRetVo.getF().toString(),true);
+    }
+
+    /**
+     * F=A|B
+     * @throws JSONException
+     */
+    @Test
+    public void _0011_X() throws JSONException {
+        ArithmeticExperimentVo arithmeticExperimentVo=initArithmeticVo("0011",1);
+        ArithmeticExperimentRetVo arithmeticExperimentRetVo= (ArithmeticExperimentRetVo) arithmeticExpService.operateResult(arithmeticExperimentVo).getData();
+        ArrayList<Integer> expect=new ArrayList<>(8){
+            {
+                add(1);add(0);add(1);add(1);add(0);add(0);add(1);add(1);
+            }
+        };
+        JSONAssert.assertEquals(expect.toString(),arithmeticExperimentRetVo.getF().toString(),true);
+    }
+
+    /**
+     * F=/A
+     * @throws JSONException
+     */
+    @Test
+    public void _0100_X() throws JSONException {
+        ArithmeticExperimentVo arithmeticExperimentVo=initArithmeticVo("0100",1);
+        ArithmeticExperimentRetVo arithmeticExperimentRetVo= (ArithmeticExperimentRetVo) arithmeticExpService.operateResult(arithmeticExperimentVo).getData();
+        ArrayList<Integer> expect=new ArrayList<>(8){
+            {
+                add(0);add(1);add(1);add(1);add(1);add(1);add(1);add(0);
+            }
+        };
+        JSONAssert.assertEquals(expect.toString(),arithmeticExperimentRetVo.getF().toString(),true);
+    }
+
+    //移位运算
+    /**
+     * F=A 不带进位循环右移 B（取低 3 位）位
+     * 移位运算
+     * @throws JSONException
+     */
+    @Test
+    public void _0101_X() throws JSONException {
+        ArithmeticExperimentVo arithmeticExperimentVo=initArithmeticVo("0101",1);
+        ArithmeticExperimentRetVo arithmeticExperimentRetVo= (ArithmeticExperimentRetVo) arithmeticExpService.operateResult(arithmeticExperimentVo).getData();
+        ArrayList<Integer> expect=new ArrayList<>(8){
+            {
+                add(0);add(1);add(1);add(0);add(0);add(0);add(0);add(0);
+            }
+        };
+        JSONAssert.assertEquals(expect.toString(),arithmeticExperimentRetVo.getF().toString(),true);
+        JSONAssert.assertEquals("0",String.valueOf(arithmeticExperimentRetVo.getFZ()),true);
+    }
+
+    /**
+     * F=A 逻辑右移一位
+     * 移位运算
+     * @throws JSONException
+     */
+    @Test
+    public void _0110_0() throws JSONException {
+        ArithmeticExperimentVo arithmeticExperimentVo=initArithmeticVo("0110",0);
+        ArithmeticExperimentRetVo arithmeticExperimentRetVo= (ArithmeticExperimentRetVo) arithmeticExpService.operateResult(arithmeticExperimentVo).getData();
+        ArrayList<Integer> expect=new ArrayList<>(8){
+            {
+                add(0);add(1);add(0);add(0);add(0);add(0);add(0);add(0);
+            }
+        };
+        JSONAssert.assertEquals(expect.toString(),arithmeticExperimentRetVo.getF().toString(),true);
+        JSONAssert.assertEquals("0",String.valueOf(arithmeticExperimentRetVo.getFZ()),true);
+    }
+
+    /**
+     * F=A 带进位循环右移一位
+     * 移位运算
+     * @throws JSONException
+     */
+    @Test
+    public void _0110_1() throws JSONException {
+        ArithmeticExperimentVo arithmeticExperimentVo=initArithmeticVo("0110",1);
+        ArithmeticExperimentRetVo arithmeticExperimentRetVo= (ArithmeticExperimentRetVo) arithmeticExpService.operateResult(arithmeticExperimentVo).getData();
+        ArrayList<Integer> expect=new ArrayList<>(8){
+            {
+                add(1);add(1);add(0);add(0);add(0);add(0);add(0);add(0);
+            }
+        };
+        JSONAssert.assertEquals(expect.toString(),arithmeticExperimentRetVo.getF().toString(),true);
+        JSONAssert.assertEquals("0",String.valueOf(arithmeticExperimentRetVo.getFZ()),true);
+        JSONAssert.assertEquals("1",String.valueOf(arithmeticExperimentRetVo.getFC()),true);
+    }
+
+    /**
+     * F=A 逻辑左移一位
+     * 移位运算
+     * @throws JSONException
+     */
+    @Test
+    public void _0111_0() throws JSONException {
+        ArithmeticExperimentVo arithmeticExperimentVo=initArithmeticVo("0111",0);
+        ArithmeticExperimentRetVo arithmeticExperimentRetVo= (ArithmeticExperimentRetVo) arithmeticExpService.operateResult(arithmeticExperimentVo).getData();
+        ArrayList<Integer> expect=new ArrayList<>(8){
+            {
+                add(0);add(0);add(0);add(0);add(0);add(0);add(1);add(0);
+            }
+        };
+        JSONAssert.assertEquals(expect.toString(),arithmeticExperimentRetVo.getF().toString(),true);
+        JSONAssert.assertEquals("0",String.valueOf(arithmeticExperimentRetVo.getFZ()),true);
+    }
+
+    /**
+     * F=A 带进位循环左移一位
+     * 移位运算
+     * @throws JSONException
+     */
+    @Test
+    public void _0111_1() throws JSONException {
+        ArithmeticExperimentVo arithmeticExperimentVo=initArithmeticVo("0111",1);
+        ArithmeticExperimentRetVo arithmeticExperimentRetVo= (ArithmeticExperimentRetVo) arithmeticExpService.operateResult(arithmeticExperimentVo).getData();
+        ArrayList<Integer> expect=new ArrayList<>(8){
+            {
+                add(0);add(0);add(0);add(0);add(0);add(0);add(1);add(1);
+            }
+        };
+        JSONAssert.assertEquals(expect.toString(),arithmeticExperimentRetVo.getF().toString(),true);
+        JSONAssert.assertEquals("0",String.valueOf(arithmeticExperimentRetVo.getFZ()),true);
+        JSONAssert.assertEquals("1",String.valueOf(arithmeticExperimentRetVo.getFC()),true);
+    }
+
+    /**
+     * F=A 加 B
+     * 算术运算
+     * @throws JSONException
+     */
+    @Test
+    public void _1001_X() throws JSONException {
+        ArithmeticExperimentVo arithmeticExperimentVo=initArithmeticVo("1001",1);
+        ArithmeticExperimentRetVo arithmeticExperimentRetVo= (ArithmeticExperimentRetVo) arithmeticExpService.operateResult(arithmeticExperimentVo).getData();
+        ArrayList<Integer> expect=new ArrayList<>(8){
+            {
+                add(1);add(0);add(1);add(1);add(0);add(0);add(1);add(1);
+            }
+        };
+        JSONAssert.assertEquals(expect.toString(),arithmeticExperimentRetVo.getF().toString(),true);
+        JSONAssert.assertEquals("0",String.valueOf(arithmeticExperimentRetVo.getFZ()),true);
+        JSONAssert.assertEquals("0",String.valueOf(arithmeticExperimentRetVo.getFC()),true);
+    }
+
+    /**
+     * F=A 加 B 加 FC
+     * 算术运算
+     * @throws JSONException
+     */
+    @Test
+    public void _1010_X() throws JSONException {
+        ArithmeticExperimentVo arithmeticExperimentVo=initArithmeticVo("1010",1);
+        arithmeticExperimentVo.getMemB().set(0,1);
+        ArithmeticExperimentRetVo arithmeticExperimentRetVo= (ArithmeticExperimentRetVo) arithmeticExpService.operateResult(arithmeticExperimentVo).getData();
+        ArrayList<Integer> expect=new ArrayList<>(8){
+            {
+                add(0);add(0);add(1);add(1);add(0);add(1);add(0);add(0);
+            }
+        };
+        JSONAssert.assertEquals(expect.toString(),arithmeticExperimentRetVo.getF().toString(),true);
+        JSONAssert.assertEquals("0",String.valueOf(arithmeticExperimentRetVo.getFZ()),true);
+        JSONAssert.assertEquals("1",String.valueOf(arithmeticExperimentRetVo.getFC()),true);
     }
 
 }
