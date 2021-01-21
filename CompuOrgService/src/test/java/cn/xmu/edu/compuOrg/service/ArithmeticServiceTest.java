@@ -1,9 +1,8 @@
 package cn.xmu.edu.compuOrg.service;
 
 import cn.xmu.edu.compuOrg.CompuOrgServiceApplication;
-import cn.xmu.edu.compuOrg.model.vo.ArithmeticExperimentRetVo;
-import cn.xmu.edu.compuOrg.model.vo.ArithmeticExperimentVo;
-import cn.xmu.edu.compuOrg.service.ArithmeticExpService;
+import cn.xmu.edu.compuOrg.model.vo.exp.ArithmeticExperimentRetVo;
+import cn.xmu.edu.compuOrg.model.vo.exp.ArithmeticExperimentVo;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
@@ -11,7 +10,6 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 

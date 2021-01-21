@@ -1,5 +1,6 @@
-package cn.xmu.edu.compuOrg.model.vo;
+package cn.xmu.edu.compuOrg.model.vo.exp;
 
+import cn.xmu.edu.compuOrg.model.vo.exp.ArithmeticExperimentVo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package cn.xmu.edu.compuOrg.model.vo;
+package cn.xmu.edu.compuOrg.model.vo.exp;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
