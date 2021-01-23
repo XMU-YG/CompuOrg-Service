@@ -1,8 +1,12 @@
 package cn.xmu.edu.compuOrg.controller;
 
+import cn.xmu.edu.Core.annotation.LoginUser;
 import cn.xmu.edu.Core.util.Common;
 import cn.xmu.edu.compuOrg.model.vo.exp.ArithmeticExperimentVo;
+import cn.xmu.edu.compuOrg.model.vo.exp.StaticMemReadVo;
+import cn.xmu.edu.compuOrg.model.vo.exp.StaticMemWriteVo;
 import cn.xmu.edu.compuOrg.service.ArithmeticExpService;
+import cn.xmu.edu.compuOrg.service.StaticMemExpService;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +21,9 @@ public class ExperimentController {
 
     @Autowired
     private ArithmeticExpService arithmeticExpService;
+
+    @Autowired
+    private StaticMemExpService staticMemExpService;
 
     /**
      * 运算器运算
@@ -37,19 +44,36 @@ public class ExperimentController {
         return Common.decorateReturnObject(arithmeticExpService.operateResult(arithmeticExperimentVo));
     }
 
+
+
     @ApiOperation(value = "静态存储器读取数据", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = false),
-            @ApiImplicitParam(paramType = "body", dataType = "ArithmeticExperimentVo", name = "arithmeticExperimentVo", value = "运算器输入参数", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "StaticMemReadVo", name = "staticMemReadVo", value = "地址", required = true),
 
     })
     @ApiResponses({
             @ApiResponse(code = 0, message = "成功"),
     })
     @GetMapping("static_memory_exp")
-    public Object readData(@RequestBody ArithmeticExperimentVo arithmeticExperimentVo) {
-        logger.debug("arithmetic experiment get operation");
-        return Common.decorateReturnObject(arithmeticExpService.operateResult(arithmeticExperimentVo));
+    public Object readData(@LoginUser String studentNo, @RequestBody StaticMemReadVo staticMemReadVo) {
+        logger.debug("static memory experiment read data");
+        return Common.decorateReturnObject(staticMemExpService.readData(studentNo, staticMemReadVo));
+    }
+
+    @ApiOperation(value = "静态存储器写入数据", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = false),
+            @ApiImplicitParam(paramType = "body", dataType = "StaticMemWriteVo", name = "vo", value = "地址", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+    })
+    @PutMapping("static_memory_exp")
+    public Object writeData(@LoginUser String studentNo, @RequestBody StaticMemWriteVo vo) {
+        logger.debug("static memory experiment read data");
+        return Common.decorateReturnObject(staticMemExpService.writeData(studentNo, vo));
     }
 
 }
