@@ -153,12 +153,13 @@ public class AdminDao extends UserDao{
     }
 
     /**
-     * 更新管理员密码
+     * 更新管理员信息
      * @author snow create 2021/01/19 00:02
+     *            modified 2021/01/23 19:10
      * @param admin
      * @return
      */
-    public ReturnObject updateAdminPassword(Admin admin){
+    public ReturnObject updateAdminInformation(Admin admin){
         try {
             AdminPo adminPo = admin.createAdminPo();
             adminPo.setGmtModified(LocalDateTime.now());
