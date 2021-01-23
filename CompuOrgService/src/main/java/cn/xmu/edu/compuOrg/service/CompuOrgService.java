@@ -1,18 +1,26 @@
 package cn.xmu.edu.compuOrg.service;
 
 import cn.xmu.edu.Core.util.*;
+import cn.xmu.edu.compuOrg.controller.CompuOrgController;
 import cn.xmu.edu.compuOrg.dao.*;
 import cn.xmu.edu.compuOrg.model.bo.Admin;
 import cn.xmu.edu.compuOrg.model.bo.Student;
 import cn.xmu.edu.compuOrg.model.bo.Teacher;
 import cn.xmu.edu.compuOrg.model.bo.User;
+import cn.xmu.edu.compuOrg.model.po.StudentPo;
 import cn.xmu.edu.compuOrg.model.vo.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class CompuOrgService {
+
+    private  static  final Logger logger = LoggerFactory.getLogger(CompuOrgService.class);
 
     @Value("${CompuOrgService.student.login.jwtExpire}")
     private Integer jwtExpireTime;
@@ -26,6 +34,7 @@ public class CompuOrgService {
     @Value("${CompuOrgService.teacher.departId}")
     private Long teacherDepartId;
 
+    private static final String verifyEmailTitle = "【计算机组成原理平台】邮箱验证通知";
     private static final String resetPasswordEmailTitle = "【计算机组成原理平台】重置密码通知";
 
     @Autowired
@@ -169,8 +178,24 @@ public class CompuOrgService {
     }
 
     /**
+     * 管理员新建管理员
+     * @author snow create 2021/01/23 18:44
+     * @param departId
+     * @param adminVo
+     * @return
+     */
+    public ReturnObject appendAdmin(Long departId, UserVo adminVo){
+        if(!adminDepartId.equals(departId)){
+            return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
+        }
+        Admin admin = new Admin(adminVo);
+        return adminDao.insertAdmin(admin);
+    }
+
+    /**
      * 用户申请重置密码
-     * @author snow 2021/01/18 22:43
+     * @author snow create 2021/01/18 22:43
+     *            modified 2021/01/23 17:23
      * @param retObj
      * @param email
      * @param ip
@@ -181,7 +206,7 @@ public class CompuOrgService {
             return retObj;
         }
         User user = (User) retObj.getData();
-        System.out.println("Pass: " + email + ", Store: " + user.getDecryptEmail());
+        logger.debug("Pass: " + email + ", Store: " + user.getDecryptEmail());
         if(!email.equals(user.getDecryptEmail())){
             return new ReturnObject(ResponseCode.EMAIL_WRONG);
         }
@@ -190,7 +215,8 @@ public class CompuOrgService {
             //生成验证码
             String verifyCode = VerifyCode.generateVerifyCode(6);
             studentDao.putVerifyCodeIntoRedis(verifyCode, user.getId().toString());
-            sendVerifyCode(verifyCode, email);
+            String emailContent = "您正在【计算机组成原理平台】进行找回密码，您的验证码为：" + verifyCode + "，请于5分钟内完成验证！";
+            sendVerifyCode(resetPasswordEmailTitle, emailContent, email);
             return new ReturnObject(ResponseCode.OK);
         }
         else{
@@ -224,11 +250,12 @@ public class CompuOrgService {
     /**
      * 学生修改密码
      * @author snow create 2021/01/18 00:26
+     *            modified 2021/01/23 16:56
      * @param modifyPasswordVo
      * @return
      */
     public ReturnObject studentModifyPassword(UserModifyPasswordVo modifyPasswordVo){
-        Long studentId = studentDao.getStudentIdByVerifyCode(modifyPasswordVo.getVerifyCode());
+        Long studentId = studentDao.getUserIdByVerifyCode(modifyPasswordVo.getVerifyCode());
         if(studentId == null){
             System.out.println("Can't find anything in redis with: " + modifyPasswordVo.getVerifyCode());
             return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
@@ -248,7 +275,7 @@ public class CompuOrgService {
         }
         student.setPassword(password);
         studentDao.disableVerifyCodeAfterSuccessfullyModifyPassword(modifyPasswordVo.getVerifyCode());
-        return studentDao.updateStudentPassword(student);
+        return studentDao.updateStudentInformation(student);
     }
 
     /**
@@ -258,7 +285,7 @@ public class CompuOrgService {
      * @return
      */
     public ReturnObject teacherModifyPassword(UserModifyPasswordVo modifyPasswordVo){
-        Long teacherId = teacherDao.getStudentIdByVerifyCode(modifyPasswordVo.getVerifyCode());
+        Long teacherId = teacherDao.getUserIdByVerifyCode(modifyPasswordVo.getVerifyCode());
         if(teacherId == null){
             System.out.println("Can't find anything in redis with: " + modifyPasswordVo.getVerifyCode());
             return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
@@ -278,35 +305,182 @@ public class CompuOrgService {
         }
         teacher.setPassword(password);
         teacherDao.disableVerifyCodeAfterSuccessfullyModifyPassword(modifyPasswordVo.getVerifyCode());
-        return teacherDao.updateTeacherPassword(teacher);
+        return teacherDao.updateTeacherInformation(teacher);
     }
 
     /**
      * 学生修改基础信息
      * @author snow create 2021/01/23 14:07
+     *            modified 2021/01/23 17:00
      * @param studentId
      * @param userBasicInfoVo
      * @return
      */
     public ReturnObject studentModifyBasicInformation(Long studentId, UserBasicInfoVo userBasicInfoVo){
-        return studentDao.updateStudentInfo(studentId, userBasicInfoVo);
+        if(userBasicInfoVo.getUserNo() != null && studentDao.isStudentNoAlreadyExist(userBasicInfoVo.getUserNo())){
+            return new ReturnObject(ResponseCode.STUDENT_NO_REGISTERED);
+        }
+        if(userBasicInfoVo.getMobile() != null && studentDao.isMobileAlreadyExist(userBasicInfoVo.getMobile())){
+            return new ReturnObject(ResponseCode.MOBILE_REGISTERED);
+        }
+        ReturnObject retObj = studentDao.findStudentById(studentId);
+        if (retObj.getData() == null){
+            return retObj;
+        }
+        Student student = (Student)retObj.getData();
+        student.updateUserInfo(userBasicInfoVo);
+        return studentDao.updateStudentInformation(student);
+    }
+
+    /**
+     * 用户验证邮箱
+     * @author snow create 2021/01/23 16:32
+     * @param userId
+     * @param email
+     * @param ip
+     * @return
+     */
+    public ReturnObject userVerifyEmail(Long userId, String email, String ip){
+        logger.debug("what??");
+        if(userDao.isAllowRequestForVerifyCode(ip)) {
+            //生成验证码
+            logger.debug("Ok!");
+            String verifyCode = VerifyCode.generateVerifyCode(6);
+            logger.debug("VerifyCode: " + verifyCode);
+            studentDao.putVerifyCodeIntoRedis(verifyCode, userId.toString());
+            String emailContent = "您正在【计算机组成原理平台】进行邮箱验证，您的验证码为：" + verifyCode + "，请于5分钟内完成验证！";
+            logger.debug(emailContent);
+            sendVerifyCode(verifyEmailTitle, emailContent, email);
+            return new ReturnObject(ResponseCode.OK);
+        }
+        else{
+            logger.debug("busy try!");
+            return new ReturnObject(ResponseCode.AUTH_USER_FORBIDDEN);
+        }
+    }
+
+    /**
+     * 教师修改基础信息
+     * @author snow create 2021/01/23 17:54
+     * @param teacherId
+     * @param userBasicInfoVo
+     * @return
+     */
+    public ReturnObject teacherModifyBasicInformation(Long teacherId, UserBasicInfoVo userBasicInfoVo){
+        if(userBasicInfoVo.getUserNo() != null && teacherDao.isTeacherNoAlreadyExist(userBasicInfoVo.getUserNo())){
+            return new ReturnObject(ResponseCode.TEACHER_NO_REGISTERED);
+        }
+        if(userBasicInfoVo.getMobile() != null && teacherDao.isMobileAlreadyExist(userBasicInfoVo.getMobile())){
+            return new ReturnObject(ResponseCode.MOBILE_REGISTERED);
+        }
+        ReturnObject retObj = teacherDao.findTeacherById(teacherId);
+        if (retObj.getData() == null){
+            return retObj;
+        }
+        Teacher teacher = (Teacher) retObj.getData();
+        teacher.updateUserInfo(userBasicInfoVo);
+        return teacherDao.updateTeacherInformation(teacher);
+    }
+
+    /**
+     * 学生验证邮箱
+     * @author snow create 2021/01/23 16:33
+     * @param studentId
+     * @param ip
+     * @return
+     */
+    public ReturnObject studentVerifyEmail(long studentId, String ip){
+        ReturnObject retObj = studentDao.findStudentById(studentId);
+        if(retObj.getData() == null){
+            return retObj;
+        }
+        Student student = (Student)retObj.getData();
+        logger.debug("StudentId: " + studentId + ", email: " + student.getDecryptEmail() + ", ip: " + ip);
+        return userVerifyEmail(studentId, student.getDecryptEmail(), ip);
+    }
+
+    /**
+     * 教师验证邮箱
+     * @author snow create 2021/01/23 16:34
+     * @param teacherId
+     * @param ip
+     * @return
+     */
+    public ReturnObject teacherVerifyEmail(long teacherId, String ip){
+        ReturnObject retObj = teacherDao.findTeacherById(teacherId);
+        if(retObj.getData() == null){
+            return retObj;
+        }
+        Teacher teacher = (Teacher)retObj.getData();
+        return userVerifyEmail(teacherId, teacher.getDecryptEmail(), ip);
+    }
+
+    /**
+     * 学生修改邮箱
+     * @author snow create 2021/01/23 16:57
+     * @param userVo
+     * @return
+     */
+    public ReturnObject studentModifyEmail(UserModifyEmailVo userVo){
+        Long studentId = userDao.getUserIdByVerifyCode(userVo.getVerifyCode());
+        if(studentId == null){
+            System.out.println("Can't find anything in redis with: " + userVo.getVerifyCode());
+            return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
+        }
+        String email = AES.encrypt(userVo.getEmail(), User.AES_PASS);
+        if(studentDao.isEmailAlreadyExist(email)){
+            return new ReturnObject(ResponseCode.EMAIL_REGISTERED);
+        }
+        ReturnObject retObj= studentDao.findStudentById(studentId);
+        if(retObj.getData() == null){
+            return retObj;
+        }
+        Student student = (Student)retObj.getData();
+        student.setEmail(email);
+        studentDao.disableVerifyCodeAfterSuccessfullyModifyPassword(userVo.getVerifyCode());
+        return studentDao.updateStudentInformation(student);
+    }
+
+    /**
+     * 教师修改邮箱
+     * @author snow create 2021/01/23 17:47
+     * @param userVo
+     * @return
+     */
+    public ReturnObject teacherModifyEmail(UserModifyEmailVo userVo){
+        Long teacherId = userDao.getUserIdByVerifyCode(userVo.getVerifyCode());
+        if(teacherId == null){
+            System.out.println("Can't find anything in redis with: " + userVo.getVerifyCode());
+            return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
+        }
+        String email = AES.encrypt(userVo.getEmail(), User.AES_PASS);
+        if(studentDao.isEmailAlreadyExist(email)){
+            return new ReturnObject(ResponseCode.EMAIL_REGISTERED);
+        }
+        ReturnObject retObj= teacherDao.findTeacherById(teacherId);
+        if(retObj.getData() == null){
+            return retObj;
+        }
+        Teacher teacher = (Teacher) retObj.getData();
+        teacher.setEmail(email);
+        studentDao.disableVerifyCodeAfterSuccessfullyModifyPassword(userVo.getVerifyCode());
+        return teacherDao.updateTeacherInformation(teacher);
     }
 
     /**
      * 发送验证码
      * @author snow create 2021/01/17 22:52
-     * @param verifyCode
+     *            modified 2021/01/23 17:16
+     * @param title
+     * @param content
      * @param toEmailAddress
      * @return
      */
-    public Boolean sendVerifyCode(String verifyCode, String toEmailAddress){
+    public Boolean sendVerifyCode(String title, String content, String toEmailAddress){
         try{
 
-            //邮件内容
-            String emailContent = "您正在【计算机组成原理平台】进行找回密码，您的验证码为：" + verifyCode + "，请于5分钟内完成验证！";
-
             //发送邮件
-            SendEmail.sendEmail(toEmailAddress, resetPasswordEmailTitle, emailContent);
+            SendEmail.sendEmail(toEmailAddress, title, content);
             return true;
         }catch(Exception e){
             e.printStackTrace();
