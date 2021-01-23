@@ -282,6 +282,17 @@ public class CompuOrgService {
     }
 
     /**
+     * 学生修改基础信息
+     * @author snow create 2021/01/23 14:07
+     * @param studentId
+     * @param userBasicInfoVo
+     * @return
+     */
+    public ReturnObject studentModifyBasicInformation(Long studentId, UserBasicInfoVo userBasicInfoVo){
+        return studentDao.updateStudentInfo(studentId, userBasicInfoVo);
+    }
+
+    /**
      * 发送验证码
      * @author snow create 2021/01/17 22:52
      * @param verifyCode
