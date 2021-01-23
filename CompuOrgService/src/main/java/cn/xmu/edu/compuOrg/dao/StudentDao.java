@@ -6,6 +6,7 @@ import cn.xmu.edu.compuOrg.mapper.StudentPoMapper;
 import cn.xmu.edu.compuOrg.model.bo.Student;
 import cn.xmu.edu.compuOrg.model.po.StudentPo;
 import cn.xmu.edu.compuOrg.model.po.StudentPoExample;
+import cn.xmu.edu.compuOrg.model.vo.UserBasicInfoVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -96,6 +97,40 @@ public class StudentDao extends UserDao {
         }
 
         return new ReturnObject<>(student);
+    }
+
+    /**
+     * 修改学生基础信息
+     * @author snow create 2021/01/23 14:06
+     * @param studentId
+     * @param userBasicInfoVo
+     * @return
+     */
+    public ReturnObject updateStudentInfo(Long studentId, UserBasicInfoVo userBasicInfoVo){
+        try {
+            if(userBasicInfoVo.getUserNo() != null && isStudentNoAlreadyExist(userBasicInfoVo.getUserNo())){
+                return new ReturnObject(ResponseCode.STUDENT_NO_REGISTERED);
+            }
+            if(userBasicInfoVo.getMobile() != null && isMobileAlreadyExist(userBasicInfoVo.getMobile())){
+                return new ReturnObject(ResponseCode.MOBILE_REGISTERED);
+            }
+            ReturnObject retObj = findStudentById(studentId);
+            if (retObj.getData() == null){
+                return retObj;
+            }
+            Student student = (Student)retObj.getData();
+            student.updateUserInfo(userBasicInfoVo);
+            StudentPo studentPo = student.createStudentPo();
+            studentPo.setGmtModified(LocalDateTime.now());
+            int effectRows = studentPoMapper.updateByPrimaryKeySelective(studentPo);
+            if(effectRows == 1){
+                return new ReturnObject(ResponseCode.OK);
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
     }
 
     /**
