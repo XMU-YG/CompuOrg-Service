@@ -3,6 +3,9 @@ package cn.xmu.edu.compuOrg.dao;
 import cn.xmu.edu.Core.util.ReturnObject;
 import cn.xmu.edu.compuOrg.model.bo.Teacher;
 import cn.xmu.edu.compuOrg.model.bo.User;
+import cn.xmu.edu.compuOrg.service.CompuOrgService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -50,7 +53,7 @@ public class UserDao {
      * @param verifyCode
      * @return
      */
-    public Long getStudentIdByVerifyCode(String verifyCode){
+    public Long getUserIdByVerifyCode(String verifyCode){
         String key = "cp_" + verifyCode;
         if(!redisTemplate.hasKey(key)){
             return null;
