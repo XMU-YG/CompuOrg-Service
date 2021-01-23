@@ -77,7 +77,7 @@ public class AdminDao extends UserDao{
     public ReturnObject<Admin> insertAdmin(Admin admin){
         try {
             if(admin.getUserNo() != null && isAdminNoAlreadyExist(admin.getUserNo())){
-                return new ReturnObject<>(ResponseCode.STUDENT_NO_REGISTERED);
+                return new ReturnObject<>(ResponseCode.ADMIN_NO_REGISTERED);
             }
             if(admin.getEmail() != null && isEmailAlreadyExist(admin.getEmail())){
                 return new ReturnObject<>(ResponseCode.EMAIL_REGISTERED);
