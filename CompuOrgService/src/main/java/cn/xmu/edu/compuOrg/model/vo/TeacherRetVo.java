@@ -14,13 +14,10 @@ public class TeacherRetVo {
     private Long id;
 
     @ApiModelProperty(value = "工号")
-    private String studentNo;
-
-    @ApiModelProperty(value = "密码")
-    private String password;
+    private String teacherNo;
 
     @ApiModelProperty(value = "老师姓名")
-    private String studentName;
+    private String teacherName;
 
     @ApiModelProperty(value = "性别")
     private String gender; //true for female
@@ -34,10 +31,9 @@ public class TeacherRetVo {
     public TeacherRetVo(Teacher teacher){
         this.id = teacher.getId();
         this.gender = teacher.getGender();
-        this.studentNo = teacher.getUserNo();
-        this.password = teacher.getPassword();
+        this.teacherNo = teacher.getUserNo();
         this.email = teacher.getDecryptEmail();
         this.mobile = teacher.getDecryptMobile();
-        this.studentName = teacher.getRealName();
+        this.teacherName = teacher.getRealName();
     }
 }

@@ -1,5 +1,8 @@
 package cn.xmu.edu.compuOrg.controller;
 
+import cn.xmu.edu.Core.annotation.Audit;
+import cn.xmu.edu.Core.annotation.Depart;
+import cn.xmu.edu.Core.annotation.LoginUser;
 import cn.xmu.edu.Core.util.*;
 import cn.xmu.edu.compuOrg.model.vo.*;
 import cn.xmu.edu.compuOrg.service.CompuOrgService;
@@ -11,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -233,6 +237,95 @@ public class CompuOrgController {
     }
 
     /**
+     * 学生修改基本信息
+     * @author snow create 2021/01/23 14:11
+     * @param studentId
+     * @param userBasicInfoVo
+     * @param bindingResult
+     * @return
+     */
+    @ApiOperation(value = "学生修改基本信息", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "UserBasicInfoVo", name = "userBasicInfoVo", value = "修改信息对象", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
+            @ApiResponse(code = 731, message = "学号已被注册"),
+            @ApiResponse(code = 733, message = "电话已被注册"),
+    })
+    @Audit
+    @PutMapping("student/information")
+    public Object studentModifyBasicInformation(@ApiIgnore @LoginUser Long studentId,
+                                                @Validated @RequestBody UserBasicInfoVo userBasicInfoVo,
+                                                BindingResult bindingResult){
+        logger.debug("StudentId: " + studentId + "userInfo: " + userBasicInfoVo.toString());
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+
+        return Common.decorateReturnObject(compuOrgService.studentModifyBasicInformation(studentId, userBasicInfoVo));
+    }
+
+    /**
+     * 学生发送验证码验证邮箱
+     * @author snow create 2021/01/23 16:41
+     * @param studentId
+     * @param httpServletRequest
+     * @return
+     */
+    @ApiOperation(value = "学生发送验证码验证邮箱", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
+    })
+    @Audit
+    @GetMapping("student/email/verify")
+    public Object studentVerifyEmail(@ApiIgnore @LoginUser Long studentId,
+                                     HttpServletRequest httpServletRequest){
+        logger.debug("StudentId: " + studentId);
+        String ip = IpUtil.getIpAddr(httpServletRequest);
+
+        return Common.decorateReturnObject(compuOrgService.studentVerifyEmail(studentId, ip));
+    }
+
+    /**
+     * 学生修改邮箱
+     * @author snow create 2021/01/23 16:58
+     * @param userVo
+     * @param bindingResult
+     * @return
+     */
+    @ApiOperation(value = "学生修改邮箱", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "body", dataType = "UserModifyEmailVo", name = "userVo", value = "修改邮箱对象", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
+            @ApiResponse(code = 732, message = "邮箱已被注册"),
+            @ApiResponse(code = 750, message = "验证码不正确或已过期"),
+    })
+    @PutMapping("student/email")
+    public Object studentModifyEmail(@Validated @RequestBody UserModifyEmailVo userVo,
+                                        BindingResult bindingResult){
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+
+        return Common.decorateReturnObject(compuOrgService.studentModifyEmail(userVo));
+    }
+
+    /**
      * 教师登录
      * @author snow create 2021/01/18 13:24
      * @param loginVo
@@ -366,6 +459,94 @@ public class CompuOrgController {
     }
 
     /**
+     * 教师修改基本信息
+     * @author snow create 2021/01/23 14:11
+     * @param teacherId
+     * @param userBasicInfoVo
+     * @param bindingResult
+     * @return
+     */
+    @ApiOperation(value = "教师修改基本信息", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "UserBasicInfoVo", name = "userBasicInfoVo", value = "修改信息对象", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
+            @ApiResponse(code = 733, message = "电话已被注册"),
+            @ApiResponse(code = 734, message = "工号已被注册"),
+    })
+    @Audit
+    @PutMapping("teacher/information")
+    public Object teacherModifyBasicInformation(@ApiIgnore @LoginUser Long teacherId,
+                                                @Validated @RequestBody UserBasicInfoVo userBasicInfoVo,
+                                                BindingResult bindingResult){
+        logger.debug("StudentId: " + teacherId + "userInfo: " + userBasicInfoVo.toString());
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+        return Common.decorateReturnObject(compuOrgService.teacherModifyBasicInformation(teacherId, userBasicInfoVo));
+    }
+
+    /**
+     * 教师发送验证码验证邮箱
+     * @author snow create 2021/01/23 17:48
+     * @param teacherId
+     * @param httpServletRequest
+     * @return
+     */
+    @ApiOperation(value = "教师发送验证码验证邮箱", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
+    })
+    @Audit
+    @GetMapping("teacher/email/verify")
+    public Object teacherVerifyEmail(@ApiIgnore @LoginUser Long teacherId,
+                                     HttpServletRequest httpServletRequest){
+        logger.debug("TeacherId: " + teacherId);
+        String ip = IpUtil.getIpAddr(httpServletRequest);
+
+        return Common.decorateReturnObject(compuOrgService.teacherVerifyEmail(teacherId, ip));
+    }
+
+    /**
+     * 教师修改邮箱
+     * @author snow create 2021/01/23 17:50
+     * @param userVo
+     * @param bindingResult
+     * @return
+     */
+    @ApiOperation(value = "教师修改邮箱", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "body", dataType = "UserModifyEmailVo", name = "userVo", value = "修改邮箱对象", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
+            @ApiResponse(code = 732, message = "邮箱已被注册"),
+            @ApiResponse(code = 750, message = "验证码不正确或已过期"),
+    })
+    @PutMapping("teacher/email")
+    public Object teacherModifyEmail(@Validated @RequestBody UserModifyEmailVo userVo,
+                                     BindingResult bindingResult){
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+
+        return Common.decorateReturnObject(compuOrgService.teacherModifyEmail(userVo));
+    }
+
+    /**
      * 管理员登录
      * @author snow create 2021/01/19 00:11
      *            modified 2021/01/19 00:45
@@ -403,6 +584,197 @@ public class CompuOrgController {
             httpServletResponse.setStatus(HttpStatus.CREATED.value());
             return ResponseUtil.ok(jwt.getData());
         }
+    }
+
+    /**
+     * 管理员新建管理员
+     * @author snow create 2021/01/19 00:45
+     * @param userVo
+     * @param bindingResult
+     * @param httpServletResponse
+     * @return
+     */
+    @ApiOperation(value = "管理员新建管理员", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "UserVo", name = "userVo", value = "管理员信息", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 705, message = "无权限访问"),
+            @ApiResponse(code = 732, message = "邮箱已被注册"),
+            @ApiResponse(code = 733, message = "电话已被注册"),
+            @ApiResponse(code = 735, message = "管理员号已被注册"),
+    })
+    @Audit
+    @PostMapping("admin/new")
+    public Object appendAdmin(@ApiIgnore @Depart Long departId,
+                              @Validated @RequestBody UserVo userVo,
+                              BindingResult bindingResult,
+                              HttpServletResponse httpServletResponse){
+
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+
+        ReturnObject retObj = compuOrgService.appendAdmin(departId, userVo);
+
+        if(retObj.getData() == null){
+            return Common.getNullRetObj(retObj, httpServletResponse);
+        }else{
+            httpServletResponse.setStatus(HttpStatus.CREATED.value());
+            return Common.getRetObject(retObj);
+        }
+    }
+
+    /**
+     * 管理员找回密码
+     * @author snow create 2021/01/23 19:29
+     * @param adminVo
+     * @param bindingResult
+     * @return
+     */
+    @ApiOperation(value = "管理员找回密码", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "body", dataType = "UserPasswordVo", name = "adminVo", value = "管理员验证身份信息", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 702, message = "用户被禁止登录"),
+            @ApiResponse(code = 745, message = "与系统预留的邮箱不一致"),
+    })
+    @PutMapping("admin/password/reset")
+    public Object adminResetPassword(@Validated @RequestBody UserPasswordVo adminVo,
+                                       BindingResult bindingResult,
+                                       HttpServletRequest httpServletRequest){
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+
+        String ip = IpUtil.getIpAddr(httpServletRequest);
+        return Common.decorateReturnObject(compuOrgService.adminResetPassword(adminVo, ip));
+    }
+
+    /**
+     * 管理员修改密码
+     * @author snow create 2021/01/23 19:30
+     * @param modifyPasswordVo
+     * @param bindingResult
+     * @return
+     */
+    @ApiOperation(value = "管理员修改密码", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "body", dataType = "UserModifyPasswordVo", name = "modifyPasswordVo", value = "修改密码对象", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
+            @ApiResponse(code = 741, message = "新密码不能与旧密码相同"),
+            @ApiResponse(code = 750, message = "验证码不正确或已过期"),
+    })
+    @PutMapping("admin/password")
+    public Object adminModifyPassword(@Validated @RequestBody UserModifyPasswordVo modifyPasswordVo,
+                                        BindingResult bindingResult){
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+
+        return Common.decorateReturnObject(compuOrgService.adminModifyPassword(modifyPasswordVo));
+    }
+
+    /**
+     * 管理员修改基本信息
+     * @author snow create 2021/01/23 14:11
+     * @param adminId
+     * @param userBasicInfoVo
+     * @param bindingResult
+     * @return
+     */
+    @ApiOperation(value = "管理员修改基本信息", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "UserBasicInfoVo", name = "userBasicInfoVo", value = "修改信息对象", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
+            @ApiResponse(code = 733, message = "电话已被注册"),
+            @ApiResponse(code = 735, message = "管理员号已被注册"),
+    })
+    @Audit
+    @PutMapping("admin/information")
+    public Object adminModifyBasicInformation(@ApiIgnore @LoginUser Long adminId,
+                                                @Validated @RequestBody UserBasicInfoVo userBasicInfoVo,
+                                                BindingResult bindingResult){
+        logger.debug("StudentId: " + adminId + "userInfo: " + userBasicInfoVo.toString());
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+
+        return Common.decorateReturnObject(compuOrgService.adminModifyBasicInformation(adminId, userBasicInfoVo));
+    }
+
+    /**
+     * 管理员验证邮箱
+     * @author snow create 2021/01/23 19:34
+     * @param adminId
+     * @param httpServletRequest
+     * @return
+     */
+    @ApiOperation(value = "管理员验证邮箱", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
+    })
+    @Audit
+    @GetMapping("admin/email/verify")
+    public Object adminVerifyEmail(@ApiIgnore @LoginUser Long adminId,
+                                     HttpServletRequest httpServletRequest){
+        logger.debug("StudentId: " + adminId);
+        String ip = IpUtil.getIpAddr(httpServletRequest);
+
+        return Common.decorateReturnObject(compuOrgService.adminVerifyEmail(adminId, ip));
+    }
+
+    /**
+     * 管理员修改邮箱
+     * @author snow create 2021/01/23 16:58
+     * @param userVo
+     * @param bindingResult
+     * @return
+     */
+    @ApiOperation(value = "管理员修改邮箱", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "body", dataType = "UserModifyEmailVo", name = "userVo", value = "修改邮箱对象", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
+            @ApiResponse(code = 732, message = "邮箱已被注册"),
+            @ApiResponse(code = 750, message = "验证码不正确或已过期"),
+    })
+    @PutMapping("admin/email")
+    public Object adminModifyEmail(@Validated @RequestBody UserModifyEmailVo userVo,
+                                     BindingResult bindingResult){
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+
+        return Common.decorateReturnObject(compuOrgService.adminModifyEmail(userVo));
     }
 
 

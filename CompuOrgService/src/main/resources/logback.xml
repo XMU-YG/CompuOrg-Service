@@ -65,10 +65,10 @@
     </logger>
 
     <!-- 日志输出级别 -->
-    <logger name="cn.edu.xmu.order.dao" level = "DEBUG"/>
-    <logger name="cn.edu.xmu.order.controller" level = "DEBUG"/>
-    <logger name="cn.edu.xmu.order.service" level = "DEBUG"/>
-    <logger name="cn.edu.xmu.order.annotation" level = "DEBUG"/>
+    <logger name="cn.xmu.edu.compuOrg.dao" level = "DEBUG"/>
+    <logger name="cn.xmu.edu.compuOrg.controller" level = "DEBUG"/>
+    <logger name="cn.xmu.edu.compuOrg.service" level = "DEBUG"/>
+    <logger name="cn.xmu.edu.compuOrg.annotation" level = "DEBUG"/>
     <root level="INFO">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />

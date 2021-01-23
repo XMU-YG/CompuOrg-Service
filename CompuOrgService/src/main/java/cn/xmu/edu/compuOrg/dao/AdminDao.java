@@ -77,7 +77,7 @@ public class AdminDao extends UserDao{
     public ReturnObject<Admin> insertAdmin(Admin admin){
         try {
             if(admin.getUserNo() != null && isAdminNoAlreadyExist(admin.getUserNo())){
-                return new ReturnObject<>(ResponseCode.STUDENT_NO_REGISTERED);
+                return new ReturnObject<>(ResponseCode.ADMIN_NO_REGISTERED);
             }
             if(admin.getEmail() != null && isEmailAlreadyExist(admin.getEmail())){
                 return new ReturnObject<>(ResponseCode.EMAIL_REGISTERED);
@@ -153,12 +153,13 @@ public class AdminDao extends UserDao{
     }
 
     /**
-     * 更新管理员密码
+     * 更新管理员信息
      * @author snow create 2021/01/19 00:02
+     *            modified 2021/01/23 19:10
      * @param admin
      * @return
      */
-    public ReturnObject updateAdminPassword(Admin admin){
+    public ReturnObject updateAdminInformation(Admin admin){
         try {
             AdminPo adminPo = admin.createAdminPo();
             adminPo.setGmtModified(LocalDateTime.now());

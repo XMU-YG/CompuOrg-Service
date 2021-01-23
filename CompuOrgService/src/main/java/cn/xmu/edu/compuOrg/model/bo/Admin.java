@@ -5,6 +5,7 @@ import cn.xmu.edu.Core.util.AES;
 import cn.xmu.edu.Core.util.SHA256;
 import cn.xmu.edu.Core.util.Common;
 import cn.xmu.edu.compuOrg.model.po.AdminPo;
+import cn.xmu.edu.compuOrg.model.vo.AdminRetVo;
 import cn.xmu.edu.compuOrg.model.vo.UserVo;
 import lombok.Data;
 
@@ -43,6 +44,7 @@ public class Admin extends User implements VoObject, Serializable {
         if(adminVo.getMobile() != null) {
             this.mobile = AES.encrypt(adminVo.getMobile(), AES_PASS);
         }
+        this.signature = createSignature();
     }
 
     public AdminPo createAdminPo(){
@@ -83,7 +85,7 @@ public class Admin extends User implements VoObject, Serializable {
 
     @Override
     public Object createVo() {
-        return null;
+        return new AdminRetVo(this);
     }
 
     @Override

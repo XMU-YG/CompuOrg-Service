@@ -150,10 +150,11 @@ public class TeacherDao extends UserDao {
     /**
      * 更新老师密码
      * @author snow create 2021/01/18 12:04
+     *            modified 2021/01/23 17:45
      * @param teacher
      * @return
      */
-    public ReturnObject updateTeacherPassword(Teacher teacher){
+    public ReturnObject updateTeacherInformation(Teacher teacher){
         try {
             TeacherPo teacherPo = teacher.createTeacherPo();
             teacherPo.setGmtModified(LocalDateTime.now());

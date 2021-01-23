@@ -1,6 +1,8 @@
 package cn.xmu.edu.Core.annotation;
 
 import cn.xmu.edu.Core.util.JwtHelper;
+import cn.xmu.edu.Core.util.ResponseCode;
+import cn.xmu.edu.Core.util.ResponseUtil;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -20,8 +22,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 /**
- * @auther mingqiu
- * @date 2020/6/26 下午2:16
+ * @author mingqiu
+ * @date 2020/6/26 14:16
  *      modifiedBy Ming Qiu 2020/11/3 22:59
  *
  */
@@ -33,9 +35,8 @@ public class AuditAspect {
 
     private  static  final Logger logger = LoggerFactory.getLogger(AuditAspect. class);
 
-
     //Controller层切点
-    @Pointcut("@annotation(cn.edu.xmu.ooad.annotation.Audit)")
+    @Pointcut("@annotation(cn.xmu.edu.Core.annotation.Audit)")
     public void auditAspect() {
     }
 
@@ -60,8 +61,8 @@ public class AuditAspect {
         String token = request.getHeader(JwtHelper.LOGIN_TOKEN_KEY);
         if (token == null){
 //            什么也不做
-//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//            return ResponseUtil.fail(ResponseCode.AUTH_NEED_LOGIN);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return ResponseUtil.fail(ResponseCode.AUTH_NEED_LOGIN);
         }
 
         JwtHelper.UserAndDepart userAndDepart = new JwtHelper().verifyTokenAndGetClaims(token);
@@ -84,19 +85,19 @@ public class AuditAspect {
                 if(departId==0){
                     break;
                 }
-//                if(paths[i].equals("shops")){
-//                    if(i+1<paths.length){
-//                        //找到路径上对应id 将其与string类型的departId比较
-//                        String pathId=paths[i+1];
-//                        logger.debug("did ="+pathId);
-//                        if(!pathId.equals(departId.toString())){
-//                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-//                            return ResponseUtil.fail(ResponseCode.FIELD_NOTVALID, "departId不匹配");
-//                        }
-//                        logger.debug("success match Id!");
-//                    }
-//                    break;
-//                }
+                if(paths[i].equals("shops")){
+                    if(i+1<paths.length){
+                        //找到路径上对应id 将其与string类型的departId比较
+                        String pathId=paths[i+1];
+                        logger.debug("did ="+pathId);
+                        if(!pathId.equals(departId.toString())){
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            return ResponseUtil.fail(ResponseCode.FIELD_NOTVALID, "departId不匹配");
+                        }
+                        logger.debug("success match Id!");
+                    }
+                    break;
+                }
             }
         }
         else{

@@ -13,9 +13,6 @@ public class StudentRetVo {
     @ApiModelProperty(value = "学号")
     private String studentNo;
 
-    @ApiModelProperty(value = "密码")
-    private String password;
-
     @ApiModelProperty(value = "学生姓名")
     private String studentName;
 
@@ -32,7 +29,6 @@ public class StudentRetVo {
         this.id = student.getId();
         this.gender = student.getGender();
         this.studentNo = student.getUserNo();
-        this.password = student.getPassword();
         this.email = student.getDecryptEmail();
         this.mobile = student.getDecryptMobile();
         this.studentName = student.getRealName();

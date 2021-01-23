@@ -6,6 +6,7 @@ import cn.xmu.edu.compuOrg.mapper.StudentPoMapper;
 import cn.xmu.edu.compuOrg.model.bo.Student;
 import cn.xmu.edu.compuOrg.model.po.StudentPo;
 import cn.xmu.edu.compuOrg.model.po.StudentPoExample;
+import cn.xmu.edu.compuOrg.model.vo.UserBasicInfoVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -150,12 +151,13 @@ public class StudentDao extends UserDao {
     }
 
     /**
-     * 更新学生密码
+     * 更新学生信息
      * @author snow create 2021/01/18 00:12
+     *            modified 2021/01/23 16:55
      * @param student
      * @return
      */
-    public ReturnObject updateStudentPassword(Student student){
+    public ReturnObject updateStudentInformation(Student student){
         try {
             StudentPo studentPo = student.createStudentPo();
             studentPo.setGmtModified(LocalDateTime.now());
