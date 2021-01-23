@@ -100,40 +100,6 @@ public class StudentDao extends UserDao {
     }
 
     /**
-     * 修改学生基础信息
-     * @author snow create 2021/01/23 14:06
-     * @param studentId
-     * @param userBasicInfoVo
-     * @return
-     */
-    public ReturnObject updateStudentInfo(Long studentId, UserBasicInfoVo userBasicInfoVo){
-        try {
-            if(userBasicInfoVo.getUserNo() != null && isStudentNoAlreadyExist(userBasicInfoVo.getUserNo())){
-                return new ReturnObject(ResponseCode.STUDENT_NO_REGISTERED);
-            }
-            if(userBasicInfoVo.getMobile() != null && isMobileAlreadyExist(userBasicInfoVo.getMobile())){
-                return new ReturnObject(ResponseCode.MOBILE_REGISTERED);
-            }
-            ReturnObject retObj = findStudentById(studentId);
-            if (retObj.getData() == null){
-                return retObj;
-            }
-            Student student = (Student)retObj.getData();
-            student.updateUserInfo(userBasicInfoVo);
-            StudentPo studentPo = student.createStudentPo();
-            studentPo.setGmtModified(LocalDateTime.now());
-            int effectRows = studentPoMapper.updateByPrimaryKeySelective(studentPo);
-            if(effectRows == 1){
-                return new ReturnObject(ResponseCode.OK);
-            }
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-        return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
-    }
-
-    /**
      * 判断学号是否已存在
      * @author snow create 2021/01/17 21:15
      * @param studentNo
@@ -185,12 +151,13 @@ public class StudentDao extends UserDao {
     }
 
     /**
-     * 更新学生密码
+     * 更新学生信息
      * @author snow create 2021/01/18 00:12
+     *            modified 2021/01/23 16:55
      * @param student
      * @return
      */
-    public ReturnObject updateStudentPassword(Student student){
+    public ReturnObject updateStudentInformation(Student student){
         try {
             StudentPo studentPo = student.createStudentPo();
             studentPo.setGmtModified(LocalDateTime.now());
