@@ -3,7 +3,7 @@ package cn.xmu.edu.compuOrg;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackages = {"cn.xmu.edu.compuOrg"})
+@SpringBootApplication(scanBasePackages = {"cn.xmu.edu.compuOrg", "cn.xmu.edu.Core"})
 //@MapperScan("cn.edu.xmu.compuOrg.mapper")
 public class CompuOrgServiceApplication {
     public static void main(String[] args) {
