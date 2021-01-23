@@ -1,5 +1,7 @@
 package cn.xmu.edu.compuOrg.controller;
 
+import cn.xmu.edu.Core.annotation.Audit;
+import cn.xmu.edu.Core.annotation.LoginUser;
 import cn.xmu.edu.Core.util.*;
 import cn.xmu.edu.compuOrg.model.vo.*;
 import cn.xmu.edu.compuOrg.service.CompuOrgService;
@@ -11,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -233,6 +236,40 @@ public class CompuOrgController {
     }
 
     /**
+     * 学生修改基本信息
+     * @author snow create 2021/01/23 14:11
+     * @param studentId
+     * @param userBasicInfoVo
+     * @param bindingResult
+     * @return
+     */
+    @ApiOperation(value = "学生修改基本信息", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "UserBasicInfoVo", name = "userBasicInfoVo", value = "修改信息对象", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
+            @ApiResponse(code = 731, message = "学号已被注册"),
+            @ApiResponse(code = 733, message = "电话已被注册"),
+    })
+    @Audit
+    @PutMapping("student/information")
+    public Object studentModifyBasicInformation(@ApiIgnore @LoginUser Long studentId,
+                                                @Validated @RequestBody UserBasicInfoVo userBasicInfoVo,
+                                                BindingResult bindingResult){
+        logger.debug("StudentId: " + studentId + "userInfo: " + userBasicInfoVo.toString());
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+
+        return Common.decorateReturnObject(compuOrgService.studentModifyBasicInformation(studentId, userBasicInfoVo));
+    }
+
+    /**
      * 教师登录
      * @author snow create 2021/01/18 13:24
      * @param loginVo
@@ -402,6 +439,44 @@ public class CompuOrgController {
         }else{
             httpServletResponse.setStatus(HttpStatus.CREATED.value());
             return ResponseUtil.ok(jwt.getData());
+        }
+    }
+
+    /**
+     * 管理员新建管理员
+     * @author snow create 2021/01/19 00:45
+     * @param adminVo
+     * @param bindingResult
+     * @param httpServletResponse
+     * @return
+     */
+    @ApiOperation(value = "管理员新建管理员", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "UserVo", name = "adminVo", value = "管理员信息", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+    })
+    @Audit
+    @PostMapping("admin/new")
+    public Object appendAdmin(@Validated @RequestBody UserVo adminVo,
+                             BindingResult bindingResult,
+                             HttpServletResponse httpServletResponse){
+
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+
+        ReturnObject retObj = compuOrgService.teacherSignUp(adminVo);
+
+        if(retObj.getData() == null){
+            return Common.getNullRetObj(retObj, httpServletResponse);
+        }else{
+            httpServletResponse.setStatus(HttpStatus.CREATED.value());
+            return Common.getRetObject(retObj);
         }
     }
 
