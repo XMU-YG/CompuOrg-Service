@@ -797,11 +797,22 @@ public class CompuOrgController {
     @Audit
     @GetMapping("test/{experimentId}")
     public Object generateTest(@ApiIgnore @LoginUser Long studentId,
-                                     @PathVariable Integer experimentId,
-                                     @RequestParam(required = false, defaultValue = "5") Integer size){
+                                     @PathVariable Long experimentId,
+                                     @RequestParam(required = false, defaultValue = "5") Long size){
         logger.debug("StudentId: " + studentId + ", ExperimentId: " + experimentId + ", Size: " + size);
-
-        return Common.decorateReturnObject(compuOrgService.teacherVerifyEmail(studentId, ""));
+        if(experimentId < 1 || experimentId > 5){
+            return Common.decorateReturnObject(new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST));
+        }
+        if(size <= 0){
+            return Common.decorateReturnObject(new ReturnObject(ResponseCode.FIELD_NOTVALID));
+        }
+        ReturnObject retObj = compuOrgService.generateTest(experimentId, size);
+        if(retObj.getData() == null){
+            return Common.decorateReturnObject(retObj);
+        }
+        else{
+            return Common.getRetObject(retObj);
+        }
     }
 
 
