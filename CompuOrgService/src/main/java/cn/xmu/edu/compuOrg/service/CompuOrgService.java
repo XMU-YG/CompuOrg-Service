@@ -52,6 +52,9 @@ public class CompuOrgService {
     @Autowired
     private TeacherDao teacherDao;
 
+    @Autowired
+    private TestDao testDao;
+
     /**
      * 检验实验单个连线
      * @author snow create 2021/01/12 20:26
@@ -586,5 +589,15 @@ public class CompuOrgService {
             e.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     * 随机生成测试题目
+     * @param experimentId
+     * @param size
+     * @return
+     */
+    public ReturnObject generateTest(Long experimentId, Long size){
+        return testDao.getTest(experimentId, size);
     }
 }
