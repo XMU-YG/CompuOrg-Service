@@ -2,7 +2,9 @@ package cn.xmu.edu.compuOrg.model.vo;
 
 import cn.xmu.edu.compuOrg.model.po.TestPo;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -10,6 +12,8 @@ import java.io.Serializable;
  * @author snow create 2021/01/24 14:52
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class TopicVo implements Serializable {
 
     @ApiModelProperty(value = "id")
@@ -31,7 +35,7 @@ public class TopicVo implements Serializable {
         this.id = testPo.getId();
         this.type = testPo.getType();
         this.score = testPo.getScore();
-        this.content = testPo.getTestContent();
+        this.content = testPo.getContent();
         this.imgUrl = testPo.getImgUrl();
     }
 
