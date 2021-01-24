@@ -777,5 +777,32 @@ public class CompuOrgController {
         return Common.decorateReturnObject(compuOrgService.adminModifyEmail(userVo));
     }
 
+    /**
+     * 学生获取题目
+     * @author snow create 2021/01/24 15:00
+     * @param studentId
+     * @param experimentId
+     * @param size
+     * @return
+     */
+    @ApiOperation(value = "学生获取题目", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "path", dataType = "int", name = "experimentId", value = "实验序号", required = true),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "size", value = "题目数量", required = false, defaultValue = "5"),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+    })
+    @Audit
+    @GetMapping("test/{experimentId}")
+    public Object generateTest(@ApiIgnore @LoginUser Long studentId,
+                                     @PathVariable Integer experimentId,
+                                     @RequestParam(required = false, defaultValue = "5") Integer size){
+        logger.debug("StudentId: " + studentId + ", ExperimentId: " + experimentId + ", Size: " + size);
+
+        return Common.decorateReturnObject(compuOrgService.teacherVerifyEmail(studentId, ""));
+    }
+
 
 }
