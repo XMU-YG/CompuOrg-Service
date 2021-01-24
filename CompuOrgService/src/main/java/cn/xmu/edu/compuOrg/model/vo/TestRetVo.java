@@ -21,6 +21,6 @@ public class TestRetVo {
     private Integer experimentId;
 
     @ApiModelProperty(value = "题目列表")
-    private ArrayList<TopicRetVo> topics;
+    private ArrayList<TopicVo> topics;
 
 }
