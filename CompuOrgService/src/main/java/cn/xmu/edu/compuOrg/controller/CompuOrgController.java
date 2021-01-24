@@ -780,7 +780,6 @@ public class CompuOrgController {
     /**
      * 学生获取题目
      * @author snow create 2021/01/24 15:00
-     * @param studentId
      * @param experimentId
      * @param size
      * @return
@@ -793,13 +792,13 @@ public class CompuOrgController {
     })
     @ApiResponses({
             @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 800, message = "暂无更多题目"),
     })
     @Audit
     @GetMapping("test/{experimentId}")
-    public Object generateTest(@ApiIgnore @LoginUser Long studentId,
-                                     @PathVariable Long experimentId,
+    public Object generateTest(@PathVariable Long experimentId,
                                      @RequestParam(required = false, defaultValue = "5") Long size){
-        logger.debug("StudentId: " + studentId + ", ExperimentId: " + experimentId + ", Size: " + size);
+        logger.debug("ExperimentId: " + experimentId + ", Size: " + size);
         if(experimentId < 1 || experimentId > 5){
             return Common.decorateReturnObject(new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST));
         }
