@@ -18,6 +18,7 @@ CREATE TABLE `student` (
   `student_name` varchar(32) DEFAULT NULL,
   `gender` tinyint DEFAULT NULL,
   `email` varchar(128) DEFAULT NULL,
+  `email_verify` tinyint(3) unsigned zerofill NOT NULL,
   `mobile` varchar(128) DEFAULT NULL,
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modified` datetime DEFAULT NULL,
@@ -39,6 +40,7 @@ CREATE TABLE `teacher` (
   `teacher_name` varchar(32) DEFAULT NULL,
   `gender` tinyint DEFAULT NULL,
   `email` varchar(128) DEFAULT NULL,
+  `email_verify` tinyint(3) unsigned zerofill NOT NULL,
   `mobile` varchar(128) DEFAULT NULL,
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modified` datetime DEFAULT NULL,
@@ -84,4 +86,63 @@ CREATE TABLE `static_memory` (
   `data` varchar(32) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
+--
+-- Table structure for table `sign_in`
+--
+
+DROP TABLE IF EXISTS `sign_in`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sign_in` (
+  `id` bigint NOT NULL,
+  `student_id` bigint NOT NULL,
+  `sign_in` datetime DEFAULT NULL,
+  `sign_out` datetime DEFAULT NULL,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `test`
+--
+
+DROP TABLE IF EXISTS `test`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `test` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `experiment_id` bigint NOT NULL,
+  `type` tinyint(3) unsigned zerofill DEFAULT NULL,
+  `content` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `img_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `score` tinyint DEFAULT NULL,
+  `reference_version` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `test_result`
+--
+
+DROP TABLE IF EXISTS `test_result`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `test_result` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `student_id` bigint NOT NULL,
+  `test_id` bigint NOT NULL,
+  `answer` varchar(1024) DEFAULT NULL,
+  `score` int DEFAULT NULL,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

@@ -777,5 +777,42 @@ public class CompuOrgController {
         return Common.decorateReturnObject(compuOrgService.adminModifyEmail(userVo));
     }
 
+    /**
+     * 学生获取题目
+     * @author snow create 2021/01/24 15:00
+     * @param experimentId
+     * @param size
+     * @return
+     */
+    @ApiOperation(value = "学生获取题目", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "path", dataType = "int", name = "experimentId", value = "实验序号", required = true),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "size", value = "题目数量", required = false, defaultValue = "5"),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 800, message = "暂无更多题目"),
+    })
+    @Audit
+    @GetMapping("test/{experimentId}")
+    public Object generateTest(@PathVariable Long experimentId,
+                                     @RequestParam(required = false, defaultValue = "5") Long size){
+        logger.debug("ExperimentId: " + experimentId + ", Size: " + size);
+        if(experimentId < 1 || experimentId > 5){
+            return Common.decorateReturnObject(new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST));
+        }
+        if(size <= 0){
+            return Common.decorateReturnObject(new ReturnObject(ResponseCode.FIELD_NOTVALID));
+        }
+        ReturnObject retObj = compuOrgService.generateTest(experimentId, size);
+        if(retObj.getData() == null){
+            return Common.decorateReturnObject(retObj);
+        }
+        else{
+            return Common.getRetObject(retObj);
+        }
+    }
+
 
 }

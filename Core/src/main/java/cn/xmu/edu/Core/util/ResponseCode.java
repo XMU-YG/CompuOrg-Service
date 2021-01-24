@@ -52,7 +52,13 @@ public enum ResponseCode {
     MOBILE_WRONG(746,"与系统预留的电话不一致"),
     EMAIL_NOT_VERIFIED(748,"Email未确认"),
     MOBILE_NOT_VERIFIED(749,"电话号码未确认"),
-    VERIFY_CODE_EXPIRE(750, "验证码不正确或已过期");
+    VERIFY_CODE_EXPIRE(750, "验证码不正确或已过期"),
+
+
+    /***************************************************
+     *    题目模块错误码
+     **************************************************/
+    NO_MORE_TOPIC(800,"暂无更多题目");
 
     private int code;
     private String message;

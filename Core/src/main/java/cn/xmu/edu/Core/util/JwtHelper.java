@@ -115,7 +115,7 @@ public class JwtHelper {
             Claim claimUserId = claims.get("userId");
             Claim claimDepartId = claims.get("departId");
             return new UserAndDepart(claimUserId.asLong(), claimDepartId.asLong());
-        } catch (JWTVerificationException exception) {
+        } catch (Exception exception) {
             return null;
         }
     }
