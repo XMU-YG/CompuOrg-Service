@@ -117,7 +117,11 @@ DROP TABLE IF EXISTS `test`;
 CREATE TABLE `test` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `experiment_id` bigint NOT NULL,
+  `type` tinyint(3) unsigned zerofill DEFAULT NULL,
   `test_content` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `img_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `score` tinyint DEFAULT NULL,
+  `reference_version` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -139,10 +143,6 @@ CREATE TABLE `test_result` (
   `score` int DEFAULT NULL,
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modified` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `student` (`student_id`),
-  KEY `test` (`test_id`),
-  CONSTRAINT `student` FOREIGN KEY (`student_id`) REFERENCES `student` (`id`),
-  CONSTRAINT `test` FOREIGN KEY (`test_id`) REFERENCES `test` (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
