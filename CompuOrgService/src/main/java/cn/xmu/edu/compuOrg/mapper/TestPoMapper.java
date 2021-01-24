@@ -2,6 +2,8 @@ package cn.xmu.edu.compuOrg.mapper;
 
 import cn.xmu.edu.compuOrg.model.po.TestPo;
 import cn.xmu.edu.compuOrg.model.po.TestPoExample;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
