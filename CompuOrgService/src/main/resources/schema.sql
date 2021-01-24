@@ -118,7 +118,7 @@ CREATE TABLE `test` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `experiment_id` bigint NOT NULL,
   `type` tinyint(3) unsigned zerofill DEFAULT NULL,
-  `test_content` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `content` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
   `img_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `score` tinyint DEFAULT NULL,
   `reference_version` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
