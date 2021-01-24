@@ -5,9 +5,11 @@ import cn.xmu.edu.Core.util.ReturnObject;
 import cn.xmu.edu.compuOrg.controller.CompuOrgController;
 import cn.xmu.edu.compuOrg.mapper.TestPoMapper;
 import cn.xmu.edu.compuOrg.mapper.TestResultPoMapper;
+import cn.xmu.edu.compuOrg.model.bo.Tests;
 import cn.xmu.edu.compuOrg.model.po.TestPo;
 import cn.xmu.edu.compuOrg.model.po.TestPoExample;
 import cn.xmu.edu.compuOrg.model.vo.TopicVo;
+import net.sf.jsqlparser.statement.select.Top;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Repository;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -43,22 +46,37 @@ public class TestDao {
      * @param size
      * @return
      */
-    public ReturnObject getTest(Long experimentId, Long size){
+    public ReturnObject<Tests> getTest(Long experimentId, Long size){
         try {
             String key = "ex_" + experimentId;
             if(!redisTemplate.hasKey(key)){
                 ArrayList<TopicVo> topicVos = selectTopicByExperimentId(experimentId);
                 if(topicVos != null){
-                    redisTemplate.opsForSet().add(key, topicVos);
+                    for (TopicVo topicVo:topicVos) {
+                        redisTemplate.opsForList().rightPush(key, topicVo);
+                    }
                 }
                 else {
                     return new ReturnObject(ResponseCode.NO_MORE_TOPIC);
                 }
             }
-            Set topics = redisTemplate.opsForSet().distinctRandomMembers(key, size);
-            for (Object topic : topics){
-                logger.debug(topic.toString());
+            Tests test = new Tests();
+            ArrayList<TopicVo> topicVos;
+            if(redisTemplate.opsForList().size(key) <= size){
+                List<Serializable> members = redisTemplate.opsForList().range(key, 0, -1);
+                topicVos = (ArrayList)members;
             }
+            else{
+                int[] randomSet = randomArray(0, redisTemplate.opsForList().size(key).intValue(), size.intValue());
+                topicVos = new ArrayList<>();
+                for (int i : randomSet){
+                    topicVos.add((TopicVo)redisTemplate.opsForList().index(key, i));
+                }
+            }
+            test.setExperimentId(experimentId);
+            test.setSize(size);
+            test.setTopics(topicVos);
+            return new ReturnObject(test);
         }
         catch (Exception e){
             e.printStackTrace();
@@ -91,6 +109,38 @@ public class TestDao {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * 指定范围内随机生成n个不重复的数
+     * @author snow create 2021/01/24 20:13
+     * @param min
+     * @param max
+     * @param n
+     * @return
+     */
+    public static int[] randomArray(int min, int max, int n) {
+        int len = max - min + 1;
+        if (max < min || n > len) {
+            return null;
+        }
+        // 初始化给定范围的待选数组
+        int[] source = new int[len];
+        for (int i = min; i < min + len; i++) {
+            source[i - min] = i;
+        }
+        int[] result = new int[n];
+        Random rd = new Random();
+        int index = 0;
+        for (int i = 0; i < result.length; i++) {
+            // 待选数组0到(len-2)随机一个下标
+            index = Math.abs(rd.nextInt() % len--);
+            // 将随机到的数放入结果集
+            result[i] = source[index];
+            // 将待选数组中被随机到的数，用待选数组(len-1)下标对应的数替换
+            source[index] = source[len];
+        }
+        return result;
     }
 
 
