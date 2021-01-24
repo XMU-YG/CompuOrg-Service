@@ -49,7 +49,7 @@ public class TestDao {
     public ReturnObject<Tests> getTest(Long experimentId, Long size){
         try {
             String key = "ex_" + experimentId;
-            if(!redisTemplate.hasKey(key)){
+            if(!redisTemplate.hasKey(key) || redisTemplate.opsForList().size(key) == 0){
                 ArrayList<TopicVo> topicVos = selectTopicByExperimentId(experimentId);
                 if(topicVos != null){
                     for (TopicVo topicVo:topicVos) {
