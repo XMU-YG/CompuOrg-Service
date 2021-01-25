@@ -108,13 +108,13 @@ CREATE TABLE `sign_in` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `test`
+-- Table structure for table `topic`
 --
 
-DROP TABLE IF EXISTS `test`;
+DROP TABLE IF EXISTS `topic`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `test` (
+CREATE TABLE `topic` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `experiment_id` bigint NOT NULL,
   `type` tinyint(3) unsigned zerofill DEFAULT NULL,
@@ -122,6 +122,24 @@ CREATE TABLE `test` (
   `img_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `score` tinyint DEFAULT NULL,
   `reference_version` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `topic_result`
+--
+
+DROP TABLE IF EXISTS `topic_result`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `topic_result` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `test_id` bigint NOT NULL,
+  `answer` varchar(1024) DEFAULT NULL,
+  `score` int DEFAULT NULL,
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -138,8 +156,6 @@ DROP TABLE IF EXISTS `test_result`;
 CREATE TABLE `test_result` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `student_id` bigint NOT NULL,
-  `test_id` bigint NOT NULL,
-  `answer` varchar(1024) DEFAULT NULL,
   `score` int DEFAULT NULL,
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modified` datetime DEFAULT NULL,
