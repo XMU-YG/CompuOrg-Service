@@ -315,6 +315,66 @@ public class TestResultPoExample {
             return (Criteria) this;
         }
 
+        public Criteria andExperimentIdIsNull() {
+            addCriterion("experiment_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExperimentIdIsNotNull() {
+            addCriterion("experiment_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExperimentIdEqualTo(Long value) {
+            addCriterion("experiment_id =", value, "experimentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andExperimentIdNotEqualTo(Long value) {
+            addCriterion("experiment_id <>", value, "experimentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andExperimentIdGreaterThan(Long value) {
+            addCriterion("experiment_id >", value, "experimentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andExperimentIdGreaterThanOrEqualTo(Long value) {
+            addCriterion("experiment_id >=", value, "experimentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andExperimentIdLessThan(Long value) {
+            addCriterion("experiment_id <", value, "experimentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andExperimentIdLessThanOrEqualTo(Long value) {
+            addCriterion("experiment_id <=", value, "experimentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andExperimentIdIn(List<Long> values) {
+            addCriterion("experiment_id in", values, "experimentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andExperimentIdNotIn(List<Long> values) {
+            addCriterion("experiment_id not in", values, "experimentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andExperimentIdBetween(Long value1, Long value2) {
+            addCriterion("experiment_id between", value1, value2, "experimentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andExperimentIdNotBetween(Long value1, Long value2) {
+            addCriterion("experiment_id not between", value1, value2, "experimentId");
+            return (Criteria) this;
+        }
+
         public Criteria andScoreIsNull() {
             addCriterion("score is null");
             return (Criteria) this;
