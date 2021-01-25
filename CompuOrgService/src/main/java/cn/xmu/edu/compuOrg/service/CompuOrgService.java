@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CompuOrgService {
@@ -602,18 +603,21 @@ public class CompuOrgService {
     /**
      * 学生提交测试结果
      * @author snow create 2021/01/25 22:25
+     *            modified 2021/01/25 23:43
      * @param studentId
      * @param experimentId
      * @param testVo
      * @return
      */
     public ReturnObject commitTestResult(Long studentId, Long experimentId, TestVo testVo){
-        Long testResultId = testDao.insertTestResult(studentId, experimentId);
-        if (testResultId != null) {
-            ArrayList<TopicAnswer> topicAnswers = new ArrayList<>();
+        TestResult testResult = new TestResult();
+        testResult.setStudentId(studentId);
+        testResult.setExperimentId(experimentId);
+        if (testDao.insertTestResult(testResult)) {
+            List<TopicAnswer> topicAnswers = new ArrayList<>();
             for (TopicAnswerVo topicAnswerVo : testVo.getTopicAnswerVos()) {
                 TopicAnswer topicAnswer = new TopicAnswer(topicAnswerVo);
-                topicAnswer.setTestResultId(testResultId);
+                topicAnswer.setTestResultId(testResult.getId());
                 if (testDao.insertTopicAnswer(topicAnswer)) {
                     topicAnswers.add(topicAnswer);
                 }
@@ -621,8 +625,44 @@ public class CompuOrgService {
                     return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
                 }
             }
-            return new ReturnObject(ResponseCode.OK);
+            testResult.setTopicAnswers(topicAnswers);
+            return new ReturnObject(testResult);
         }
         return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
+    }
+
+    /**
+     * 教师根据实验序号获取测试结果列表
+     * @author snow create 2021/01/25 23:15
+     * @param departId
+     * @param experimentId
+     * @return
+     */
+    public ReturnObject getTestResultListByExperimentId(Long departId, Long experimentId){
+        if(studentDepartId.equals(departId)){
+            return new ReturnObject(ResponseCode.RESOURCE_ID_OUTSCOPE);
+        }
+        return testDao.findTestResultByExperimentId(experimentId);
+    }
+
+    /**
+     * 根据测试结果id获得测试结果详情
+     * @author snow create 2021/01/25 23:24
+     * @param userId
+     * @param departId
+     * @param testResultId
+     * @return
+     */
+    public ReturnObject getTestResultDetailByTestResultId(Long userId, Long departId, Long testResultId){
+        ReturnObject retObj = testDao.findTestResultById(testResultId);
+        if(retObj.getData() != null){
+            TestResult testResult = (TestResult)retObj.getData();
+            if(studentDepartId.equals(departId) && !userId.equals(testResult.getStudentId())){
+                return new ReturnObject(ResponseCode.RESOURCE_ID_OUTSCOPE);
+            }
+            testResult.setTopicAnswers(testDao.findTopicAnswerByTestResultId(testResultId));
+            return new ReturnObject(testResult);
+        }
+        return retObj;
     }
 }
