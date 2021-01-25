@@ -129,15 +129,16 @@ CREATE TABLE `topic` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `topic_result`
+-- Table structure for table `topic_answer`
 --
 
-DROP TABLE IF EXISTS `topic_result`;
+DROP TABLE IF EXISTS `topic_answer`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `topic_result` (
+CREATE TABLE `topic_answer` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `test_id` bigint NOT NULL,
+  `topic_id` bigint NOT NULL,
+  `test_result_id` bigint NOT NULL,
   `answer` varchar(1024) DEFAULT NULL,
   `score` int DEFAULT NULL,
   `gmt_create` datetime DEFAULT NULL,
@@ -156,6 +157,7 @@ DROP TABLE IF EXISTS `test_result`;
 CREATE TABLE `test_result` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `student_id` bigint NOT NULL,
+  `experiment_id` bigint NOT NULL,
   `score` int DEFAULT NULL,
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modified` datetime DEFAULT NULL,
