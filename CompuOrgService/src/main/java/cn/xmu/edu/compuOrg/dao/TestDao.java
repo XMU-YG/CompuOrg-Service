@@ -3,8 +3,12 @@ package cn.xmu.edu.compuOrg.dao;
 import cn.xmu.edu.Core.util.ResponseCode;
 import cn.xmu.edu.Core.util.ReturnObject;
 import cn.xmu.edu.compuOrg.mapper.TestResultPoMapper;
+import cn.xmu.edu.compuOrg.mapper.TopicAnswerPoMapper;
 import cn.xmu.edu.compuOrg.mapper.TopicPoMapper;
 import cn.xmu.edu.compuOrg.model.bo.Tests;
+import cn.xmu.edu.compuOrg.model.bo.TopicAnswer;
+import cn.xmu.edu.compuOrg.model.po.TestResultPo;
+import cn.xmu.edu.compuOrg.model.po.TopicAnswerPo;
 import cn.xmu.edu.compuOrg.model.po.TopicPo;
 import cn.xmu.edu.compuOrg.model.po.TopicPoExample;
 import cn.xmu.edu.compuOrg.model.vo.TopicVo;
@@ -15,6 +19,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -32,6 +37,9 @@ public class TestDao {
 
     @Autowired
     private TestResultPoMapper testResultPoMapper;
+
+    @Autowired
+    private TopicAnswerPoMapper topicAnswerPoMapper;
 
     @Autowired
     private RedisTemplate<String, Serializable> redisTemplate;
@@ -106,6 +114,52 @@ public class TestDao {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * 插入测试结果
+     * @author snow create 2021/01/25 21:47
+     * @param studentId
+     * @param experimentId
+     * @return
+     */
+    public Long insertTestResult(Long studentId, Long experimentId){
+        try {
+            TestResultPo testResultPo = new TestResultPo();
+            testResultPo.setStudentId(studentId);
+            testResultPo.setExperimentId(experimentId);
+            testResultPo.setGmtCreate(LocalDateTime.now());
+            int effectRows = testResultPoMapper.insertSelective(testResultPo);
+            if(effectRows == 1){
+                return testResultPo.getId();
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 插入题目答案
+     * @author snow create 2021/01/25 22:00
+     * @param answer
+     * @return
+     */
+    public Boolean insertTopicAnswer(TopicAnswer answer){
+        try {
+            TopicAnswerPo topicAnswerPo = answer.createTopicAnswerPo();
+            topicAnswerPo.setGmtCreate(LocalDateTime.now());
+            int effectRows = topicAnswerPoMapper.insertSelective(topicAnswerPo);
+            if(effectRows == 1){
+                answer.setId(topicAnswerPo.getId());
+                return true;
+            }
+        }
+        catch (Exception e){
+
+        }
+        return false;
     }
 
     /**
