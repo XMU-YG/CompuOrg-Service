@@ -5,12 +5,11 @@ import cn.xmu.edu.Core.util.ReturnObject;
 import cn.xmu.edu.compuOrg.mapper.TestResultPoMapper;
 import cn.xmu.edu.compuOrg.mapper.TopicAnswerPoMapper;
 import cn.xmu.edu.compuOrg.mapper.TopicPoMapper;
+import cn.xmu.edu.compuOrg.model.bo.TestResult;
+import cn.xmu.edu.compuOrg.model.bo.TestResultList;
 import cn.xmu.edu.compuOrg.model.bo.Tests;
 import cn.xmu.edu.compuOrg.model.bo.TopicAnswer;
-import cn.xmu.edu.compuOrg.model.po.TestResultPo;
-import cn.xmu.edu.compuOrg.model.po.TopicAnswerPo;
-import cn.xmu.edu.compuOrg.model.po.TopicPo;
-import cn.xmu.edu.compuOrg.model.po.TopicPoExample;
+import cn.xmu.edu.compuOrg.model.po.*;
 import cn.xmu.edu.compuOrg.model.vo.TopicVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,30 +118,33 @@ public class TestDao {
     /**
      * 插入测试结果
      * @author snow create 2021/01/25 21:47
-     * @param studentId
-     * @param experimentId
+     *            modified 2021/01/25 23:42
+     * @param testResult
      * @return
      */
-    public Long insertTestResult(Long studentId, Long experimentId){
+    public Boolean insertTestResult(TestResult testResult){
         try {
             TestResultPo testResultPo = new TestResultPo();
-            testResultPo.setStudentId(studentId);
-            testResultPo.setExperimentId(experimentId);
+            testResultPo.setStudentId(testResult.getStudentId());
+            testResultPo.setExperimentId(testResult.getExperimentId());
             testResultPo.setGmtCreate(LocalDateTime.now());
             int effectRows = testResultPoMapper.insertSelective(testResultPo);
             if(effectRows == 1){
-                return testResultPo.getId();
+                testResult.setGmtCreate(testResultPo.getGmtCreate());
+                testResult.setId(testResultPo.getId());
+                return true;
             }
         }
         catch (Exception e){
             e.printStackTrace();
         }
-        return null;
+        return false;
     }
 
     /**
      * 插入题目答案
      * @author snow create 2021/01/25 22:00
+     *            modified 2021/01/25 23:47
      * @param answer
      * @return
      */
@@ -152,6 +154,7 @@ public class TestDao {
             topicAnswerPo.setGmtCreate(LocalDateTime.now());
             int effectRows = topicAnswerPoMapper.insertSelective(topicAnswerPo);
             if(effectRows == 1){
+                answer.setGmtCreate(topicAnswerPo.getGmtCreate());
                 answer.setId(topicAnswerPo.getId());
                 return true;
             }
@@ -160,6 +163,84 @@ public class TestDao {
 
         }
         return false;
+    }
+
+    /**
+     * 教师获取某个实验的测试的结果列表
+     * @author snow create 2021/01/25 22:53
+     * @param experimentId
+     * @return
+     */
+    public ReturnObject<TestResultList> findTestResultByExperimentId(Long experimentId){
+        try {
+            TestResultPoExample example = new TestResultPoExample();
+            TestResultPoExample.Criteria criteria = example.createCriteria();
+            criteria.andExperimentIdEqualTo(experimentId);
+            List<TestResultPo> testResultPos = testResultPoMapper.selectByExample(example);
+            if(testResultPos != null && testResultPos.size() != 0){
+                TestResultList testResultList = new TestResultList();
+                for (TestResultPo testResultPo : testResultPos){
+                    testResultList.getTestResults().add(testResultPo);
+                }
+                return new ReturnObject(testResultList);
+            }
+            else{
+                return new ReturnObject<>(ResponseCode.NO_MORE_TEST_RESULT);
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return new ReturnObject<>(ResponseCode.INTERNAL_SERVER_ERR);
+    }
+
+    /**
+     * 根据测试结果id获得测试详情
+     * @author snow create 2021/01/25 23:03
+     * @param testResultId
+     * @return
+     */
+    public ReturnObject<TestResult> findTestResultById(Long testResultId){
+        try {
+            TestResultPo testResultPo = testResultPoMapper.selectByPrimaryKey(testResultId);
+            if(testResultPo != null){
+                return new ReturnObject(new TestResult(testResultPo));
+            }
+            else{
+                return new ReturnObject<>(ResponseCode.RESOURCE_ID_NOTEXIST);
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return new ReturnObject<>(ResponseCode.INTERNAL_SERVER_ERR);
+    }
+
+    /**
+     * 根据测试结果id获得题目答案
+     * @author snow create 2021/01/25 23:11
+     * @param testResultId
+     * @return
+     */
+    public List<TopicAnswer> findTopicAnswerByTestResultId(Long testResultId){
+        try {
+            TopicAnswerPoExample example = new TopicAnswerPoExample();
+            TopicAnswerPoExample.Criteria criteria = example.createCriteria();
+            criteria.andTestResultIdEqualTo(testResultId);
+            List<TopicAnswerPo> topicAnswerPos = topicAnswerPoMapper.selectByExample(example);
+            if(topicAnswerPos != null && topicAnswerPos.size() != 0){
+                List<TopicAnswer> topicAnswers = new ArrayList<>();
+                for (TopicAnswerPo topicAnswerPo : topicAnswerPos){
+                    TopicAnswer topicAnswer = new TopicAnswer(topicAnswerPo);
+                    topicAnswers.add(topicAnswer);
+                }
+                return topicAnswers;
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
