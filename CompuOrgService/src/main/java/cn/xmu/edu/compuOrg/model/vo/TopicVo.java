@@ -1,6 +1,6 @@
 package cn.xmu.edu.compuOrg.model.vo;
 
-import cn.xmu.edu.compuOrg.model.po.TestPo;
+import cn.xmu.edu.compuOrg.model.po.TopicPo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,12 +31,12 @@ public class TopicVo implements Serializable {
     @ApiModelProperty(value = "图片URL")
     private String imgUrl;
 
-    public TopicVo(TestPo testPo){
-        this.id = testPo.getId();
-        this.type = testPo.getType();
-        this.score = testPo.getScore();
-        this.content = testPo.getContent();
-        this.imgUrl = testPo.getImgUrl();
+    public TopicVo(TopicPo topicPo){
+        this.id = topicPo.getId();
+        this.type = topicPo.getType();
+        this.score = topicPo.getScore();
+        this.content = topicPo.getContent();
+        this.imgUrl = topicPo.getImgUrl();
     }
 
 }

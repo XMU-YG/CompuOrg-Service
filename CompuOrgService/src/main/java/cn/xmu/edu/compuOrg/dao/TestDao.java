@@ -2,14 +2,12 @@ package cn.xmu.edu.compuOrg.dao;
 
 import cn.xmu.edu.Core.util.ResponseCode;
 import cn.xmu.edu.Core.util.ReturnObject;
-import cn.xmu.edu.compuOrg.controller.CompuOrgController;
-import cn.xmu.edu.compuOrg.mapper.TestPoMapper;
 import cn.xmu.edu.compuOrg.mapper.TestResultPoMapper;
+import cn.xmu.edu.compuOrg.mapper.TopicPoMapper;
 import cn.xmu.edu.compuOrg.model.bo.Tests;
-import cn.xmu.edu.compuOrg.model.po.TestPo;
-import cn.xmu.edu.compuOrg.model.po.TestPoExample;
+import cn.xmu.edu.compuOrg.model.po.TopicPo;
+import cn.xmu.edu.compuOrg.model.po.TopicPoExample;
 import cn.xmu.edu.compuOrg.model.vo.TopicVo;
-import net.sf.jsqlparser.statement.select.Top;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +18,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 /**
  * @author snow create 2021/01/24 17:00
@@ -31,7 +28,7 @@ public class TestDao {
     private  static  final Logger logger = LoggerFactory.getLogger(TestDao.class);
 
     @Autowired
-    private TestPoMapper testPoMapper;
+    private TopicPoMapper topicPoMapper;
 
     @Autowired
     private TestResultPoMapper testResultPoMapper;
@@ -92,13 +89,13 @@ public class TestDao {
      */
     protected ArrayList<TopicVo> selectTopicByExperimentId(Long experimentId){
         try {
-            TestPoExample example = new TestPoExample();
-            TestPoExample.Criteria criteria = example.createCriteria();
+            TopicPoExample example = new TopicPoExample();
+            TopicPoExample.Criteria criteria = example.createCriteria();
             criteria.andExperimentIdEqualTo(experimentId);
-            List<TestPo> testPos = testPoMapper.selectByExample(example);
+            List<TopicPo> testPos = topicPoMapper.selectByExample(example);
             if(testPos != null && testPos.size() != 0){
                 ArrayList<TopicVo> topicVos = new ArrayList<>();
-                for (TestPo testPo : testPos){
+                for (TopicPo testPo : testPos){
                     TopicVo topicVo = new TopicVo(testPo);
                     topicVos.add(topicVo);
                 }
