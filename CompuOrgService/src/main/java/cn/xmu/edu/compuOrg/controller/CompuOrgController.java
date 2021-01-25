@@ -795,7 +795,7 @@ public class CompuOrgController {
             @ApiResponse(code = 800, message = "暂无更多题目"),
     })
     @Audit
-    @GetMapping("test/{experimentId}")
+    @GetMapping("student/test/{experimentId}")
     public Object generateTest(@PathVariable Long experimentId,
                                      @RequestParam(required = false, defaultValue = "5") Long size){
         logger.debug("ExperimentId: " + experimentId + ", Size: " + size);
@@ -812,6 +812,35 @@ public class CompuOrgController {
         else{
             return Common.getRetObject(retObj);
         }
+    }
+
+    /**
+     * 学生提交测试结果
+     * @author snow create 2021/01/25
+     * @param studentId
+     * @param experimentId
+     * @param testVo
+     * @return
+     */
+    @ApiOperation(value = "学生提交测试结果", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "path", dataType = "int", name = "experimentId", value = "实验序号", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "TestVo", name = "testVo", value = "题目答案列表", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+    })
+    @Audit
+    @PostMapping("student/test/{experimentId}")
+    public Object commitTest(@ApiIgnore @LoginUser Long studentId,
+                             @PathVariable Long experimentId,
+                             @RequestBody TestVo testVo){
+        logger.debug("StudentId: " + studentId + ", ExperimentId: " + experimentId);
+        if(experimentId < 1 || experimentId > 5){
+            return Common.decorateReturnObject(new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST));
+        }
+        return Common.decorateReturnObject(compuOrgService.commitTestResult(studentId, experimentId, testVo));
     }
 
 
