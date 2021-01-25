@@ -817,6 +817,7 @@ public class CompuOrgController {
     /**
      * 学生提交测试结果
      * @author snow create 2021/01/25 22:30
+     *            modified 2021/01/25 23:45
      * @param studentId
      * @param experimentId
      * @param testVo
@@ -840,7 +841,77 @@ public class CompuOrgController {
         if(experimentId < 1 || experimentId > 5){
             return Common.decorateReturnObject(new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST));
         }
-        return Common.decorateReturnObject(compuOrgService.commitTestResult(studentId, experimentId, testVo));
+        ReturnObject returnObject = compuOrgService.commitTestResult(studentId, experimentId, testVo);
+        if(returnObject.getData() == null){
+            return Common.decorateReturnObject(returnObject);
+        }
+        else {
+            return Common.getRetObject(returnObject);
+        }
+    }
+
+    /**
+     * 教师获取测试结果列表
+     * @author snow create 2021/01/25 23:27
+     * @param departId
+     * @param experimentId
+     * @return
+     */
+    @ApiOperation(value = "教师获取测试结果列表", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "path", dataType = "int", name = "experimentId", value = "实验序号", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 801, message = "暂无更多测试结果"),
+    })
+    @Audit
+    @GetMapping("teacher/test/result/{experimentId}")
+    public Object getTestResultList(@ApiIgnore @Depart Long departId,
+                                    @PathVariable Long experimentId){
+        logger.debug("DepartId: " + departId + ", ExperimentId: " + experimentId);
+        if(experimentId < 1 || experimentId > 5){
+            return Common.decorateReturnObject(new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST));
+        }
+        ReturnObject retObj = compuOrgService.getTestResultListByExperimentId(departId, experimentId);
+        if(retObj.getData() == null){
+            return Common.decorateReturnObject(retObj);
+        }
+        else{
+            return Common.getRetObject(retObj);
+        }
+    }
+
+    /**
+     * 根据测试结果id获得测试详细
+     * @author snow create 2021/01/24 15:00
+     * @param userId
+     * @param departId
+     * @param resultId
+     * @return
+     */
+    @ApiOperation(value = "根据测试结果id获得测试详细", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "path", dataType = "int", name = "resultId", value = "测试结果id", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+    })
+    @Audit
+    @GetMapping("test/result/{resultId}")
+    public Object getTestResultById(@ApiIgnore @LoginUser Long userId,
+                                    @ApiIgnore @Depart Long departId,
+                                    @PathVariable Long resultId){
+        logger.debug("UserId: " + userId + ", departId: " + departId + ", ExperimentId: " + resultId);
+        ReturnObject retObj = compuOrgService.getTestResultDetailByTestResultId(userId, departId, resultId);
+        if(retObj.getData() == null){
+            return Common.decorateReturnObject(retObj);
+        }
+        else{
+            return Common.getRetObject(retObj);
+        }
     }
 
 
