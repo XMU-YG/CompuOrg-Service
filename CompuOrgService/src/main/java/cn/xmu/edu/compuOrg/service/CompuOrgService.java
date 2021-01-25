@@ -3,10 +3,7 @@ package cn.xmu.edu.compuOrg.service;
 import cn.xmu.edu.Core.util.*;
 import cn.xmu.edu.compuOrg.controller.CompuOrgController;
 import cn.xmu.edu.compuOrg.dao.*;
-import cn.xmu.edu.compuOrg.model.bo.Admin;
-import cn.xmu.edu.compuOrg.model.bo.Student;
-import cn.xmu.edu.compuOrg.model.bo.Teacher;
-import cn.xmu.edu.compuOrg.model.bo.User;
+import cn.xmu.edu.compuOrg.model.bo.*;
 import cn.xmu.edu.compuOrg.model.po.StudentPo;
 import cn.xmu.edu.compuOrg.model.vo.*;
 import org.slf4j.Logger;
@@ -16,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 @Service
 public class CompuOrgService {
@@ -599,5 +597,32 @@ public class CompuOrgService {
      */
     public ReturnObject generateTest(Long experimentId, Long size){
         return testDao.getTest(experimentId, size);
+    }
+
+    /**
+     * 学生提交测试结果
+     * @author snow create 2021/01/25 22:25
+     * @param studentId
+     * @param experimentId
+     * @param testVo
+     * @return
+     */
+    public ReturnObject commitTestResult(Long studentId, Long experimentId, TestVo testVo){
+        Long testResultId = testDao.insertTestResult(studentId, experimentId);
+        if (testResultId != null) {
+            ArrayList<TopicAnswer> topicAnswers = new ArrayList<>();
+            for (TopicAnswerVo topicAnswerVo : testVo.getTopicAnswerVos()) {
+                TopicAnswer topicAnswer = new TopicAnswer(topicAnswerVo);
+                topicAnswer.setTestResultId(testResultId);
+                if (testDao.insertTopicAnswer(topicAnswer)) {
+                    topicAnswers.add(topicAnswer);
+                }
+                else {
+                    return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
+                }
+            }
+            return new ReturnObject(ResponseCode.OK);
+        }
+        return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
     }
 }
