@@ -166,6 +166,58 @@ public class TestDao {
     }
 
     /**
+     * 更新测试结果总评分
+     * @author snow create 2021/01/27 22:02
+     * @param testResultId
+     * @param score
+     * @return
+     */
+    public ReturnObject updateTestResultScore(Long testResultId, Integer score){
+        try {
+            TestResultPo testResultPo = testResultPoMapper.selectByPrimaryKey(testResultId);
+            if(testResultPo == null){
+                return new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST);
+            }
+            testResultPo.setScore(score);
+            testResultPo.setGmtModified(LocalDateTime.now());
+            int effectRows = testResultPoMapper.updateByPrimaryKeySelective(testResultPo);
+            if (effectRows == 1){
+                return new ReturnObject(ResponseCode.OK);
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
+    }
+
+    /**
+     * 更新题目答案评分
+     * @author snow create 2021/01/27 22:04
+     * @param topicAnswerId
+     * @param score
+     * @return
+     */
+    public ReturnObject updateTopicAnswerScore(Long topicAnswerId, Integer score){
+        try {
+            TopicAnswerPo topicAnswerPo = topicAnswerPoMapper.selectByPrimaryKey(topicAnswerId);
+            if(topicAnswerPo == null){
+                return new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST);
+            }
+            topicAnswerPo.setScore(score);
+            topicAnswerPo.setGmtModified(LocalDateTime.now());
+            int effectRows = topicAnswerPoMapper.updateByPrimaryKeySelective(topicAnswerPo);
+            if (effectRows == 1){
+                return new ReturnObject(ResponseCode.OK);
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
+    }
+
+    /**
      * 教师获取某个实验的测试的结果列表
      * @author snow create 2021/01/25 22:53
      * @param experimentId
