@@ -1,10 +1,8 @@
 package cn.xmu.edu.compuOrg.service;
 
 import cn.xmu.edu.Core.util.*;
-import cn.xmu.edu.compuOrg.controller.CompuOrgController;
 import cn.xmu.edu.compuOrg.dao.*;
 import cn.xmu.edu.compuOrg.model.bo.*;
-import cn.xmu.edu.compuOrg.model.po.StudentPo;
 import cn.xmu.edu.compuOrg.model.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -664,5 +661,28 @@ public class CompuOrgService {
             return new ReturnObject(testResult);
         }
         return retObj;
+    }
+
+    /**
+     * 教师提交测试结果评分
+     * @author snow create 2021/01/27 23:03
+     * @param departId
+     * @param testResultScore
+     * @return
+     */
+    public ReturnObject commitTestResultScore(Long departId, TestResultScoreVo testResultScore){
+        if(studentDepartId.equals(departId)){
+            return new ReturnObject(ResponseCode.RESOURCE_ID_OUTSCOPE);
+        }
+        Integer totalScore = 0;
+        ReturnObject retObj = null;
+        for(TopicAnswerScoreVo topicAnswerScore : testResultScore.getTopicAnswerScores()){
+            totalScore += topicAnswerScore.getScore();
+            retObj = testDao.updateTopicAnswerScore(topicAnswerScore.getTopicAnswerId(), topicAnswerScore.getScore());
+            if(retObj.getCode() != ResponseCode.OK){
+                return retObj;
+            }
+        }
+        return testDao.updateTestResultScore(testResultScore.getTestResultId(), totalScore);
     }
 }
