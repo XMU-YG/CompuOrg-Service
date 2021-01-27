@@ -914,5 +914,27 @@ public class CompuOrgController {
         }
     }
 
+    /**
+     * 教师提交测试结果评分
+     * @author snow create 2021/01/27 23:08
+     * @param departId
+     * @return
+     */
+    @ApiOperation(value = "教师提交测试结果评分", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "TestResultScoreVo", name = "testResultScoreVo", value = "测试结果评分", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+    })
+    @Audit
+    @PutMapping("teacher/test/result")
+    public Object commitTestResultScore(@ApiIgnore @Depart Long departId,
+                                        @Validated @RequestBody TestResultScoreVo testResultScoreVo){
+        logger.debug("DepartId: " + departId);
+        return Common.decorateReturnObject(compuOrgService.commitTestResultScore(departId, testResultScoreVo));
+    }
+
 
 }
