@@ -178,6 +178,52 @@ public class TestDao {
     }
 
     /**
+     * 删除题目
+     * @author snow create 2021/01/28 13:42
+     * @param topicId
+     * @return
+     */
+    public ReturnObject deleteTopic(Long topicId){
+        try {
+            int effectRows = topicPoMapper.deleteByPrimaryKey(topicId);
+            if (effectRows == 1){
+                return new ReturnObject(ResponseCode.OK);
+            }
+            else {
+                return new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST);
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
+    }
+
+    /**
+     * 修改题目
+     * @author snow create 2021/01/28 13:46
+     * @param topic
+     * @return
+     */
+    public ReturnObject alterTopic(Topic topic){
+        try {
+            TopicPo topicPo = topic.createTopicPo();
+            topicPo.setGmtModified(LocalDateTime.now());
+            int effectRows = topicPoMapper.updateByPrimaryKeySelective(topicPo);
+            if (effectRows == 1){
+                return new ReturnObject(ResponseCode.OK);
+            }
+            else {
+                return new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST);
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
+    }
+
+    /**
      * 插入题目答案
      * @author snow create 2021/01/25 22:00
      *            modified 2021/01/25 23:47
