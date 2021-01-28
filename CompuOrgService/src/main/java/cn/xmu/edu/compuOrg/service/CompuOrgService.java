@@ -598,6 +598,21 @@ public class CompuOrgService {
     }
 
     /**
+     * 教师增加题目
+     * @author snow create 2021/01/28 10:22
+     * @param departId
+     * @param topicVo
+     * @return
+     */
+    public ReturnObject appendTopic(Long departId, TopicVo topicVo){
+        if(studentDepartId.equals(departId)){
+            return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
+        }
+        Topic topic = new Topic(topicVo);
+        return testDao.insertTopic(topic);
+    }
+
+    /**
      * 学生提交测试结果
      * @author snow create 2021/01/25 22:25
      *            modified 2021/01/25 23:43
