@@ -5,6 +5,7 @@ import cn.xmu.edu.Core.util.*;
 import cn.xmu.edu.compuOrg.dao.*;
 import cn.xmu.edu.compuOrg.model.bo.*;
 import cn.xmu.edu.compuOrg.model.po.TestResultPo;
+import cn.xmu.edu.compuOrg.model.po.TopicPo;
 import cn.xmu.edu.compuOrg.model.vo.*;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -647,6 +648,36 @@ public class CompuOrgService {
         topic.setId(topicId);
         return testDao.alterTopic(topic);
 
+    }
+
+    /**
+     * 教师查询题目列表
+     * @author snow create 2021/01/28 14:34
+     * @param departId
+     * @param experimentId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    public ReturnObject<PageInfo<VoObject>> getTopicList(Long departId, Long experimentId,
+                                                         Integer page, Integer pageSize){
+        if(studentDepartId.equals(departId)){
+            return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
+        }
+        PageHelper.startPage(page, pageSize);
+        PageInfo<TopicPo> topicPos = testDao.findTopicList(experimentId);
+        if(topicPos == null){
+            return new ReturnObject<>(ResponseCode.NO_MORE_TOPIC);
+        }
+        List<VoObject> topicList = topicPos.getList().stream().map(Topic::new).filter(Topic::authentic).collect(Collectors.toList());
+
+        PageInfo<VoObject> retObj = new PageInfo<>(topicList);
+        retObj.setPages(topicPos.getPages());
+        retObj.setPageNum(topicPos.getPageNum());
+        retObj.setPageSize(topicPos.getPageSize());
+        retObj.setTotal(topicPos.getTotal());
+
+        return new ReturnObject<>(retObj);
     }
 
     /**
