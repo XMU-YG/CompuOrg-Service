@@ -4,6 +4,7 @@ import cn.xmu.edu.Core.annotation.Audit;
 import cn.xmu.edu.Core.annotation.Depart;
 import cn.xmu.edu.Core.annotation.LoginUser;
 import cn.xmu.edu.Core.util.*;
+import cn.xmu.edu.compuOrg.model.bo.TestResult;
 import cn.xmu.edu.compuOrg.model.vo.*;
 import cn.xmu.edu.compuOrg.service.CompuOrgService;
 import io.swagger.annotations.*;
@@ -152,7 +153,7 @@ public class CompuOrgController {
 
     })
     @ApiResponses({
-            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 0, message = "成功", response = StudentRetVo.class),
             @ApiResponse(code = 731, message = "学号已被注册"),
             @ApiResponse(code = 732, message = "邮箱已被注册"),
             @ApiResponse(code = 733, message = "电话已被注册"),
@@ -376,7 +377,7 @@ public class CompuOrgController {
 
     })
     @ApiResponses({
-            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 0, message = "成功", response = TeacherRetVo.class),
             @ApiResponse(code = 732, message = "邮箱已被注册"),
             @ApiResponse(code = 733, message = "电话已被注册"),
             @ApiResponse(code = 734, message = "工号已被注册"),
@@ -602,7 +603,7 @@ public class CompuOrgController {
 
     })
     @ApiResponses({
-            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 0, message = "成功", response = AdminRetVo.class),
             @ApiResponse(code = 705, message = "无权限访问"),
             @ApiResponse(code = 732, message = "邮箱已被注册"),
             @ApiResponse(code = 733, message = "电话已被注册"),
@@ -792,7 +793,7 @@ public class CompuOrgController {
             @ApiImplicitParam(paramType = "query", dataType = "int", name = "size", value = "题目数量", required = false, defaultValue = "5"),
     })
     @ApiResponses({
-            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 0, message = "成功", response = TestRetVo.class),
             @ApiResponse(code = 800, message = "暂无更多题目"),
     })
     @Audit
@@ -830,7 +831,7 @@ public class CompuOrgController {
             @ApiImplicitParam(paramType = "body", dataType = "TopicVo", name = "topicVo", value = "题目详情", required = true),
     })
     @ApiResponses({
-            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 0, message = "成功", response = TopicRetVo.class),
     })
     @Audit
     @PostMapping("test/topic")
@@ -955,7 +956,7 @@ public class CompuOrgController {
             @ApiImplicitParam(paramType = "body", dataType = "TestVo", name = "testVo", value = "题目答案列表", required = true),
     })
     @ApiResponses({
-            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 0, message = "成功", response = TestResult.class),
     })
     @Audit
     @PostMapping("test/result")
@@ -1030,7 +1031,7 @@ public class CompuOrgController {
             @ApiImplicitParam(paramType = "path", dataType = "int", name = "resultId", value = "测试结果id", required = true),
     })
     @ApiResponses({
-            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 0, message = "成功", response = TestResult.class),
     })
     @Audit
     @GetMapping("test/result/{resultId}")
