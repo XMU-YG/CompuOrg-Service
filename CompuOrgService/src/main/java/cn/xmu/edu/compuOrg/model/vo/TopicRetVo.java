@@ -1,6 +1,6 @@
 package cn.xmu.edu.compuOrg.model.vo;
 
-import cn.xmu.edu.compuOrg.model.po.TopicPo;
+import cn.xmu.edu.compuOrg.model.bo.Topic;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,12 +31,12 @@ public class TopicRetVo implements Serializable {
     @ApiModelProperty(value = "图片URL")
     private String imgUrl;
 
-    public TopicRetVo(TopicPo topicPo){
-        this.id = topicPo.getId();
-        this.type = topicPo.getType();
-        this.score = topicPo.getScore();
-        this.content = topicPo.getContent();
-        this.imgUrl = topicPo.getImgUrl();
+    public TopicRetVo(Topic topic){
+        this.id = topic.getId();
+        this.type = topic.getType();
+        this.score = topic.getScore();
+        this.content = topic.getContent();
+        this.imgUrl = topic.getImgUrl();
     }
 
 }
