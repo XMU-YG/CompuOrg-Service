@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.ArrayList;
 
 @Data
-public class StaticMemExperimentVo {
+public class StaticMemReadVo {
     @ApiModelProperty(value = "地址")
     private ArrayList<Integer> address;
 }
