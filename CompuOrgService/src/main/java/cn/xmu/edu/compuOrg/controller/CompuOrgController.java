@@ -815,6 +815,35 @@ public class CompuOrgController {
     }
 
     /**
+     * 教师新增测试题目
+     * @author snow create 2021/01/28 10:26
+     * @param departId
+     * @param topicVo
+     * @return
+     */
+    @ApiOperation(value = "教师新增测试题目", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "TopicVo", name = "topicVo", value = "题目详情", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+    })
+    @Audit
+    @PostMapping("teacher/test")
+    public Object appendNewTopic(@ApiIgnore @Depart Long departId,
+                                 @Validated @RequestBody TopicVo topicVo){
+        logger.debug("DepartId: " + departId + ", Topic: " + topicVo.toString());
+        ReturnObject retObj = compuOrgService.appendTopic(departId, topicVo);
+        if (retObj.getData() != null){
+            return Common.getRetObject(retObj);
+        }
+        else {
+            return Common.decorateReturnObject(retObj);
+        }
+    }
+
+    /**
      * 学生提交测试结果
      * @author snow create 2021/01/25 22:30
      *            modified 2021/01/25 23:45
