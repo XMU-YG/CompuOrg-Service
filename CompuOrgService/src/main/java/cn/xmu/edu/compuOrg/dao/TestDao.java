@@ -44,6 +44,7 @@ public class TestDao {
      * 根据从Redis中实验序号获取题目
      * @author snow create 2021/01/24 17:34
      *            modified 2021/01/28 10:00
+     *            modified 2021/01/28 14:26
      * @param experimentId
      * @param size
      * @return
@@ -51,16 +52,8 @@ public class TestDao {
     public ReturnObject<Tests> getTest(Long experimentId, Long size){
         try {
             String key = "ex_" + experimentId;
-            if(!redisTemplate.hasKey(key) || redisTemplate.opsForList().size(key) == 0){
-                ArrayList<Topic> topics = selectTopicByExperimentId(experimentId);
-                if(topics != null){
-                    for (Topic topic : topics) {
-                        redisTemplate.opsForList().rightPush(key, topic);
-                    }
-                }
-                else {
-                    return new ReturnObject(ResponseCode.NO_MORE_TOPIC);
-                }
+            if((!redisTemplate.hasKey(key) || redisTemplate.opsForList().size(key) == 0) && !loadTopicFromDataBase(experimentId)){
+                return new ReturnObject<>(ResponseCode.NO_MORE_TOPIC);
             }
             Tests test = new Tests();
             ArrayList<Topic> topics;
@@ -84,6 +77,26 @@ public class TestDao {
             e.printStackTrace();
         }
         return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
+    }
+
+    /**
+     * 把数据库中某个实验对应的题目load到缓存中
+     * @author snow create 2021/01/28 14:23
+     * @param experimentId
+     * @return
+     */
+    public Boolean loadTopicFromDataBase(Long experimentId){
+        ArrayList<Topic> topics = selectTopicByExperimentId(experimentId);
+        if(topics != null){
+            String key = "ex_" + experimentId;
+            for (Topic topic : topics) {
+                redisTemplate.opsForList().rightPush(key, topic);
+            }
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     /**
@@ -221,6 +234,28 @@ public class TestDao {
             e.printStackTrace();
         }
         return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
+    }
+
+    /**
+     * 获取题目列表
+     * @author snow create 2021/01/28 14:29
+     * @param experimentId
+     * @return
+     */
+    public PageInfo<TopicPo> findTopicList(Long experimentId){
+        try {
+            TopicPoExample example = new TopicPoExample();
+            TopicPoExample.Criteria criteria = example.createCriteria();
+            if(experimentId != null) {
+                criteria.andExperimentIdEqualTo(experimentId);
+            }
+            List<TopicPo> topicPos = topicPoMapper.selectByExample(example);
+            return new PageInfo<>(topicPos);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
