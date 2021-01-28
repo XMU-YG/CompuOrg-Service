@@ -19,7 +19,7 @@ public class TestRetVo {
     private Long experimentId;
 
     @ApiModelProperty(value = "题目列表")
-    private ArrayList<TopicVo> topics;
+    private ArrayList<TopicRetVo> topics;
 
     public TestRetVo(Tests test){
         this.size = test.getSize();

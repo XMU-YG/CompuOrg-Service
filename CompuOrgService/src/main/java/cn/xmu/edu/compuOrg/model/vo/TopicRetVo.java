@@ -14,7 +14,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TopicVo implements Serializable {
+public class TopicRetVo implements Serializable {
 
     @ApiModelProperty(value = "id")
     private Long id;
@@ -31,7 +31,7 @@ public class TopicVo implements Serializable {
     @ApiModelProperty(value = "图片URL")
     private String imgUrl;
 
-    public TopicVo(TopicPo topicPo){
+    public TopicRetVo(TopicPo topicPo){
         this.id = topicPo.getId();
         this.type = topicPo.getType();
         this.score = topicPo.getScore();

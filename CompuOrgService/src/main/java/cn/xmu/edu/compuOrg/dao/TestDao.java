@@ -10,7 +10,7 @@ import cn.xmu.edu.compuOrg.model.bo.TestResultList;
 import cn.xmu.edu.compuOrg.model.bo.Tests;
 import cn.xmu.edu.compuOrg.model.bo.TopicAnswer;
 import cn.xmu.edu.compuOrg.model.po.*;
-import cn.xmu.edu.compuOrg.model.vo.TopicVo;
+import cn.xmu.edu.compuOrg.model.vo.TopicRetVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,10 +54,10 @@ public class TestDao {
         try {
             String key = "ex_" + experimentId;
             if(!redisTemplate.hasKey(key) || redisTemplate.opsForList().size(key) == 0){
-                ArrayList<TopicVo> topicVos = selectTopicByExperimentId(experimentId);
-                if(topicVos != null){
-                    for (TopicVo topicVo:topicVos) {
-                        redisTemplate.opsForList().rightPush(key, topicVo);
+                ArrayList<TopicRetVo> topicRetVos = selectTopicByExperimentId(experimentId);
+                if(topicRetVos != null){
+                    for (TopicRetVo topicRetVo : topicRetVos) {
+                        redisTemplate.opsForList().rightPush(key, topicRetVo);
                     }
                 }
                 else {
@@ -65,21 +65,21 @@ public class TestDao {
                 }
             }
             Tests test = new Tests();
-            ArrayList<TopicVo> topicVos;
+            ArrayList<TopicRetVo> topicRetVos;
             if(redisTemplate.opsForList().size(key) <= size){
                 List<Serializable> members = redisTemplate.opsForList().range(key, 0, -1);
-                topicVos = (ArrayList)members;
+                topicRetVos = (ArrayList)members;
             }
             else{
                 int[] randomSet = randomArray(0, redisTemplate.opsForList().size(key).intValue(), size.intValue());
-                topicVos = new ArrayList<>();
+                topicRetVos = new ArrayList<>();
                 for (int i : randomSet){
-                    topicVos.add((TopicVo)redisTemplate.opsForList().index(key, i));
+                    topicRetVos.add((TopicRetVo)redisTemplate.opsForList().index(key, i));
                 }
             }
             test.setExperimentId(experimentId);
             test.setSize(size);
-            test.setTopics(topicVos);
+            test.setTopics(topicRetVos);
             return new ReturnObject(test);
         }
         catch (Exception e){
@@ -94,19 +94,19 @@ public class TestDao {
      * @param experimentId
      * @return
      */
-    protected ArrayList<TopicVo> selectTopicByExperimentId(Long experimentId){
+    protected ArrayList<TopicRetVo> selectTopicByExperimentId(Long experimentId){
         try {
             TopicPoExample example = new TopicPoExample();
             TopicPoExample.Criteria criteria = example.createCriteria();
             criteria.andExperimentIdEqualTo(experimentId);
             List<TopicPo> testPos = topicPoMapper.selectByExample(example);
             if(testPos != null && testPos.size() != 0){
-                ArrayList<TopicVo> topicVos = new ArrayList<>();
+                ArrayList<TopicRetVo> topicRetVos = new ArrayList<>();
                 for (TopicPo testPo : testPos){
-                    TopicVo topicVo = new TopicVo(testPo);
-                    topicVos.add(topicVo);
+                    TopicRetVo topicRetVo = new TopicRetVo(testPo);
+                    topicRetVos.add(topicRetVo);
                 }
-                return topicVos;
+                return topicRetVos;
             }
         }
         catch (Exception e){
