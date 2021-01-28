@@ -1,9 +1,13 @@
 package cn.xmu.edu.compuOrg.service;
 
+import cn.xmu.edu.Core.model.VoObject;
 import cn.xmu.edu.Core.util.*;
 import cn.xmu.edu.compuOrg.dao.*;
 import cn.xmu.edu.compuOrg.model.bo.*;
+import cn.xmu.edu.compuOrg.model.po.TestResultPo;
 import cn.xmu.edu.compuOrg.model.vo.*;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CompuOrgService {
@@ -644,17 +649,37 @@ public class CompuOrgService {
     }
 
     /**
-     * 教师根据实验序号获取测试结果列表
+     * 获取测试结果列表
      * @author snow create 2021/01/25 23:15
+     *            modified 2021/01/28 12:43
      * @param departId
+     * @param userId
      * @param experimentId
+     * @param studentId
+     * @param page
+     * @param pageSize
      * @return
      */
-    public ReturnObject getTestResultListByExperimentId(Long departId, Long experimentId){
-        if(studentDepartId.equals(departId)){
+    public ReturnObject<PageInfo<VoObject>> getTestResultList(Long departId, Long userId,
+                                                        Long experimentId, Long studentId,
+                                                        Integer page, Integer pageSize){
+        if(studentDepartId.equals(departId) && !userId.equals(studentId)){
             return new ReturnObject(ResponseCode.RESOURCE_ID_OUTSCOPE);
         }
-        return testDao.findTestResultByExperimentId(experimentId);
+        PageHelper.startPage(page, pageSize);
+        PageInfo<TestResultPo> testResultPo = testDao.findTestResultByExperimentId(experimentId, studentId);
+        if(testResultPo == null){
+            return new ReturnObject<>(ResponseCode.AUTH_NEED_LOGIN);
+        }
+        List<VoObject> testResultBrief = testResultPo.getList().stream().map(TestResult::new).filter(TestResult::authentic).collect(Collectors.toList());
+
+        PageInfo<VoObject> retObj = new PageInfo<>(testResultBrief);
+        retObj.setPages(testResultPo.getPages());
+        retObj.setPageNum(testResultPo.getPageNum());
+        retObj.setPageSize(testResultPo.getPageSize());
+        retObj.setTotal(testResultPo.getTotal());
+
+        return new ReturnObject<>(retObj);
     }
 
     /**
