@@ -38,6 +38,7 @@ public class Topic implements VoObject, Serializable {
 
     public TopicPo createTopicPo(){
         TopicPo topicPo = new TopicPo();
+        topicPo.setId(this.id);
         topicPo.setType(this.type);
         topicPo.setScore(this.score);
         topicPo.setImgUrl(this.imgUrl);
