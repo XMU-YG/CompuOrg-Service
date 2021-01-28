@@ -19,6 +19,9 @@ public class TopicRetVo implements Serializable {
     @ApiModelProperty(value = "id")
     private Long id;
 
+    @ApiModelProperty(value = "实验序号")
+    private Long experimentId;
+
     @ApiModelProperty(value = "类型")
     private Byte type;
 
@@ -35,8 +38,9 @@ public class TopicRetVo implements Serializable {
         this.id = topic.getId();
         this.type = topic.getType();
         this.score = topic.getScore();
-        this.content = topic.getContent();
         this.imgUrl = topic.getImgUrl();
+        this.content = topic.getContent();
+        this.experimentId = topic.getExperimentId();
     }
 
 }
