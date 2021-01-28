@@ -7,6 +7,7 @@ import cn.xmu.edu.compuOrg.mapper.TopicAnswerPoMapper;
 import cn.xmu.edu.compuOrg.mapper.TopicPoMapper;
 import cn.xmu.edu.compuOrg.model.bo.*;
 import cn.xmu.edu.compuOrg.model.po.*;
+import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -255,30 +256,28 @@ public class TestDao {
     /**
      * 教师获取某个实验的测试的结果列表
      * @author snow create 2021/01/25 22:53
+     *            modified 2021/01/28 12:42
      * @param experimentId
+     * @param studentId
      * @return
      */
-    public ReturnObject<TestResultList> findTestResultByExperimentId(Long experimentId){
+    public PageInfo<TestResultPo> findTestResultByExperimentId(Long experimentId, Long studentId){
         try {
             TestResultPoExample example = new TestResultPoExample();
             TestResultPoExample.Criteria criteria = example.createCriteria();
-            criteria.andExperimentIdEqualTo(experimentId);
+            if(experimentId != null) {
+                criteria.andExperimentIdEqualTo(experimentId);
+            }
+            if(studentId != null){
+                criteria.andStudentIdEqualTo(studentId);
+            }
             List<TestResultPo> testResultPos = testResultPoMapper.selectByExample(example);
-            if(testResultPos != null && testResultPos.size() != 0){
-                TestResultList testResultList = new TestResultList();
-                for (TestResultPo testResultPo : testResultPos){
-                    testResultList.getTestResults().add(testResultPo);
-                }
-                return new ReturnObject(testResultList);
-            }
-            else{
-                return new ReturnObject<>(ResponseCode.NO_MORE_TEST_RESULT);
-            }
+            return new PageInfo<>(testResultPos);
         }
         catch (Exception e){
             e.printStackTrace();
         }
-        return new ReturnObject<>(ResponseCode.INTERNAL_SERVER_ERR);
+        return null;
     }
 
     /**
