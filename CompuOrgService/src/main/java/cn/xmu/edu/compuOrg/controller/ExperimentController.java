@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Api(value = "实验", tags = "compuOrgExperiment")
 @RestController /*Restful的Controller对象*/
@@ -56,7 +57,7 @@ public class ExperimentController {
             @ApiResponse(code = 0, message = "成功"),
     })
     @GetMapping("static_memory_exp")
-    public Object readData(@LoginUser String studentNo, @RequestBody StaticMemReadVo staticMemReadVo) {
+    public Object readData(@ApiIgnore @LoginUser String studentNo, @RequestBody StaticMemReadVo staticMemReadVo) {
         logger.debug("static memory experiment read data");
         return Common.decorateReturnObject(staticMemExpService.readData(studentNo, staticMemReadVo));
     }
@@ -71,7 +72,7 @@ public class ExperimentController {
             @ApiResponse(code = 0, message = "成功"),
     })
     @PutMapping("static_memory_exp")
-    public Object writeData(@LoginUser String studentNo, @RequestBody StaticMemWriteVo vo) {
+    public Object writeData(@ApiIgnore @LoginUser String studentNo, @RequestBody StaticMemWriteVo vo) {
         logger.debug("static memory experiment read data");
         return Common.decorateReturnObject(staticMemExpService.writeData(studentNo, vo));
     }
