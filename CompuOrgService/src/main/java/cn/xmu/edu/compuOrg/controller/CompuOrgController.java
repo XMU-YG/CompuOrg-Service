@@ -907,6 +907,38 @@ public class CompuOrgController {
     }
 
     /**
+     * 教师获取题目列表
+     * @author snow create 2021/01/28 14:35
+     * @param departId
+     * @param experimentId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "教师获取题目列表", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "experimentId", value = "实验序号", required = false),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "page", value = "页码", defaultValue = "1", required = true),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "pageSize", value = "页大小", defaultValue = "5", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+    })
+    @Audit
+    @GetMapping("test/topic")
+    public Object getTopicList(@ApiIgnore @Depart Long departId,
+                                    @RequestParam(required = false) Long experimentId,
+                                    @RequestParam(defaultValue = "1") Integer page,
+                                    @RequestParam(defaultValue = "5") Integer pageSize){
+        logger.debug("DepartId: " + departId + ", ExperimentId: " + experimentId);
+        if(experimentId != null && (experimentId < 1 || experimentId > 5)){
+            return Common.decorateReturnObject(new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST));
+        }
+        return Common.getPageRetObject(compuOrgService.getTopicList(departId, experimentId, page, pageSize));
+    }
+
+    /**
      * 学生提交测试结果
      * @author snow create 2021/01/25 22:30
      *            modified 2021/01/25 23:45
