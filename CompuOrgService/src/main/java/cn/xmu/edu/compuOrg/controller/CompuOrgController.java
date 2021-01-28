@@ -880,36 +880,42 @@ public class CompuOrgController {
     }
 
     /**
-     * 教师获取测试结果列表
+     * 获取测试结果列表
      * @author snow create 2021/01/25 23:27
+     *            modified 2021/01/28 12:00
      * @param departId
+     * @param userId
      * @param experimentId
+     * @param studentId
+     * @param page
+     * @param pageSize
      * @return
      */
-    @ApiOperation(value = "教师获取测试结果列表", produces = "application/json")
+    @ApiOperation(value = "获取测试结果列表", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
-            @ApiImplicitParam(paramType = "path", dataType = "int", name = "experimentId", value = "实验序号", required = true),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "experimentId", value = "实验序号", required = false),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "studentId", value = "学生id", required = false),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "page", value = "页码", defaultValue = "1", required = false),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "pageSize", value = "页大小", defaultValue = "5", required = false),
     })
     @ApiResponses({
             @ApiResponse(code = 0, message = "成功"),
             @ApiResponse(code = 801, message = "暂无更多测试结果"),
     })
     @Audit
-    @GetMapping("teacher/test/result/{experimentId}")
+    @GetMapping("test/result")
     public Object getTestResultList(@ApiIgnore @Depart Long departId,
-                                    @PathVariable Long experimentId){
-        logger.debug("DepartId: " + departId + ", ExperimentId: " + experimentId);
-        if(experimentId < 1 || experimentId > 5){
+                                    @ApiIgnore @LoginUser Long userId,
+                                    @RequestParam(required = false) Long experimentId,
+                                    @RequestParam(required = false) Long studentId,
+                                    @RequestParam(defaultValue = "1") Integer page,
+                                    @RequestParam(defaultValue = "5") Integer pageSize){
+        logger.debug("DepartId: " + departId + ", UserId: " + userId + ", ExperimentId: " + experimentId + ", StudentId: " + studentId);
+        if(experimentId != null && (experimentId < 1 || experimentId > 5)){
             return Common.decorateReturnObject(new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST));
         }
-        ReturnObject retObj = compuOrgService.getTestResultListByExperimentId(departId, experimentId);
-        if(retObj.getData() == null){
-            return Common.decorateReturnObject(retObj);
-        }
-        else{
-            return Common.getRetObject(retObj);
-        }
+        return Common.getPageRetObject(compuOrgService.getTestResultList(departId, userId, experimentId, studentId, page, pageSize));
     }
 
     /**
