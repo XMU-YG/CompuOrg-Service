@@ -32,8 +32,9 @@ public class Topic implements VoObject, Serializable {
         this.id = topicPo.getId();
         this.type = topicPo.getType();
         this.score = topicPo.getScore();
-        this.content = topicPo.getContent();
         this.imgUrl = topicPo.getImgUrl();
+        this.content = topicPo.getContent();
+        this.experimentId = topicPo.getExperimentId();
     }
 
     public TopicPo createTopicPo(){
@@ -45,6 +46,10 @@ public class Topic implements VoObject, Serializable {
         topicPo.setContent(this.content);
         topicPo.setExperimentId(this.experimentId);
         return topicPo;
+    }
+
+    public Boolean authentic(){
+        return true;
     }
 
     @Override
