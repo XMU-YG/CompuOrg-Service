@@ -618,18 +618,50 @@ public class CompuOrgService {
     }
 
     /**
+     * 教师删除题目
+     * @author snow create 2021/01/28 13:48
+     * @param departId
+     * @param topicId
+     * @return
+     */
+    public ReturnObject removeTopic(Long departId, Long topicId){
+        if(studentDepartId.equals(departId)){
+            return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
+        }
+        return testDao.deleteTopic(topicId);
+    }
+
+    /**
+     * 教师修改题目
+     * @author snow create 2021/01/28 13:50
+     * @param departId
+     * @param topicId
+     * @param topicVo
+     * @return
+     */
+    public ReturnObject modifyTopic(Long departId, Long topicId, TopicVo topicVo){
+        if(studentDepartId.equals(departId)){
+            return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
+        }
+        Topic topic = new Topic(topicVo);
+        topic.setId(topicId);
+        return testDao.alterTopic(topic);
+
+    }
+
+    /**
      * 学生提交测试结果
      * @author snow create 2021/01/25 22:25
      *            modified 2021/01/25 23:43
+     *            modified 2021/01/28 13:27
      * @param studentId
-     * @param experimentId
      * @param testVo
      * @return
      */
-    public ReturnObject commitTestResult(Long studentId, Long experimentId, TestVo testVo){
+    public ReturnObject commitTestResult(Long studentId, TestVo testVo){
         TestResult testResult = new TestResult();
         testResult.setStudentId(studentId);
-        testResult.setExperimentId(experimentId);
+        testResult.setExperimentId(testVo.getExperimentId());
         if (testDao.insertTestResult(testResult)) {
             List<TopicAnswer> topicAnswers = new ArrayList<>();
             for (TopicAnswerVo topicAnswerVo : testVo.getTopicAnswerVos()) {
