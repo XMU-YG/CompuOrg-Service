@@ -1,6 +1,7 @@
 package cn.xmu.edu.compuOrg.model.vo;
 
 import cn.xmu.edu.compuOrg.model.bo.Tests;
+import cn.xmu.edu.compuOrg.model.bo.Topic;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -19,12 +20,16 @@ public class TestRetVo {
     private Long experimentId;
 
     @ApiModelProperty(value = "题目列表")
-    private ArrayList<TopicVo> topics;
+    private ArrayList<TopicRetVo> topics;
 
     public TestRetVo(Tests test){
         this.size = test.getSize();
         this.experimentId = test.getExperimentId();
-        this.topics = test.getTopics();
+        this.topics = new ArrayList<>();
+        for(Topic topic : test.getTopics()){
+            TopicRetVo topicRetVo = new TopicRetVo(topic);
+            this.topics.add(topicRetVo);
+        }
     }
 
 }

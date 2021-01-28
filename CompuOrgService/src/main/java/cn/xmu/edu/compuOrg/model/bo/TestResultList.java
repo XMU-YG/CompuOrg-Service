@@ -1,25 +1,24 @@
 package cn.xmu.edu.compuOrg.model.bo;
 
 import cn.xmu.edu.Core.model.VoObject;
-import cn.xmu.edu.compuOrg.model.vo.TestRetVo;
+import cn.xmu.edu.compuOrg.model.po.TestResultPo;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
-/**
- * @author snow create 2021/01/24 18:45
- */
 @Data
-public class Tests implements VoObject, Serializable {
+public class TestResultList implements VoObject, Serializable {
+    private List<TestResultPo> testResults;
 
-    private Long size;
-    private Long experimentId;
-    private ArrayList<Topic> topics;
+    public TestResultList(){
+        this.testResults = new ArrayList<>();
+    }
 
     @Override
     public Object createVo() {
-        return new TestRetVo(this);
+        return this;
     }
 
     @Override

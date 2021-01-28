@@ -1,21 +1,23 @@
 package cn.xmu.edu.compuOrg.service;
 
+import cn.xmu.edu.Core.model.VoObject;
 import cn.xmu.edu.Core.util.*;
-import cn.xmu.edu.compuOrg.controller.CompuOrgController;
 import cn.xmu.edu.compuOrg.dao.*;
-import cn.xmu.edu.compuOrg.model.bo.Admin;
-import cn.xmu.edu.compuOrg.model.bo.Student;
-import cn.xmu.edu.compuOrg.model.bo.Teacher;
-import cn.xmu.edu.compuOrg.model.bo.User;
-import cn.xmu.edu.compuOrg.model.po.StudentPo;
+import cn.xmu.edu.compuOrg.model.bo.*;
+import cn.xmu.edu.compuOrg.model.po.TestResultPo;
+import cn.xmu.edu.compuOrg.model.po.TopicPo;
 import cn.xmu.edu.compuOrg.model.vo.*;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CompuOrgService {
@@ -599,5 +601,191 @@ public class CompuOrgService {
      */
     public ReturnObject generateTest(Long experimentId, Long size){
         return testDao.getTest(experimentId, size);
+    }
+
+    /**
+     * 教师增加题目
+     * @author snow create 2021/01/28 10:22
+     * @param departId
+     * @param topicVo
+     * @return
+     */
+    public ReturnObject appendTopic(Long departId, TopicVo topicVo){
+        if(studentDepartId.equals(departId)){
+            return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
+        }
+        Topic topic = new Topic(topicVo);
+        return testDao.insertTopic(topic);
+    }
+
+    /**
+     * 教师删除题目
+     * @author snow create 2021/01/28 13:48
+     * @param departId
+     * @param topicId
+     * @return
+     */
+    public ReturnObject removeTopic(Long departId, Long topicId){
+        if(studentDepartId.equals(departId)){
+            return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
+        }
+        return testDao.deleteTopic(topicId);
+    }
+
+    /**
+     * 教师修改题目
+     * @author snow create 2021/01/28 13:50
+     * @param departId
+     * @param topicId
+     * @param topicVo
+     * @return
+     */
+    public ReturnObject modifyTopic(Long departId, Long topicId, TopicVo topicVo){
+        if(studentDepartId.equals(departId)){
+            return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
+        }
+        Topic topic = new Topic(topicVo);
+        topic.setId(topicId);
+        return testDao.alterTopic(topic);
+
+    }
+
+    /**
+     * 教师查询题目列表
+     * @author snow create 2021/01/28 14:34
+     * @param departId
+     * @param experimentId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    public ReturnObject<PageInfo<VoObject>> getTopicList(Long departId, Long experimentId,
+                                                         Integer page, Integer pageSize){
+        if(studentDepartId.equals(departId)){
+            return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
+        }
+        PageHelper.startPage(page, pageSize);
+        PageInfo<TopicPo> topicPos = testDao.findTopicList(experimentId);
+        if(topicPos == null){
+            return new ReturnObject<>(ResponseCode.NO_MORE_TOPIC);
+        }
+        List<VoObject> topicList = topicPos.getList().stream().map(Topic::new).filter(Topic::authentic).collect(Collectors.toList());
+
+        PageInfo<VoObject> retObj = new PageInfo<>(topicList);
+        retObj.setPages(topicPos.getPages());
+        retObj.setPageNum(topicPos.getPageNum());
+        retObj.setPageSize(topicPos.getPageSize());
+        retObj.setTotal(topicPos.getTotal());
+
+        return new ReturnObject<>(retObj);
+    }
+
+    /**
+     * 学生提交测试结果
+     * @author snow create 2021/01/25 22:25
+     *            modified 2021/01/25 23:43
+     *            modified 2021/01/28 13:27
+     * @param studentId
+     * @param testVo
+     * @return
+     */
+    public ReturnObject commitTestResult(Long studentId, TestVo testVo){
+        TestResult testResult = new TestResult();
+        testResult.setStudentId(studentId);
+        testResult.setExperimentId(testVo.getExperimentId());
+        if (testDao.insertTestResult(testResult)) {
+            List<TopicAnswer> topicAnswers = new ArrayList<>();
+            for (TopicAnswerVo topicAnswerVo : testVo.getTopicAnswerVos()) {
+                TopicAnswer topicAnswer = new TopicAnswer(topicAnswerVo);
+                topicAnswer.setTestResultId(testResult.getId());
+                if (testDao.insertTopicAnswer(topicAnswer)) {
+                    topicAnswers.add(topicAnswer);
+                }
+                else {
+                    return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
+                }
+            }
+            testResult.setTopicAnswers(topicAnswers);
+            return new ReturnObject(testResult);
+        }
+        return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
+    }
+
+    /**
+     * 获取测试结果列表
+     * @author snow create 2021/01/25 23:15
+     *            modified 2021/01/28 12:43
+     * @param departId
+     * @param userId
+     * @param experimentId
+     * @param studentId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    public ReturnObject<PageInfo<VoObject>> getTestResultList(Long departId, Long userId,
+                                                        Long experimentId, Long studentId,
+                                                        Integer page, Integer pageSize){
+        if(studentDepartId.equals(departId) && !userId.equals(studentId)){
+            return new ReturnObject(ResponseCode.RESOURCE_ID_OUTSCOPE);
+        }
+        PageHelper.startPage(page, pageSize);
+        PageInfo<TestResultPo> testResultPo = testDao.findTestResultByExperimentId(experimentId, studentId);
+        if(testResultPo == null){
+            return new ReturnObject<>(ResponseCode.AUTH_NEED_LOGIN);
+        }
+        List<VoObject> testResultBrief = testResultPo.getList().stream().map(TestResult::new).filter(TestResult::authentic).collect(Collectors.toList());
+
+        PageInfo<VoObject> retObj = new PageInfo<>(testResultBrief);
+        retObj.setPages(testResultPo.getPages());
+        retObj.setPageNum(testResultPo.getPageNum());
+        retObj.setPageSize(testResultPo.getPageSize());
+        retObj.setTotal(testResultPo.getTotal());
+
+        return new ReturnObject<>(retObj);
+    }
+
+    /**
+     * 根据测试结果id获得测试结果详情
+     * @author snow create 2021/01/25 23:24
+     * @param userId
+     * @param departId
+     * @param testResultId
+     * @return
+     */
+    public ReturnObject getTestResultDetailByTestResultId(Long userId, Long departId, Long testResultId){
+        ReturnObject retObj = testDao.findTestResultById(testResultId);
+        if(retObj.getData() != null){
+            TestResult testResult = (TestResult)retObj.getData();
+            if(studentDepartId.equals(departId) && !userId.equals(testResult.getStudentId())){
+                return new ReturnObject(ResponseCode.RESOURCE_ID_OUTSCOPE);
+            }
+            testResult.setTopicAnswers(testDao.findTopicAnswerByTestResultId(testResultId));
+            return new ReturnObject(testResult);
+        }
+        return retObj;
+    }
+
+    /**
+     * 教师提交测试结果评分
+     * @author snow create 2021/01/27 23:03
+     * @param departId
+     * @param testResultScore
+     * @return
+     */
+    public ReturnObject commitTestResultScore(Long departId, TestResultScoreVo testResultScore){
+        if(studentDepartId.equals(departId)){
+            return new ReturnObject(ResponseCode.RESOURCE_ID_OUTSCOPE);
+        }
+        Integer totalScore = 0;
+        ReturnObject retObj = null;
+        for(TopicAnswerScoreVo topicAnswerScore : testResultScore.getTopicAnswerScores()){
+            totalScore += topicAnswerScore.getScore();
+            retObj = testDao.updateTopicAnswerScore(topicAnswerScore.getTopicAnswerId(), topicAnswerScore.getScore());
+            if(retObj.getCode() != ResponseCode.OK){
+                return retObj;
+            }
+        }
+        return testDao.updateTestResultScore(testResultScore.getTestResultId(), totalScore);
     }
 }
