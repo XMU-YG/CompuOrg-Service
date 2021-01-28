@@ -2,7 +2,6 @@ package cn.xmu.edu.compuOrg.model.bo;
 
 import cn.xmu.edu.Core.model.VoObject;
 import cn.xmu.edu.compuOrg.model.vo.TestRetVo;
-import cn.xmu.edu.compuOrg.model.vo.TopicRetVo;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -16,7 +15,7 @@ public class Tests implements VoObject, Serializable {
 
     private Long size;
     private Long experimentId;
-    private ArrayList<TopicRetVo> topics;
+    private ArrayList<Topic> topics;
 
     @Override
     public Object createVo() {
