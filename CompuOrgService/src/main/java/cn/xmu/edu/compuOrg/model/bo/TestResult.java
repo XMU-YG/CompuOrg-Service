@@ -32,6 +32,10 @@ public class TestResult implements VoObject, Serializable {
         this.gmtModified = testResultPo.getGmtModified();
     }
 
+    public Boolean authentic(){
+        return true;
+    }
+
     @Override
     public Object createVo() {
         return this;
