@@ -5,12 +5,8 @@ import cn.xmu.edu.Core.util.ReturnObject;
 import cn.xmu.edu.compuOrg.mapper.TestResultPoMapper;
 import cn.xmu.edu.compuOrg.mapper.TopicAnswerPoMapper;
 import cn.xmu.edu.compuOrg.mapper.TopicPoMapper;
-import cn.xmu.edu.compuOrg.model.bo.TestResult;
-import cn.xmu.edu.compuOrg.model.bo.TestResultList;
-import cn.xmu.edu.compuOrg.model.bo.Tests;
-import cn.xmu.edu.compuOrg.model.bo.TopicAnswer;
+import cn.xmu.edu.compuOrg.model.bo.*;
 import cn.xmu.edu.compuOrg.model.po.*;
-import cn.xmu.edu.compuOrg.model.vo.TopicRetVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +42,7 @@ public class TestDao {
     /**
      * 根据从Redis中实验序号获取题目
      * @author snow create 2021/01/24 17:34
+     *            modified 2021/01/28 10:00
      * @param experimentId
      * @param size
      * @return
@@ -54,10 +51,10 @@ public class TestDao {
         try {
             String key = "ex_" + experimentId;
             if(!redisTemplate.hasKey(key) || redisTemplate.opsForList().size(key) == 0){
-                ArrayList<TopicRetVo> topicRetVos = selectTopicByExperimentId(experimentId);
-                if(topicRetVos != null){
-                    for (TopicRetVo topicRetVo : topicRetVos) {
-                        redisTemplate.opsForList().rightPush(key, topicRetVo);
+                ArrayList<Topic> topics = selectTopicByExperimentId(experimentId);
+                if(topics != null){
+                    for (Topic topic : topics) {
+                        redisTemplate.opsForList().rightPush(key, topic);
                     }
                 }
                 else {
@@ -65,21 +62,21 @@ public class TestDao {
                 }
             }
             Tests test = new Tests();
-            ArrayList<TopicRetVo> topicRetVos;
+            ArrayList<Topic> topics;
             if(redisTemplate.opsForList().size(key) <= size){
                 List<Serializable> members = redisTemplate.opsForList().range(key, 0, -1);
-                topicRetVos = (ArrayList)members;
+                topics = (ArrayList)members;
             }
             else{
                 int[] randomSet = randomArray(0, redisTemplate.opsForList().size(key).intValue(), size.intValue());
-                topicRetVos = new ArrayList<>();
+                topics = new ArrayList<>();
                 for (int i : randomSet){
-                    topicRetVos.add((TopicRetVo)redisTemplate.opsForList().index(key, i));
+                    topics.add((Topic)redisTemplate.opsForList().index(key, i));
                 }
             }
             test.setExperimentId(experimentId);
             test.setSize(size);
-            test.setTopics(topicRetVos);
+            test.setTopics(topics);
             return new ReturnObject(test);
         }
         catch (Exception e){
@@ -89,24 +86,39 @@ public class TestDao {
     }
 
     /**
-     * 根据实验序号从数据库从获得题目
-     * @author snow create 2021/01/24 17:30
+     * 从缓存中清空某一实验的题目
+     * @author snow create 2021/01/28 10:18
      * @param experimentId
      * @return
      */
-    protected ArrayList<TopicRetVo> selectTopicByExperimentId(Long experimentId){
+    public Boolean removeTestInRedisByExperimentId(Long experimentId){
+        String key = "ex_" + experimentId;
+        if(redisTemplate.hasKey(key)){
+            return redisTemplate.delete(key);
+        }
+        return true;
+    }
+
+    /**
+     * 根据实验序号从数据库从获得题目
+     * @author snow create 2021/01/24 17:30
+     *            modified 2021/01/28 09:55
+     * @param experimentId
+     * @return
+     */
+    protected ArrayList<Topic> selectTopicByExperimentId(Long experimentId){
         try {
             TopicPoExample example = new TopicPoExample();
             TopicPoExample.Criteria criteria = example.createCriteria();
             criteria.andExperimentIdEqualTo(experimentId);
             List<TopicPo> testPos = topicPoMapper.selectByExample(example);
             if(testPos != null && testPos.size() != 0){
-                ArrayList<TopicRetVo> topicRetVos = new ArrayList<>();
+                ArrayList<Topic> topics = new ArrayList<>();
                 for (TopicPo testPo : testPos){
-                    TopicRetVo topicRetVo = new TopicRetVo(testPo);
-                    topicRetVos.add(topicRetVo);
+                    Topic topic = new Topic(testPo);
+                    topics.add(topic);
                 }
-                return topicRetVos;
+                return topics;
             }
         }
         catch (Exception e){
@@ -139,6 +151,29 @@ public class TestDao {
             e.printStackTrace();
         }
         return false;
+    }
+
+    /**
+     * 插入题目
+     * @author snow create 2021/10:12
+     * @param topic
+     * @return
+     */
+    public ReturnObject insertTopic(Topic topic){
+        try{
+            TopicPo topicPo = topic.createTopicPo();
+            topicPo.setGmtCreate(LocalDateTime.now());
+            int effectRows = topicPoMapper.insert(topicPo);
+            if (effectRows == 1){
+                topic.setId(topicPo.getId());
+                removeTestInRedisByExperimentId(topic.getExperimentId());
+                return new ReturnObject(topic);
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
     }
 
     /**
