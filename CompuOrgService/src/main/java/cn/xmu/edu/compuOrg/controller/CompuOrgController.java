@@ -70,6 +70,7 @@ public class CompuOrgController {
      * 检验单个实验所有连线
      * @author snow create 2021/01/12 21:30
      *            modified 2021/01/18 13:15
+     *            modified 2021/01/28 17:23
      * @param eid
      * @param linesVos
      * @return
@@ -78,7 +79,7 @@ public class CompuOrgController {
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = false),
             @ApiImplicitParam(paramType = "path", dataType = "int", name = "eid", value = "实验序号", required = true),
-            @ApiImplicitParam(paramType = "body", dataType = "LinesVo", name = "linesVo", allowMultiple = true, value = "连线", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "LinesVo", name = "linesVos", value = "连线", required = true),
 
     })
     @ApiResponses({
