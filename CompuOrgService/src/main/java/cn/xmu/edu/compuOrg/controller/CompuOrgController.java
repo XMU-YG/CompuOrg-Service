@@ -795,7 +795,7 @@ public class CompuOrgController {
             @ApiResponse(code = 800, message = "暂无更多题目"),
     })
     @Audit
-    @GetMapping("student/test/{experimentId}")
+    @GetMapping("test/{experimentId}")
     public Object generateTest(@PathVariable Long experimentId,
                                      @RequestParam(required = false, defaultValue = "5") Long size){
         logger.debug("ExperimentId: " + experimentId + ", Size: " + size);
@@ -817,8 +817,10 @@ public class CompuOrgController {
     /**
      * 教师新增测试题目
      * @author snow create 2021/01/28 10:26
+     *            modified 2021/01/28 13:33
      * @param departId
      * @param topicVo
+     * @param bindingResult
      * @return
      */
     @ApiOperation(value = "教师新增测试题目", produces = "application/json")
@@ -830,10 +832,15 @@ public class CompuOrgController {
             @ApiResponse(code = 0, message = "成功"),
     })
     @Audit
-    @PostMapping("teacher/test")
+    @PostMapping("test/topic")
     public Object appendNewTopic(@ApiIgnore @Depart Long departId,
-                                 @Validated @RequestBody TopicVo topicVo){
+                                 @Validated @RequestBody TopicVo topicVo,
+                                 BindingResult bindingResult){
         logger.debug("DepartId: " + departId + ", Topic: " + topicVo.toString());
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
         ReturnObject retObj = compuOrgService.appendTopic(departId, topicVo);
         if (retObj.getData() != null){
             return Common.getRetObject(retObj);
@@ -844,38 +851,95 @@ public class CompuOrgController {
     }
 
     /**
+     * 教师删除测试题目
+     * @author snow create 2021/01/28 13:51
+     * @param departId
+     * @param topicId
+     * @return
+     */
+    @ApiOperation(value = "教师删除测试题目", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "path", dataType = "int", name = "topicId", value = "题目id", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+    })
+    @Audit
+    @PostMapping("test/topic/{topicId}")
+    public Object removeTopic(@ApiIgnore @Depart Long departId,
+                              @PathVariable Long topicId){
+        logger.debug("DepartId: " + departId + ", TopicId: " + topicId);
+        return Common.decorateReturnObject(compuOrgService.removeTopic(departId, topicId));
+    }
+
+    /**
+     * 教师修改测试题目
+     * @author snow create 2021/01/28 13:53
+     * @param departId
+     * @param topicId
+     * @param topicVo
+     * @param bindingResult
+     * @return
+     */
+    @ApiOperation(value = "教师修改测试题目", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "path", dataType = "int", name = "topicId", value = "题目id", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "TopicVo", name = "topicVo", value = "题目详情", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+    })
+    @Audit
+    @PutMapping("test/topic/{topicId}")
+    public Object modifyTopic(@ApiIgnore @Depart Long departId,
+                                 @PathVariable Long topicId,
+                                 @Validated @RequestBody TopicVo topicVo,
+                                 BindingResult bindingResult){
+        logger.debug("DepartId: " + departId + ", TopicId: " + topicId + ", Topic: " + topicVo.toString());
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+        ReturnObject retObj = compuOrgService.modifyTopic(departId, topicId, topicVo);
+        return Common.decorateReturnObject(retObj);
+    }
+
+    /**
      * 学生提交测试结果
      * @author snow create 2021/01/25 22:30
      *            modified 2021/01/25 23:45
+     *            modified 2021/01/28 13:28
      * @param studentId
-     * @param experimentId
      * @param testVo
+     * @param bindingResult
      * @return
      */
     @ApiOperation(value = "学生提交测试结果", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
-            @ApiImplicitParam(paramType = "path", dataType = "int", name = "experimentId", value = "实验序号", required = true),
             @ApiImplicitParam(paramType = "body", dataType = "TestVo", name = "testVo", value = "题目答案列表", required = true),
     })
     @ApiResponses({
             @ApiResponse(code = 0, message = "成功"),
     })
     @Audit
-    @PostMapping("student/test/{experimentId}")
+    @PostMapping("test/result")
     public Object commitTest(@ApiIgnore @LoginUser Long studentId,
-                             @PathVariable Long experimentId,
-                             @RequestBody TestVo testVo){
-        logger.debug("StudentId: " + studentId + ", ExperimentId: " + experimentId);
-        if(experimentId < 1 || experimentId > 5){
-            return Common.decorateReturnObject(new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST));
+                             @Validated @RequestBody TestVo testVo,
+                             BindingResult bindingResult){
+        logger.debug("StudentId: " + studentId + ", TestVo: " + testVo);
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
         }
-        ReturnObject returnObject = compuOrgService.commitTestResult(studentId, experimentId, testVo);
-        if(returnObject.getData() == null){
-            return Common.decorateReturnObject(returnObject);
+        ReturnObject retObj = compuOrgService.commitTestResult(studentId, testVo);
+        if(retObj.getData() == null){
+            return Common.decorateReturnObject(retObj);
         }
         else {
-            return Common.getRetObject(returnObject);
+            return Common.getRetObject(retObj);
         }
     }
 
@@ -883,6 +947,7 @@ public class CompuOrgController {
      * 获取测试结果列表
      * @author snow create 2021/01/25 23:27
      *            modified 2021/01/28 12:00
+     *            modified 2021/01/28 13:37
      * @param departId
      * @param userId
      * @param experimentId
@@ -896,8 +961,8 @@ public class CompuOrgController {
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
             @ApiImplicitParam(paramType = "query", dataType = "int", name = "experimentId", value = "实验序号", required = false),
             @ApiImplicitParam(paramType = "query", dataType = "int", name = "studentId", value = "学生id", required = false),
-            @ApiImplicitParam(paramType = "query", dataType = "int", name = "page", value = "页码", defaultValue = "1", required = false),
-            @ApiImplicitParam(paramType = "query", dataType = "int", name = "pageSize", value = "页大小", defaultValue = "5", required = false),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "page", value = "页码", defaultValue = "1", required = true),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "pageSize", value = "页大小", defaultValue = "5", required = true),
     })
     @ApiResponses({
             @ApiResponse(code = 0, message = "成功"),
@@ -964,7 +1029,7 @@ public class CompuOrgController {
             @ApiResponse(code = 0, message = "成功"),
     })
     @Audit
-    @PutMapping("teacher/test/result")
+    @PutMapping("test/result")
     public Object commitTestResultScore(@ApiIgnore @Depart Long departId,
                                         @Validated @RequestBody TestResultScoreVo testResultScoreVo){
         logger.debug("DepartId: " + departId);
