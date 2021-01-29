@@ -5,15 +5,16 @@ import cn.xmu.edu.compuOrg.model.po.StaticMemPo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 @Data
-public class StaticMemReadRetVo {
+public class StaticMemReadRetVo implements Serializable {
     @ApiModelProperty(value = "数据")
-    private ArrayList<Integer> data;
+    private String data;
 
     public StaticMemReadRetVo(StaticMemPo staticMemPo){
-        this.data= (ArrayList<Integer>) JacksonUtil.parseIntegerList(staticMemPo.getData(),"");
+        this.data= staticMemPo.getData();
     }
 
     public StaticMemReadRetVo() {

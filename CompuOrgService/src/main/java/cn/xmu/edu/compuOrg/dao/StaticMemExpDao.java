@@ -5,7 +5,6 @@ import cn.xmu.edu.compuOrg.mapper.StaticMemPoMapper;
 import cn.xmu.edu.compuOrg.model.po.StaticMemPo;
 import cn.xmu.edu.compuOrg.model.po.StaticMemPoExample;
 import cn.xmu.edu.compuOrg.model.vo.exp.StaticMemReadRetVo;
-import cn.xmu.edu.compuOrg.model.vo.exp.StaticMemReadVo;
 import cn.xmu.edu.compuOrg.model.vo.exp.StaticMemWriteVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,12 +22,12 @@ public class StaticMemExpDao {
 
     private static final Logger logger = LoggerFactory.getLogger(StaticMemExpDao.class);
 
-    public Object read(String studentNo, StaticMemReadVo staticMemReadVo) {
+    public Object read(String studentNo,String address) {
         try{
             StaticMemPoExample example=new StaticMemPoExample();
             StaticMemPoExample.Criteria criteria=example.createCriteria();
             criteria.andStudentNoEqualTo(studentNo);
-            criteria.andAddressEqualTo(staticMemReadVo.getAddress().toString());
+            criteria.andAddressEqualTo(address);
 
             List<StaticMemPo> staticMemPos=staticMemPoMapper.selectByExample(example);
 
@@ -37,7 +36,7 @@ public class StaticMemExpDao {
                 logger.debug("static memory experiment read data: "+staticMemPo.getData()+"   address"+staticMemPo.getAddress());
                 return new StaticMemReadRetVo(staticMemPo);
             }else {
-                logger.debug("static memory experiment : data is null address "+ staticMemReadVo.getAddress());
+                logger.debug("static memory experiment : data is null address "+ address);
                 return ResponseCode.RESOURCE_ID_NOTEXIST;
             }
 
@@ -49,9 +48,8 @@ public class StaticMemExpDao {
 
     public Object write(String studentNo, StaticMemWriteVo vo) {
         try {
-            StaticMemReadVo staticMemReadVo=new StaticMemReadVo();
-            staticMemReadVo.setAddress(vo.getAddress());
-            Object object=read(studentNo,staticMemReadVo);
+
+            Object object=read(studentNo,vo.getAddress().toString());
             StaticMemPo staticMemPo=new StaticMemPo();
             staticMemPo.setData(vo.getData().toString());
             staticMemPo.setAddress(vo.getAddress().toString());
