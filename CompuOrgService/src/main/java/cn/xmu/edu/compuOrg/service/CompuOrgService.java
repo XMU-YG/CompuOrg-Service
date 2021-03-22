@@ -263,6 +263,25 @@ public class CompuOrgService {
         return userResetPassword(teacherDao.findTeacherBySno(teacherVo.getUserNo()), teacherVo.getEmail(), ip);
     }
 
+    public ReturnObject userVerifyPassword(ReturnObject retObj, String oldPassword){
+        if(retObj.getData() == null){
+            return retObj;
+        }
+        User user = (User)retObj.getData();
+        if(AES.encrypt(oldPassword, User.AES_PASS).equals(user.getPassword())){
+            String verifyCode = VerifyCode.generateVerifyCode(6);
+            studentDao.putVerifyCodeIntoRedis(verifyCode, user.getId().toString());
+            return new ReturnObject(verifyCode);
+        }
+        else{
+            return new ReturnObject(ResponseCode.AUTH_INVALID_ACCOUNT);
+        }
+    }
+
+    public ReturnObject studentVerifyPassword(Long studentId, String oldPassword){
+        return userVerifyPassword(studentDao.findStudentById(studentId), oldPassword);
+    }
+
     /**
      * 管理员修改密码
      * @author snow create 2021/01/23 19:16
@@ -353,6 +372,16 @@ public class CompuOrgService {
         teacher.setPassword(password);
         teacherDao.disableVerifyCodeAfterSuccessfullyModifyPassword(modifyPasswordVo.getVerifyCode());
         return teacherDao.updateTeacherInformation(teacher);
+    }
+
+    /**
+     * 学生查找个人信息
+     * @author snow create 2021/03/22 10:52
+     * @param studentId
+     * @return
+     */
+    public ReturnObject studentGetBasicInformation(Long studentId){
+        return studentDao.findStudentById(studentId);
     }
 
     /**

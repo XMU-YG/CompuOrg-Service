@@ -209,6 +209,35 @@ public class CompuOrgController {
     }
 
     /**
+     * 学生验证密码
+     * @param studentId
+     * @param oldPassword
+     * @return
+     */
+    @ApiOperation(value = "学生验证密码", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "UserModifyPasswordVo", name = "oldPassword", value = "旧密码", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+    })
+    @Audit
+    @PutMapping("student/password/verify")
+    public Object studentVerifyPassword(@ApiIgnore @LoginUser Long studentId, @RequestBody UserModifyPasswordVo oldPassword){
+        if(oldPassword.getPassword() == null){
+            return Common.getNullRetObj(new ReturnObject<>(ResponseCode.FIELD_NOTVALID), httpServletResponse);
+        }
+        ReturnObject retObj = compuOrgService.studentVerifyPassword(studentId, oldPassword.getPassword());
+        if(retObj.getData() == null){
+            return ResponseUtil.fail(retObj.getCode(), retObj.getErrmsg());
+        }else{
+            return ResponseUtil.ok(retObj.getData());
+        }
+    }
+
+    /**
      * 学生修改密码
      * @author snow create 2021/01/17 23:30
      *            modified 2021/01/18 13:23
@@ -236,6 +265,32 @@ public class CompuOrgController {
         }
 
         return Common.decorateReturnObject(compuOrgService.studentModifyPassword(modifyPasswordVo));
+    }
+
+    /**
+     * 学生查看个人信息
+     * @author snow create 2021/03/22 10:43
+     * @param studentId
+     * @return
+     */
+    @ApiOperation(value = "学生查看个人信息", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+    })
+    @Audit
+    @GetMapping("student/information")
+    public Object studentGetBasicInformation(@ApiIgnore @LoginUser Long studentId){
+        ReturnObject retObj = compuOrgService.studentGetBasicInformation(studentId);
+        if(retObj.getData() == null){
+            return Common.decorateReturnObject(retObj);
+        }
+        else{
+            return Common.getRetObject(retObj);
+        }
     }
 
     /**
