@@ -6,7 +6,6 @@ import cn.xmu.edu.compuOrg.mapper.StudentPoMapper;
 import cn.xmu.edu.compuOrg.model.bo.Student;
 import cn.xmu.edu.compuOrg.model.po.StudentPo;
 import cn.xmu.edu.compuOrg.model.po.StudentPoExample;
-import cn.xmu.edu.compuOrg.model.vo.UserBasicInfoVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -31,6 +30,9 @@ public class StudentDao extends UserDao {
                 StudentPo studentPo = studentPoMapper.selectByPrimaryKey(studentId);
                 if(studentPo != null){
                     return new ReturnObject<>(new Student(studentPo));
+                }
+                else{
+                    return new ReturnObject<>(ResponseCode.RESOURCE_ID_NOTEXIST);
                 }
             }
             catch (Exception e){
