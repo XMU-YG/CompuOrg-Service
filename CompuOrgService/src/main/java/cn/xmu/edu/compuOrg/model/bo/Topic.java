@@ -4,7 +4,9 @@ import cn.xmu.edu.Core.model.VoObject;
 import cn.xmu.edu.compuOrg.model.po.TopicPo;
 import cn.xmu.edu.compuOrg.model.vo.TopicVo;
 import cn.xmu.edu.compuOrg.model.vo.TopicRetVo;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -12,6 +14,8 @@ import java.io.Serializable;
  * @author snow create 2021/01/28 09:50
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Topic implements VoObject, Serializable {
     private Long id;
     private Byte type;
