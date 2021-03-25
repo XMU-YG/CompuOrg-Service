@@ -638,11 +638,20 @@ public class CompuOrgService {
 
     /**
      * 随机生成测试题目
+     * @author snow create 2021/01/28 16:00
+     *            modified 2021/03/25 11:08
+     * @param studentId
+     * @param departId
      * @param experimentId
      * @param size
      * @return
      */
-    public ReturnObject generateTest(Long experimentId, Long size){
+    public ReturnObject generateTest(Long studentId, Long departId, Long experimentId, Long size){
+        ReturnObject retObj = getTestResultDetailByExperimentId(studentId, departId, experimentId);
+        logger.error(retObj.getCode().toString());
+        if(retObj.getData() != null){
+            return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
+        }
         return testDao.getTest(experimentId, size);
     }
 
@@ -775,7 +784,7 @@ public class CompuOrgService {
             return new ReturnObject(ResponseCode.RESOURCE_ID_OUTSCOPE);
         }
         PageHelper.startPage(page, pageSize);
-        PageInfo<TestResultPo> testResultPo = testDao.findTestResultByExperimentId(experimentId, studentId, modified);
+        PageInfo<TestResultPo> testResultPo = testDao.findTestResult(experimentId, studentId, modified);
         if(testResultPo == null){
             return new ReturnObject<>(ResponseCode.AUTH_NEED_LOGIN);
         }
@@ -809,6 +818,19 @@ public class CompuOrgService {
             return new ReturnObject(testResult);
         }
         return retObj;
+    }
+
+    public ReturnObject getTestResultDetailByExperimentId(Long studentId, Long departId, Long experimentId){
+        if(!studentDepartId.equals(departId)){
+            return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
+        }
+        ReturnObject<TestResult> retObj = testDao.findTestResultByExperimentId(studentId, experimentId);
+        if(retObj.getData() == null){
+            return retObj;
+        }
+        TestResult testResult = retObj.getData();
+        testResult.setTopicAnswers(testDao.findTopicAnswerByTestResultId(testResult.getId()));
+        return new ReturnObject(testResult);
     }
 
     /**

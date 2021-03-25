@@ -837,6 +837,9 @@ public class CompuOrgController {
     /**
      * 学生获取题目
      * @author snow create 2021/01/24 15:00
+     *            modified 2021/03/25 11:00
+     * @param studentId
+     * @param departId
      * @param experimentId
      * @param size
      * @return
@@ -853,8 +856,8 @@ public class CompuOrgController {
     })
     @Audit
     @GetMapping("test/{experimentId}")
-    public Object generateTest(@PathVariable Long experimentId,
-                                     @RequestParam(required = false, defaultValue = "5") Long size){
+    public Object generateTest(@ApiIgnore @LoginUser Long studentId, @ApiIgnore @Depart Long departId,
+                               @PathVariable Long experimentId, @RequestParam(required = false, defaultValue = "5") Long size){
         logger.debug("ExperimentId: " + experimentId + ", Size: " + size);
         if(experimentId < 1 || experimentId > 5){
             return Common.decorateReturnObject(new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST));
@@ -862,7 +865,7 @@ public class CompuOrgController {
         if(size <= 0){
             return Common.decorateReturnObject(new ReturnObject(ResponseCode.FIELD_NOTVALID));
         }
-        ReturnObject retObj = compuOrgService.generateTest(experimentId, size);
+        ReturnObject retObj = compuOrgService.generateTest(studentId, departId, experimentId, size);
         if(retObj.getData() == null){
             return Common.decorateReturnObject(retObj);
         }
@@ -1099,6 +1102,37 @@ public class CompuOrgController {
                                     @PathVariable Long resultId){
         logger.debug("UserId: " + userId + ", departId: " + departId + ", ExperimentId: " + resultId);
         ReturnObject retObj = compuOrgService.getTestResultDetailByTestResultId(userId, departId, resultId);
+        if(retObj.getData() == null){
+            return Common.decorateReturnObject(retObj);
+        }
+        else{
+            return Common.getRetObject(retObj);
+        }
+    }
+
+
+    /**
+     * 学生根据实验序号获得测试结果详情
+     * @author snow create 2021/03/25 10:57
+     * @param studentId
+     * @param departId
+     * @param experimentId
+     * @return
+     */
+    @ApiOperation(value = "学生根据实验序号获得测试结果详情", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "path", dataType = "int", name = "experimentId", value = "实验序号", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功", response = TestResult.class),
+    })
+    @Audit
+    @GetMapping("test/result/experiment/{experimentId}")
+    public Object getTestResultByExperimentId(@ApiIgnore @LoginUser Long studentId,
+                                              @ApiIgnore @Depart Long departId,
+                                              @PathVariable Long experimentId){
+        ReturnObject retObj = compuOrgService.getTestResultDetailByExperimentId(studentId, departId, experimentId);
         if(retObj.getData() == null){
             return Common.decorateReturnObject(retObj);
         }

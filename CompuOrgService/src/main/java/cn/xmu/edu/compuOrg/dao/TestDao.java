@@ -335,15 +335,15 @@ public class TestDao {
     }
 
     /**
-     * 教师获取某个实验的测试的结果列表
+     * 获取测试的结果列表
      * @author snow create 2021/01/25 22:53
      *            modified 2021/01/28 12:42
-     *            modified 2021/03/25 10:25
+     *            modified 2021/03/25 10:49
      * @param experimentId
      * @param studentId
      * @return
      */
-    public PageInfo<TestResultPo> findTestResultByExperimentId(Long experimentId, Long studentId, Boolean modified){
+    public PageInfo<TestResultPo> findTestResult(Long experimentId, Long studentId, Boolean modified){
         try {
             TestResultPoExample example = new TestResultPoExample();
             TestResultPoExample.Criteria criteria = example.createCriteria();
@@ -368,6 +368,37 @@ public class TestDao {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * 学生根据实验序号查看测试结果
+     * @author snow create 2021/03/25 10:54
+     * @param studentId
+     * @param experimentId
+     * @return
+     */
+    public ReturnObject<TestResult> findTestResultByExperimentId(Long studentId, Long experimentId){
+        try {
+            TestResultPoExample example = new TestResultPoExample();
+            TestResultPoExample.Criteria criteria = example.createCriteria();
+            if(experimentId != null) {
+                criteria.andExperimentIdEqualTo(experimentId);
+            }
+            if(studentId != null){
+                criteria.andStudentIdEqualTo(studentId);
+            }
+            List<TestResultPo> testResultPos = testResultPoMapper.selectByExample(example);
+            if(testResultPos != null && testResultPos.size() > 0){
+                return new ReturnObject(new TestResult(testResultPos.get(0)));
+            }
+            else{
+                return new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST);
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
     }
 
     /**
