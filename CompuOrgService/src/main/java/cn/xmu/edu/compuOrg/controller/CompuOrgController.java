@@ -1037,10 +1037,12 @@ public class CompuOrgController {
      * @author snow create 2021/01/25 23:27
      *            modified 2021/01/28 12:00
      *            modified 2021/01/28 13:37
+     *            modified 2021/03/25 10:31
      * @param departId
      * @param userId
      * @param experimentId
      * @param studentId
+     * @param modified
      * @param page
      * @param pageSize
      * @return
@@ -1050,6 +1052,7 @@ public class CompuOrgController {
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
             @ApiImplicitParam(paramType = "query", dataType = "int", name = "experimentId", value = "实验序号", required = false),
             @ApiImplicitParam(paramType = "query", dataType = "int", name = "studentId", value = "学生id", required = false),
+            @ApiImplicitParam(paramType = "query", dataType = "bool", name = "modified", value = "是否已批改", required = false),
             @ApiImplicitParam(paramType = "query", dataType = "int", name = "page", value = "页码", defaultValue = "1", required = true),
             @ApiImplicitParam(paramType = "query", dataType = "int", name = "pageSize", value = "页大小", defaultValue = "5", required = true),
     })
@@ -1063,13 +1066,14 @@ public class CompuOrgController {
                                     @ApiIgnore @LoginUser Long userId,
                                     @RequestParam(required = false) Long experimentId,
                                     @RequestParam(required = false) Long studentId,
+                                    @RequestParam(required = false) Boolean modified,
                                     @RequestParam(defaultValue = "1") Integer page,
                                     @RequestParam(defaultValue = "5") Integer pageSize){
         logger.debug("DepartId: " + departId + ", UserId: " + userId + ", ExperimentId: " + experimentId + ", StudentId: " + studentId);
         if(experimentId != null && (experimentId < 1 || experimentId > 5)){
             return Common.decorateReturnObject(new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST));
         }
-        return Common.getPageRetObject(compuOrgService.getTestResultList(departId, userId, experimentId, studentId, page, pageSize));
+        return Common.getPageRetObject(compuOrgService.getTestResultList(departId, userId, experimentId, studentId, modified, page, pageSize));
     }
 
     /**

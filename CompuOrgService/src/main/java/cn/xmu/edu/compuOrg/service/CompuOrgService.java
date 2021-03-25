@@ -263,6 +263,13 @@ public class CompuOrgService {
         return userResetPassword(teacherDao.findTeacherBySno(teacherVo.getUserNo()), teacherVo.getEmail(), ip);
     }
 
+    /**
+     * 用户验证密码
+     * @author snow create 2021/03/22 22:21
+     * @param retObj
+     * @param oldPassword
+     * @return
+     */
     public ReturnObject userVerifyPassword(ReturnObject retObj, String oldPassword){
         if(retObj.getData() == null){
             return retObj;
@@ -278,6 +285,13 @@ public class CompuOrgService {
         }
     }
 
+    /**
+     * 学生验证密码
+     * @author snow create 2021/03/22 22:23
+     * @param studentId
+     * @param oldPassword
+     * @return
+     */
     public ReturnObject studentVerifyPassword(Long studentId, String oldPassword){
         return userVerifyPassword(studentDao.findStudentById(studentId), oldPassword);
     }
@@ -744,22 +758,24 @@ public class CompuOrgService {
      * 获取测试结果列表
      * @author snow create 2021/01/25 23:15
      *            modified 2021/01/28 12:43
+     *            modified 2021/03/25 10:24
      * @param departId
      * @param userId
      * @param experimentId
      * @param studentId
+     * @param modified
      * @param page
      * @param pageSize
      * @return
      */
     public ReturnObject<PageInfo<VoObject>> getTestResultList(Long departId, Long userId,
-                                                        Long experimentId, Long studentId,
+                                                        Long experimentId, Long studentId, Boolean modified,
                                                         Integer page, Integer pageSize){
         if(studentDepartId.equals(departId) && !userId.equals(studentId)){
             return new ReturnObject(ResponseCode.RESOURCE_ID_OUTSCOPE);
         }
         PageHelper.startPage(page, pageSize);
-        PageInfo<TestResultPo> testResultPo = testDao.findTestResultByExperimentId(experimentId, studentId);
+        PageInfo<TestResultPo> testResultPo = testDao.findTestResultByExperimentId(experimentId, studentId, modified);
         if(testResultPo == null){
             return new ReturnObject<>(ResponseCode.AUTH_NEED_LOGIN);
         }

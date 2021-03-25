@@ -338,11 +338,12 @@ public class TestDao {
      * 教师获取某个实验的测试的结果列表
      * @author snow create 2021/01/25 22:53
      *            modified 2021/01/28 12:42
+     *            modified 2021/03/25 10:25
      * @param experimentId
      * @param studentId
      * @return
      */
-    public PageInfo<TestResultPo> findTestResultByExperimentId(Long experimentId, Long studentId){
+    public PageInfo<TestResultPo> findTestResultByExperimentId(Long experimentId, Long studentId, Boolean modified){
         try {
             TestResultPoExample example = new TestResultPoExample();
             TestResultPoExample.Criteria criteria = example.createCriteria();
@@ -351,6 +352,14 @@ public class TestDao {
             }
             if(studentId != null){
                 criteria.andStudentIdEqualTo(studentId);
+            }
+            if(modified != null){
+                if(modified){
+                    criteria.andGmtModifiedIsNotNull();
+                }
+                else{
+                    criteria.andGmtModifiedIsNull();
+                }
             }
             List<TestResultPo> testResultPos = testResultPoMapper.selectByExample(example);
             return new PageInfo<>(testResultPos);
