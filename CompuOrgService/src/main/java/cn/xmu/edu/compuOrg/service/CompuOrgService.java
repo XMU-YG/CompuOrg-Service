@@ -7,6 +7,7 @@ import cn.xmu.edu.compuOrg.model.bo.*;
 import cn.xmu.edu.compuOrg.model.po.TestResultPo;
 import cn.xmu.edu.compuOrg.model.po.TopicPo;
 import cn.xmu.edu.compuOrg.model.vo.*;
+import cn.xmu.edu.compuOrg.model.vo.exp.VerifyCodeVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -296,6 +298,25 @@ public class CompuOrgService {
         return userVerifyPassword(studentDao.findStudentById(studentId), oldPassword);
     }
 
+    public ReturnObject studentVerifyVerifyCode(VerifyCodeVo verifyCodeVo){
+        Long userId = userDao.getUserIdByVerifyCode(verifyCodeVo.getVerifyCode());
+        if(userId == null){
+            System.out.println("Can't find anything in redis with: " + verifyCodeVo.getVerifyCode());
+            return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
+        }
+        ReturnObject<Student> retObj = studentDao.findStudentById(userId);
+        if(retObj.getData() == null){
+            return retObj;
+        }
+        Student student = retObj.getData();
+        if(!student.getUserNo().equals(verifyCodeVo.getUserNo())){
+            return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
+        }
+        String verifyKey = VerifyCode.generateVerifyCode(6) + LocalDateTime.now();
+        studentDao.putVerifyCodeIntoRedis(verifyKey, userId.toString());
+        return new ReturnObject(verifyKey);
+    }
+
     /**
      * 管理员修改密码
      * @author snow create 2021/01/23 19:16
@@ -313,10 +334,6 @@ public class CompuOrgService {
             return retObj;
         }
         Admin admin = (Admin) retObj.getData();
-        if(!modifyPasswordVo.getUserNo().equals(admin.getUserNo())){
-            System.out.println("Pass: " + modifyPasswordVo.getUserNo() + ", Store: " + admin.getUserNo());
-            return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
-        }
         String password = AES.encrypt(modifyPasswordVo.getPassword(), Student.AES_PASS);
         if(password.equals(admin.getPassword())){
             return new ReturnObject(ResponseCode.PASSWORD_SAME);
@@ -345,10 +362,6 @@ public class CompuOrgService {
             return retObj;
         }
         Student student = (Student)retObj.getData();
-        if(!modifyPasswordVo.getUserNo().equals(student.getUserNo())){
-            System.out.println("Pass: " + modifyPasswordVo.getUserNo() + ", Store: " + student.getUserNo());
-            return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
-        }
         String password = AES.encrypt(modifyPasswordVo.getPassword(), Student.AES_PASS);
         if(password.equals(student.getPassword())){
             return new ReturnObject(ResponseCode.PASSWORD_SAME);
@@ -375,10 +388,6 @@ public class CompuOrgService {
             return retObj;
         }
         Teacher teacher = (Teacher) retObj.getData();
-        if(!modifyPasswordVo.getUserNo().equals(teacher.getUserNo())){
-            System.out.println("Pass: " + modifyPasswordVo.getUserNo() + ", Store: " + teacher.getUserNo());
-            return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
-        }
         String password = AES.encrypt(modifyPasswordVo.getPassword(), Student.AES_PASS);
         if(password.equals(teacher.getPassword())){
             return new ReturnObject(ResponseCode.PASSWORD_SAME);

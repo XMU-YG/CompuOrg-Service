@@ -6,6 +6,7 @@ import cn.xmu.edu.Core.annotation.LoginUser;
 import cn.xmu.edu.Core.util.*;
 import cn.xmu.edu.compuOrg.model.bo.TestResult;
 import cn.xmu.edu.compuOrg.model.vo.*;
+import cn.xmu.edu.compuOrg.model.vo.exp.VerifyCodeVo;
 import cn.xmu.edu.compuOrg.service.CompuOrgService;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -714,6 +715,40 @@ public class CompuOrgController {
 
         String ip = IpUtil.getIpAddr(httpServletRequest);
         return Common.decorateReturnObject(compuOrgService.adminResetPassword(adminVo, ip));
+    }
+
+
+    /**
+     * 学生验证验证码
+     * @author snow create 2021/03 19:35
+     * @param verifyCode
+     * @param bindingResult
+     * @return
+     */
+    @ApiOperation(value = "学生验证验证码", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "body", dataType = "VerifyCodeVo", name = "verifyCode", value = "管理员验证身份信息", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 702, message = "用户被禁止登录"),
+    })
+    @PutMapping("student/password/verifyCode")
+    public Object studentVerifyVerifyCode(@Validated @RequestBody VerifyCodeVo verifyCode,
+                                       BindingResult bindingResult){
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+        ReturnObject retObj = compuOrgService.studentVerifyVerifyCode(verifyCode);
+        if(retObj.getData() == null){
+            return ResponseUtil.fail(retObj.getCode(), retObj.getErrmsg());
+        }
+        else{
+            return ResponseUtil.ok(retObj.getData());
+        }
+
     }
 
     /**

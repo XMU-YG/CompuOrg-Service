@@ -13,10 +13,6 @@ import javax.validation.constraints.NotNull;
 @ApiModel(description = "用户修改密码对象")
 public class UserModifyPasswordVo {
 
-    @ApiModelProperty(value = "学号/工号")
-    @NotNull
-    private String userNo;
-
     @ApiModelProperty(value = "验证码")
     @NotNull
     private String verifyCode;
