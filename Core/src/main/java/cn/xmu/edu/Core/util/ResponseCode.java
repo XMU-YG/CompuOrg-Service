@@ -44,6 +44,7 @@ public enum ResponseCode {
     MOBILE_REGISTERED(733,"电话已被注册"),
     TEACHER_NO_REGISTERED( 734,"工号已被注册"),
     ADMIN_NO_REGISTERED( 735,"管理员号已被注册"),
+    USER_NAME_REGISTERED(736, "用户名已被注册"),
     ROLE_REGISTERED(736, "角色名已存在"),
     USER_ROLE_REGISTERED(737, "用户已拥有该角色"),
     PASSWORD_SAME(741,"新密码不能与旧密码相同"),

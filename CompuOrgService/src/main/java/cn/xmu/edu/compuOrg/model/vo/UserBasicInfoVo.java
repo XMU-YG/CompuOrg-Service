@@ -9,8 +9,8 @@ import lombok.Data;
 @Data
 public class UserBasicInfoVo {
 
-    @ApiModelProperty(value = "学号/工号")
-    private String userNo;
+    @ApiModelProperty(value = "用户名")
+    private String userName;
 
     @ApiModelProperty(value = "真实姓名")
     private String realName;

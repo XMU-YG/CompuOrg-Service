@@ -7,7 +7,7 @@ import cn.xmu.edu.compuOrg.model.bo.*;
 import cn.xmu.edu.compuOrg.model.po.TestResultPo;
 import cn.xmu.edu.compuOrg.model.po.TopicPo;
 import cn.xmu.edu.compuOrg.model.vo.*;
-import cn.xmu.edu.compuOrg.model.vo.exp.VerifyCodeVo;
+import cn.xmu.edu.compuOrg.model.vo.VerifyCodeVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
@@ -38,150 +38,76 @@ public class CompuOrgService {
     @Value("${CompuOrgService.teacher.departId}")
     private Long teacherDepartId;
 
+    private static final String registrationTitle = "【计算机组成原理平台】注册通知";
     private static final String verifyEmailTitle = "【计算机组成原理平台】邮箱验证通知";
     private static final String resetPasswordEmailTitle = "【计算机组成原理平台】重置密码通知";
-
-    @Autowired
-    private ExperimentLinesDao experimentLinesDao;
 
     @Autowired
     private UserDao userDao;
 
     @Autowired
-    private AdminDao adminDao;
-
-    @Autowired
-    private StudentDao studentDao;
-
-    @Autowired
-    private TeacherDao teacherDao;
-
-    @Autowired
     private TestDao testDao;
 
     /**
-     * 检验实验单个连线
-     * @author snow create 2021/01/12 20:26
-     * @param experimentId
-     * @param lineVo
-     * @return
-     */
-    public ReturnObject connectLines(Integer experimentId, LineVo lineVo){
-        if(experimentLinesDao.validSingleConnection(experimentId, lineVo)){
-            return new ReturnObject(ResponseCode.OK);
-        }
-        else{
-            return new ReturnObject(ResponseCode.LINE_ENDS_NOT_VALID);
-        }
-    }
-
-    /**
-     * 校验实验所有连线
-     * @author snow create 2021/01/12 20:50
-     * @param experimentId
-     * @param linesVo
-     * @return
-     */
-    public ReturnObject validAllLines(Integer experimentId, LinesVo linesVo){
-        if(experimentLinesDao.validAllLines(experimentId, linesVo)){
-            return new ReturnObject(ResponseCode.OK);
-        }
-        else {
-            return new ReturnObject(ResponseCode.LINE_CONNECT_ERROR);
-        }
-    }
-
-    /**
      * 用户登录
-     * @author snow create 2021/01/18 12:56
-     * @param password
-     * @param departId
-     * @param retObj
+     * @author snow create 2021/03/27 20:36
+     * @param loginVo
      * @return
      */
-    public ReturnObject<String> userLogin(String password, Long departId, ReturnObject retObj){
+    public ReturnObject userLogin(UserLoginVo loginVo){
+        ReturnObject<User> retObj = userDao.findUserByUserName(loginVo.getUserName());
         if(retObj.getData() == null){
             return retObj;
         }
-        User user = (User) retObj.getData();
-        password = AES.encrypt(password, User.AES_PASS);
-        if(user == null || !password.equals(user.getPassword())){
-            return new ReturnObject<>(ResponseCode.AUTH_INVALID_ACCOUNT);
-        }
-        String jwt = new JwtHelper().createToken(user.getId(), departId, jwtExpireTime);
-        return new ReturnObject<>(jwt);
-    }
-
-    /**
-     * 管理员登录
-     * @author snow create 2021/01/19 00:28
-     *            modified 2021/01/19 00:43
-     * @param adminNo
-     * @param password
-     * @return
-     */
-    public ReturnObject<String> adminLogin(String adminNo, String password){
-        ReturnObject retObj = adminDao.findAdminBySno(adminNo);
-        if(retObj.getData() == null){
-            return retObj;
-        }
-        Admin admin = (Admin) retObj.getData();
-        if(admin.isSignatureBeenModify()){
+        User user = retObj.getData();
+        if(user.isSignatureBeenModify()){
             return new ReturnObject<>(ResponseCode.RESOURCE_FALSIFY);
         }
-        if(admin.getEmailVerify() == (byte)0){
+        if(user.getEmailVerify() == (byte)0){
             return new ReturnObject<>(ResponseCode.EMAIL_NOT_VERIFIED);
         }
-        password = AES.encrypt(password, User.AES_PASS);
-        if(admin == null || !password.equals(admin.getPassword())){
+        String password = AES.encrypt(loginVo.getPassword(), User.AES_PASS);
+        if(!password.equals(user.getPassword())){
             return new ReturnObject<>(ResponseCode.AUTH_INVALID_ACCOUNT);
         }
-        String jwt = new JwtHelper().createToken(admin.getId(), adminDepartId, jwtExpireTime);
+        String jwt = new JwtHelper().createToken(user.getId(), Byte.toUnsignedLong(user.getRole()), jwtExpireTime);
         return new ReturnObject<>(jwt);
-    }
-
-    /**
-     * 学生登录
-     * @author snow create 2021/01/17 18:45
-     * @param studentNo
-     * @param password
-     * @return
-     */
-    public ReturnObject<String> studentLogin(String studentNo, String password){
-        return userLogin(password, studentDepartId, studentDao.findStudentBySno(studentNo));
-    }
-
-    /**
-     * 教师登录
-     * @author snow create 2021/01/18 12:59
-     * @param teacherNo
-     * @param password
-     * @return
-     */
-    public ReturnObject<String> teacherLogin(String teacherNo, String password){
-        return userLogin(password, teacherDepartId, teacherDao.findTeacherBySno(teacherNo));
     }
 
     /**
      * 学生注册
      * @author snow create 2021/01/17 21:40
+     *            modified 2021/03/27 20:47
      * @param studentVo
      * @return
      */
     public ReturnObject studentSignUp(UserVo studentVo){
-        Student student = new Student(studentVo);
-        return studentDao.insertStudent(student);
+        Long keys = userDao.getUserIdByVerifyCode(studentVo.getVerifyCode());
+        if(keys == null){
+            return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
+        }
+        User student = new User(studentVo);
+        student.setRole(studentDepartId.byteValue());
+        student.setSignature(student.createSignature());
+        logger.debug(student.toString());
+        return userDao.insertUser(student);
     }
 
     /**
      * 教师注册
      * @author snow create 2021/01/18 13:28
+     *            modified 2021/03/27 21:09
      * @param teacherVo
      * @return
      */
-    public ReturnObject teacherSignUp(UserVo teacherVo){
-        Teacher teacher = new Teacher(teacherVo);
-        return teacherDao.insertTeacher(teacher);
+    public ReturnObject teacherSignUp(Long departId, UserVo teacherVo){
+        if(!teacherDepartId.equals(departId) || !adminDepartId.equals(departId)){
+            return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
+        }
+        User teacher = new User(teacherVo);
+        teacher.setRole(teacherDepartId.byteValue());
+        teacher.setSignature(teacher.createSignature());
+        return userDao.insertUser(teacher);
     }
 
     /**
@@ -195,35 +121,38 @@ public class CompuOrgService {
         if(!adminDepartId.equals(departId)){
             return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
         }
-        Admin admin = new Admin(adminVo);
-        return adminDao.insertAdmin(admin);
+        User admin = new User(adminVo);
+        admin.setRole(adminDepartId.byteValue());
+        admin.setSignature(admin.createSignature());
+        return userDao.insertUser(admin);
     }
 
     /**
      * 用户申请重置密码
      * @author snow create 2021/01/18 22:43
      *            modified 2021/01/23 17:23
-     * @param retObj
-     * @param email
+     *            modified 2021/03/27 20:51
+     * @param userVo
      * @param ip
      * @return
      */
-    public ReturnObject userResetPassword(ReturnObject retObj, String email, String ip){
+    public ReturnObject userResetPassword(UserPasswordVo userVo, String ip){
+        ReturnObject retObj = userDao.findUserByUserName(userVo.getUserName());
         if(retObj.getData() == null){
             return retObj;
         }
         User user = (User) retObj.getData();
-        logger.debug("Pass: " + email + ", Store: " + user.getDecryptEmail());
-        if(!email.equals(user.getDecryptEmail())){
+        logger.debug("Pass: " + userVo.getEmail() + ", Store: " + user.getDecryptEmail());
+        if(!userVo.getEmail().equals(user.getDecryptEmail())){
             return new ReturnObject(ResponseCode.EMAIL_WRONG);
         }
 
         if(userDao.isAllowRequestForVerifyCode(ip)) {
             //生成验证码
             String verifyCode = VerifyCode.generateVerifyCode(6);
-            studentDao.putVerifyCodeIntoRedis(verifyCode, user.getId().toString());
+            userDao.putVerifyCodeIntoRedis(verifyCode, user.getId().toString());
             String emailContent = "您正在【计算机组成原理平台】进行找回密码，您的验证码为：" + verifyCode + "，请于5分钟内完成验证！";
-            sendVerifyCode(resetPasswordEmailTitle, emailContent, email);
+            sendVerifyCode(resetPasswordEmailTitle, emailContent, userVo.getEmail());
             return new ReturnObject(ResponseCode.OK);
         }
         else{
@@ -233,53 +162,22 @@ public class CompuOrgService {
     }
 
     /**
-     * 管理员申请重置密码
-     * @author snow create 2021/01/23 19:13
-     * @param adminVo
-     * @param ip
-     * @return
-     */
-    public ReturnObject adminResetPassword(UserPasswordVo adminVo, String ip){
-        return userResetPassword(adminDao.findAdminBySno(adminVo.getUserNo()), adminVo.getEmail(), ip);
-    }
-
-    /**
-     * 学生申请重置密码
-     * @author snow create 2021/01/17 23:25
-     * @param studentVo
-     * @param ip
-     * @return
-     */
-    public ReturnObject studentResetPassword(UserPasswordVo studentVo, String ip){
-        return userResetPassword(studentDao.findStudentBySno(studentVo.getUserNo()), studentVo.getEmail(), ip);
-    }
-
-    /**
-     * 教师申请重置密码
-     * @author snow create 2021/01/18 22:46
-     * @param teacherVo
-     * @param ip
-     * @return
-     */
-    public ReturnObject teacherResetPassword(UserPasswordVo teacherVo, String ip){
-        return userResetPassword(teacherDao.findTeacherBySno(teacherVo.getUserNo()), teacherVo.getEmail(), ip);
-    }
-
-    /**
      * 用户验证密码
      * @author snow create 2021/03/22 22:21
-     * @param retObj
+     *            modified 2021/03/27 20:58
+     * @param userId
      * @param oldPassword
      * @return
      */
-    public ReturnObject userVerifyPassword(ReturnObject retObj, String oldPassword){
+    public ReturnObject userVerifyPassword(Long userId, String oldPassword){
+        ReturnObject<User> retObj = userDao.findUserById(userId);
         if(retObj.getData() == null){
             return retObj;
         }
-        User user = (User)retObj.getData();
+        User user = retObj.getData();
         if(AES.encrypt(oldPassword, User.AES_PASS).equals(user.getPassword())){
             String verifyCode = VerifyCode.generateVerifyCode(6);
-            studentDao.putVerifyCodeIntoRedis(verifyCode, user.getId().toString());
+            userDao.putVerifyCodeIntoRedis(verifyCode, user.getId().toString());
             return new ReturnObject(verifyCode);
         }
         else{
@@ -288,216 +186,108 @@ public class CompuOrgService {
     }
 
     /**
-     * 学生验证密码
-     * @author snow create 2021/03/22 22:23
-     * @param studentId
-     * @param oldPassword
+     * 用户验证验证码
+     * @author snow create 2021/03/27 21:30
+     * @param verifyCodeVo
      * @return
      */
-    public ReturnObject studentVerifyPassword(Long studentId, String oldPassword){
-        return userVerifyPassword(studentDao.findStudentById(studentId), oldPassword);
-    }
-
-    public ReturnObject studentVerifyVerifyCode(VerifyCodeVo verifyCodeVo){
+    public ReturnObject userVerifyCode(VerifyCodeVo verifyCodeVo){
         Long userId = userDao.getUserIdByVerifyCode(verifyCodeVo.getVerifyCode());
         if(userId == null){
             System.out.println("Can't find anything in redis with: " + verifyCodeVo.getVerifyCode());
             return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
         }
-        ReturnObject<Student> retObj = studentDao.findStudentById(userId);
-        if(retObj.getData() == null){
-            return retObj;
-        }
-        Student student = retObj.getData();
-        if(!student.getUserNo().equals(verifyCodeVo.getUserNo())){
-            return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
-        }
         String verifyKey = VerifyCode.generateVerifyCode(6) + LocalDateTime.now();
-        studentDao.putVerifyCodeIntoRedis(verifyKey, userId.toString());
+        userDao.putVerifyCodeIntoRedis(verifyKey, userId.toString());
         return new ReturnObject(verifyKey);
     }
 
     /**
-     * 管理员修改密码
-     * @author snow create 2021/01/23 19:16
-     * @param modifyPasswordVo
-     * @return
-     */
-    public ReturnObject adminModifyPassword(UserModifyPasswordVo modifyPasswordVo){
-        Long adminId = userDao.getUserIdByVerifyCode(modifyPasswordVo.getVerifyCode());
-        if(adminId == null){
-            System.out.println("Can't find anything in redis with: " + modifyPasswordVo.getVerifyCode());
-            return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
-        }
-        ReturnObject retObj = adminDao.findAdminById(adminId);
-        if(retObj.getData() == null){
-            return retObj;
-        }
-        Admin admin = (Admin) retObj.getData();
-        String password = AES.encrypt(modifyPasswordVo.getPassword(), Student.AES_PASS);
-        if(password.equals(admin.getPassword())){
-            return new ReturnObject(ResponseCode.PASSWORD_SAME);
-        }
-        admin.setPassword(password);
-        admin.setSignature(admin.createSignature());
-        userDao.disableVerifyCodeAfterSuccessfullyModifyPassword(modifyPasswordVo.getVerifyCode());
-        return adminDao.updateAdminInformation(admin);
-    }
-
-    /**
-     * 学生修改密码
+     * 用户修改密码
      * @author snow create 2021/01/18 00:26
      *            modified 2021/01/23 16:56
+     *            modified 2021/03/27 21:00
      * @param modifyPasswordVo
      * @return
      */
-    public ReturnObject studentModifyPassword(UserModifyPasswordVo modifyPasswordVo){
-        Long studentId = studentDao.getUserIdByVerifyCode(modifyPasswordVo.getVerifyCode());
-        if(studentId == null){
+    public ReturnObject userModifyPassword(UserModifyPasswordVo modifyPasswordVo){
+        Long userId = userDao.getUserIdByVerifyCode(modifyPasswordVo.getVerifyCode());
+        if(userId == null){
             System.out.println("Can't find anything in redis with: " + modifyPasswordVo.getVerifyCode());
             return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
         }
-        ReturnObject retObj= studentDao.findStudentById(studentId);
+        ReturnObject<User> retObj= userDao.findUserById(userId);
         if(retObj.getData() == null){
             return retObj;
         }
-        Student student = (Student)retObj.getData();
-        String password = AES.encrypt(modifyPasswordVo.getPassword(), Student.AES_PASS);
-        if(password.equals(student.getPassword())){
+        User user = retObj.getData();
+        String password = AES.encrypt(modifyPasswordVo.getPassword(), User.AES_PASS);
+        if(password.equals(user.getPassword())){
             return new ReturnObject(ResponseCode.PASSWORD_SAME);
         }
-        student.setPassword(password);
-        studentDao.disableVerifyCodeAfterSuccessfullyModifyPassword(modifyPasswordVo.getVerifyCode());
-        return studentDao.updateStudentInformation(student);
+        user.setPassword(password);
+        user.setSignature(user.createSignature());
+        userDao.disableVerifyCodeAfterSuccessfullyModifyPassword(modifyPasswordVo.getVerifyCode());
+        return userDao.updateUserInformation(user);
     }
 
     /**
-     * 教师修改密码
-     * @author snow create 2021/01/18 22:59
-     * @param modifyPasswordVo
-     * @return
-     */
-    public ReturnObject teacherModifyPassword(UserModifyPasswordVo modifyPasswordVo){
-        Long teacherId = teacherDao.getUserIdByVerifyCode(modifyPasswordVo.getVerifyCode());
-        if(teacherId == null){
-            System.out.println("Can't find anything in redis with: " + modifyPasswordVo.getVerifyCode());
-            return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
-        }
-        ReturnObject retObj= teacherDao.findTeacherById(teacherId);
-        if(retObj.getData() == null){
-            return retObj;
-        }
-        Teacher teacher = (Teacher) retObj.getData();
-        String password = AES.encrypt(modifyPasswordVo.getPassword(), Student.AES_PASS);
-        if(password.equals(teacher.getPassword())){
-            return new ReturnObject(ResponseCode.PASSWORD_SAME);
-        }
-        teacher.setPassword(password);
-        teacherDao.disableVerifyCodeAfterSuccessfullyModifyPassword(modifyPasswordVo.getVerifyCode());
-        return teacherDao.updateTeacherInformation(teacher);
-    }
-
-    /**
-     * 学生查找个人信息
+     * 用户查找个人信息
      * @author snow create 2021/03/22 10:52
-     * @param studentId
+     *            modified 2021/03/27 21:11
+     * @param userId
      * @return
      */
-    public ReturnObject studentGetBasicInformation(Long studentId){
-        return studentDao.findStudentById(studentId);
+    public ReturnObject userGetBasicInformation(Long userId){
+        return userDao.findUserById(userId);
     }
 
     /**
-     * 管理员修改基础信息
-     * @author snow create 2021/01/23 19:18
-     * @param adminId
-     * @param userBasicInfoVo
-     * @return
-     */
-    public ReturnObject adminModifyBasicInformation(Long adminId, UserBasicInfoVo userBasicInfoVo){
-        if(userBasicInfoVo.getUserNo() != null && adminDao.isAdminNoAlreadyExist(userBasicInfoVo.getUserNo())){
-            return new ReturnObject(ResponseCode.TEACHER_NO_REGISTERED);
-        }
-        if(userBasicInfoVo.getMobile() != null && adminDao.isMobileAlreadyExist(AES.encrypt(userBasicInfoVo.getMobile(), User.AES_PASS))){
-            return new ReturnObject(ResponseCode.MOBILE_REGISTERED);
-        }
-        ReturnObject retObj = adminDao.findAdminById(adminId);
-        if (retObj.getData() == null){
-            return retObj;
-        }
-        Admin admin = (Admin) retObj.getData();
-        admin.updateUserInfo(userBasicInfoVo);
-        admin.setSignature(admin.createSignature());
-        return adminDao.updateAdminInformation(admin);
-    }
-
-    /**
-     * 学生修改基础信息
+     * 用户修改基础信息
      * @author snow create 2021/01/23 14:07
      *            modified 2021/01/23 17:00
-     * @param studentId
+     *            modified 2021/03/27 21:17
+     * @param userId
      * @param userBasicInfoVo
      * @return
      */
-    public ReturnObject studentModifyBasicInformation(Long studentId, UserBasicInfoVo userBasicInfoVo){
-        if(userBasicInfoVo.getUserNo() != null && studentDao.isStudentNoAlreadyExist(userBasicInfoVo.getUserNo())){
+    public ReturnObject userModifyBasicInformation(Long userId, UserBasicInfoVo userBasicInfoVo){
+        if(userBasicInfoVo.getUserName() != null && userDao.isUserNameAlreadyExist(userBasicInfoVo.getUserName())){
             return new ReturnObject(ResponseCode.STUDENT_NO_REGISTERED);
         }
-        if(userBasicInfoVo.getMobile() != null && studentDao.isMobileAlreadyExist(AES.encrypt(userBasicInfoVo.getMobile(), User.AES_PASS))){
+        if(userBasicInfoVo.getMobile() != null && userDao.isMobileAlreadyExist(AES.encrypt(userBasicInfoVo.getMobile(), User.AES_PASS))){
             return new ReturnObject(ResponseCode.MOBILE_REGISTERED);
         }
-        ReturnObject retObj = studentDao.findStudentById(studentId);
+        ReturnObject<User> retObj = userDao.findUserById(userId);
         if (retObj.getData() == null){
             return retObj;
         }
-        Student student = (Student)retObj.getData();
-        student.updateUserInfo(userBasicInfoVo);
-        return studentDao.updateStudentInformation(student);
-    }
-
-    /**
-     * 教师修改基础信息
-     * @author snow create 2021/01/23 17:54
-     * @param teacherId
-     * @param userBasicInfoVo
-     * @return
-     */
-    public ReturnObject teacherModifyBasicInformation(Long teacherId, UserBasicInfoVo userBasicInfoVo){
-        if(userBasicInfoVo.getUserNo() != null && teacherDao.isTeacherNoAlreadyExist(userBasicInfoVo.getUserNo())){
-            return new ReturnObject(ResponseCode.TEACHER_NO_REGISTERED);
-        }
-        if(userBasicInfoVo.getMobile() != null && teacherDao.isMobileAlreadyExist(AES.encrypt(userBasicInfoVo.getMobile(), User.AES_PASS))){
-            return new ReturnObject(ResponseCode.MOBILE_REGISTERED);
-        }
-        ReturnObject retObj = teacherDao.findTeacherById(teacherId);
-        if (retObj.getData() == null){
-            return retObj;
-        }
-        Teacher teacher = (Teacher) retObj.getData();
-        teacher.updateUserInfo(userBasicInfoVo);
-        return teacherDao.updateTeacherInformation(teacher);
+        User user = retObj.getData();
+        user.updateUserInfo(userBasicInfoVo);
+        return userDao.updateUserInformation(user);
     }
 
     /**
      * 用户验证邮箱
      * @author snow create 2021/01/23 16:32
      *            modified 2021/01/23 19:22
-     * @param retObj
+     *            modified 2021/03/27 21:23
      * @param userId
      * @param ip
      * @return
      */
-    public ReturnObject userVerifyEmail(ReturnObject retObj, Long userId, String ip){
+    public ReturnObject userVerifyEmail(Long userId, String ip){
+        ReturnObject<User> retObj = userDao.findUserById(userId);
         if(retObj.getData() == null){
             return retObj;
         }
-        User user = (User) retObj.getData();
+        User user = retObj.getData();
         if(userDao.isAllowRequestForVerifyCode(ip)) {
             //生成验证码
             logger.debug("Ok!");
             String verifyCode = VerifyCode.generateVerifyCode(6);
             logger.debug("VerifyCode: " + verifyCode);
-            studentDao.putVerifyCodeIntoRedis(verifyCode, userId.toString());
+            userDao.putVerifyCodeIntoRedis(verifyCode, userId.toString());
             String emailContent = "您正在【计算机组成原理平台】进行邮箱验证，您的验证码为：" + verifyCode + "，请于5分钟内完成验证！";
             logger.debug(emailContent);
             sendVerifyCode(verifyEmailTitle, emailContent, user.getDecryptEmail());
@@ -510,118 +300,57 @@ public class CompuOrgService {
     }
 
     /**
-     * 管理员验证邮箱
-     * @author snow create 2021/01/23 19:23
-     * @param adminId
+     * 用户注册前验证邮箱
+     * @author snow create 2021/03/27 22:25
+     * @param email
      * @param ip
      * @return
      */
-    public ReturnObject adminVerifyEmail(long adminId, String ip){
-        return userVerifyEmail(adminDao.findAdminById(adminId), adminId, ip);
-    }
-
-    /**
-     * 学生验证邮箱
-     * @author snow create 2021/01/23 16:33
-     *            modified 2021/01/23 19:23
-     * @param studentId
-     * @param ip
-     * @return
-     */
-    public ReturnObject studentVerifyEmail(long studentId, String ip){
-        return userVerifyEmail(adminDao.findAdminById(studentId), studentId, ip);
-    }
-
-    /**
-     * 教师验证邮箱
-     * @author snow create 2021/01/23 16:34
-     *            modified 2021/01/23 19:23
-     * @param teacherId
-     * @param ip
-     * @return
-     */
-    public ReturnObject teacherVerifyEmail(long teacherId, String ip){
-        return userVerifyEmail(adminDao.findAdminById(teacherId), teacherId, ip);
-    }
-
-    /**
-     * 管理员修改邮箱
-     * @author snow create 2021/01/23 19:26
-     * @param userVo
-     * @return
-     */
-    public ReturnObject adminModifyEmail(UserModifyEmailVo userVo){
-        Long adminId = userDao.getUserIdByVerifyCode(userVo.getVerifyCode());
-        if(adminId == null){
-            System.out.println("Can't find anything in redis with: " + userVo.getVerifyCode());
-            return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
+    public ReturnObject userVerifyEmail(String email, String ip){
+        if(userDao.isAllowRequestForVerifyCode(ip)) {
+            //生成验证码
+            logger.debug("Ok!");
+            String verifyCode = VerifyCode.generateVerifyCode(6);
+            logger.debug("VerifyCode: " + verifyCode);
+            userDao.putVerifyCodeIntoRedis(verifyCode, "10000");
+            String emailContent = "您正在【计算机组成原理平台】进行注册，您的验证码为：" + verifyCode + "，请于5分钟内完成注册！";
+            logger.debug(emailContent);
+            sendVerifyCode(registrationTitle, emailContent, email);
+            return new ReturnObject(ResponseCode.OK);
         }
-        String email = AES.encrypt(userVo.getEmail(), User.AES_PASS);
-        if(adminDao.isEmailAlreadyExist(email)){
-            return new ReturnObject(ResponseCode.EMAIL_REGISTERED);
+        else{
+            logger.debug("busy try!");
+            return new ReturnObject(ResponseCode.AUTH_USER_FORBIDDEN);
         }
-        ReturnObject retObj= adminDao.findAdminById(adminId);
-        if(retObj.getData() == null){
-            return retObj;
-        }
-        Admin admin = (Admin) retObj.getData();
-        admin.setEmail(email);
-        admin.setEmailVerify((byte)0);
-        admin.setSignature(admin.createSignature());
-        userDao.disableVerifyCodeAfterSuccessfullyModifyPassword(userVo.getVerifyCode());
-        return adminDao.updateAdminInformation(admin);
+
     }
 
     /**
-     * 学生修改邮箱
+     * 用户修改邮箱
      * @author snow create 2021/01/23 16:57
+     *            modified 2021/03/27 21:25
      * @param userVo
      * @return
      */
-    public ReturnObject studentModifyEmail(UserModifyEmailVo userVo){
-        Long studentId = userDao.getUserIdByVerifyCode(userVo.getVerifyCode());
-        if(studentId == null){
+    public ReturnObject userModifyEmail(UserModifyEmailVo userVo){
+        Long userId = userDao.getUserIdByVerifyCode(userVo.getVerifyCode());
+        if(userId == null){
             System.out.println("Can't find anything in redis with: " + userVo.getVerifyCode());
             return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
         }
         String email = AES.encrypt(userVo.getEmail(), User.AES_PASS);
-        if(studentDao.isEmailAlreadyExist(email)){
+        if(userDao.isEmailAlreadyExist(email)){
             return new ReturnObject(ResponseCode.EMAIL_REGISTERED);
         }
-        ReturnObject retObj= studentDao.findStudentById(studentId);
+        ReturnObject<User> retObj= userDao.findUserById(userId);
         if(retObj.getData() == null){
             return retObj;
         }
-        Student student = (Student)retObj.getData();
-        student.setEmail(email);
+        User user = retObj.getData();
+        user.setEmail(email);
+        user.setSignature(user.createSignature());
         userDao.disableVerifyCodeAfterSuccessfullyModifyPassword(userVo.getVerifyCode());
-        return studentDao.updateStudentInformation(student);
-    }
-
-    /**
-     * 教师修改邮箱
-     * @author snow create 2021/01/23 17:47
-     * @param userVo
-     * @return
-     */
-    public ReturnObject teacherModifyEmail(UserModifyEmailVo userVo){
-        Long teacherId = userDao.getUserIdByVerifyCode(userVo.getVerifyCode());
-        if(teacherId == null){
-            System.out.println("Can't find anything in redis with: " + userVo.getVerifyCode());
-            return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
-        }
-        String email = AES.encrypt(userVo.getEmail(), User.AES_PASS);
-        if(studentDao.isEmailAlreadyExist(email)){
-            return new ReturnObject(ResponseCode.EMAIL_REGISTERED);
-        }
-        ReturnObject retObj= teacherDao.findTeacherById(teacherId);
-        if(retObj.getData() == null){
-            return retObj;
-        }
-        Teacher teacher = (Teacher) retObj.getData();
-        teacher.setEmail(email);
-        userDao.disableVerifyCodeAfterSuccessfullyModifyPassword(userVo.getVerifyCode());
-        return teacherDao.updateTeacherInformation(teacher);
+        return userDao.updateUserInformation(user);
     }
 
     /**

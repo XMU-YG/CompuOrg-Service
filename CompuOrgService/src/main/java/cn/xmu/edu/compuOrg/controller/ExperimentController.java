@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
-@Api(value = "实验", tags = "compuOrgExperiment")
+@Api(value = "实验", tags = "experiment")
 @RestController /*Restful的Controller对象*/
 @RequestMapping(value = "/experiment", produces = "application/json;charset=UTF-8")
 public class ExperimentController {
