@@ -38,7 +38,7 @@ public class CompuOrgService {
     @Value("${CompuOrgService.teacher.departId}")
     private Long teacherDepartId;
 
-    private static final String registrationTitle = "【计算机组成原理平台】注册通知";
+    private static final String registrationTitle = "【计算机组成原理平台】注册验证通知";
     private static final String verifyEmailTitle = "【计算机组成原理平台】邮箱验证通知";
     private static final String resetPasswordEmailTitle = "【计算机组成原理平台】重置密码通知";
 
@@ -101,7 +101,7 @@ public class CompuOrgService {
      * @return
      */
     public ReturnObject teacherSignUp(Long departId, UserVo teacherVo){
-        if(!teacherDepartId.equals(departId) || !adminDepartId.equals(departId)){
+        if(!teacherDepartId.equals(departId) && !adminDepartId.equals(departId)){
             return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
         }
         User teacher = new User(teacherVo);
@@ -252,17 +252,27 @@ public class CompuOrgService {
      * @return
      */
     public ReturnObject userModifyBasicInformation(Long userId, UserBasicInfoVo userBasicInfoVo){
-        if(userBasicInfoVo.getUserName() != null && userDao.isUserNameAlreadyExist(userBasicInfoVo.getUserName())){
-            return new ReturnObject(ResponseCode.STUDENT_NO_REGISTERED);
-        }
-        if(userBasicInfoVo.getMobile() != null && userDao.isMobileAlreadyExist(AES.encrypt(userBasicInfoVo.getMobile(), User.AES_PASS))){
-            return new ReturnObject(ResponseCode.MOBILE_REGISTERED);
-        }
         ReturnObject<User> retObj = userDao.findUserById(userId);
         if (retObj.getData() == null){
             return retObj;
         }
         User user = retObj.getData();
+        if(userBasicInfoVo.getUserName() != null){
+            if(userBasicInfoVo.getUserName().equals(user.getUserName())){
+                return new ReturnObject(ResponseCode.USER_NAME_SAME);
+            }
+            if(userDao.isUserNameAlreadyExist(userBasicInfoVo.getUserName())) {
+                return new ReturnObject(ResponseCode.USER_NAME_REGISTERED);
+            }
+        }
+        if(userBasicInfoVo.getMobile() != null){
+            if(userBasicInfoVo.getMobile().equals(user.getDecryptMobile())){
+                return new ReturnObject(ResponseCode.MOBILE_SAME);
+            }
+            if(userDao.isMobileAlreadyExist(AES.encrypt(userBasicInfoVo.getMobile(), User.AES_PASS))) {
+                return new ReturnObject(ResponseCode.MOBILE_REGISTERED);
+            }
+        }
         user.updateUserInfo(userBasicInfoVo);
         return userDao.updateUserInformation(user);
     }
@@ -302,20 +312,30 @@ public class CompuOrgService {
     /**
      * 用户注册前验证邮箱
      * @author snow create 2021/03/27 22:25
+     *            modified 2021/03/28 21:15
+     * @param userId
      * @param email
      * @param ip
      * @return
      */
-    public ReturnObject userVerifyEmail(String email, String ip){
+    public ReturnObject userVerifyEmail(String userId, String email, String ip){
         if(userDao.isAllowRequestForVerifyCode(ip)) {
             //生成验证码
             logger.debug("Ok!");
             String verifyCode = VerifyCode.generateVerifyCode(6);
             logger.debug("VerifyCode: " + verifyCode);
-            userDao.putVerifyCodeIntoRedis(verifyCode, "10000");
-            String emailContent = "您正在【计算机组成原理平台】进行注册，您的验证码为：" + verifyCode + "，请于5分钟内完成注册！";
+            userDao.putVerifyCodeIntoRedis(verifyCode, userId);
+            String emailContent, title;
+            if("-3835".equals(userId)){
+                title = registrationTitle;
+                emailContent = "您正在【计算机组成原理平台】进行注册，您的验证码为：" + verifyCode + "，请于5分钟内完成注册！";
+            }
+            else{
+                title = verifyEmailTitle;
+                emailContent = "您正在【计算机组成原理平台】进行邮箱验证，您的验证码为：" + verifyCode + "，请于5分钟内完成验证！";
+            }
             logger.debug(emailContent);
-            sendVerifyCode(registrationTitle, emailContent, email);
+            sendVerifyCode(title, emailContent, email);
             return new ReturnObject(ResponseCode.OK);
         }
         else{
@@ -329,24 +349,28 @@ public class CompuOrgService {
      * 用户修改邮箱
      * @author snow create 2021/01/23 16:57
      *            modified 2021/03/27 21:25
+     *            modified 2021/03/28 21:28
      * @param userVo
      * @return
      */
-    public ReturnObject userModifyEmail(UserModifyEmailVo userVo){
-        Long userId = userDao.getUserIdByVerifyCode(userVo.getVerifyCode());
-        if(userId == null){
+    public ReturnObject userModifyEmail(Long userId, UserModifyEmailVo userVo){
+        Long redisValue = userDao.getUserIdByVerifyCode(userVo.getVerifyCode());
+        if(redisValue == null){
             System.out.println("Can't find anything in redis with: " + userVo.getVerifyCode());
             return new ReturnObject(ResponseCode.VERIFY_CODE_EXPIRE);
-        }
-        String email = AES.encrypt(userVo.getEmail(), User.AES_PASS);
-        if(userDao.isEmailAlreadyExist(email)){
-            return new ReturnObject(ResponseCode.EMAIL_REGISTERED);
         }
         ReturnObject<User> retObj= userDao.findUserById(userId);
         if(retObj.getData() == null){
             return retObj;
         }
         User user = retObj.getData();
+        String email = AES.encrypt(userVo.getEmail(), User.AES_PASS);
+        if(email.equals(user.getEmail())){
+            return new ReturnObject(ResponseCode.EMAIL_SAME);
+        }
+        if(userDao.isEmailAlreadyExist(email)){
+            return new ReturnObject(ResponseCode.EMAIL_REGISTERED);
+        }
         user.setEmail(email);
         user.setSignature(user.createSignature());
         userDao.disableVerifyCodeAfterSuccessfullyModifyPassword(userVo.getVerifyCode());
