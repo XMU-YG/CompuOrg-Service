@@ -49,7 +49,9 @@ public class UserController {
     })
     @ApiResponses({
             @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 507, message = "信息签名不正确"),
             @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
+            @ApiResponse(code = 748, message = "Email未确认"),
     })
     @PostMapping("login")
     public Object userLogin(@Validated @RequestBody UserLoginVo loginVo,
@@ -352,20 +354,20 @@ public class UserController {
         return Common.decorateReturnObject(compuOrgService.userModifyBasicInformation(userId, userBasicInfoVo));
     }
     /**
-     * 验证邮箱
+     * 用户注册时验证邮箱
      * @author snow create 2021/03/27 22:19
      * @param emailVo
      * @param bindingResult
      * @return
      */
-    @ApiOperation(value = "验证邮箱", produces = "application/json")
+    @ApiOperation(value = "用户注册时验证邮箱", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "body", dataType = "EmailVo", name = "emailVo", value = "邮箱", required = true),
     })
     @ApiResponses({
             @ApiResponse(code = 0, message = "成功"),
     })
-    @PutMapping("email/verify/new")
+    @PutMapping("email/verify/registration")
     public Object userVerifyEmail(@Validated @RequestBody EmailVo emailVo,
                                   BindingResult bindingResult,
                                   HttpServletRequest httpServletRequest){
@@ -374,18 +376,18 @@ public class UserController {
             return returnObject;
         }
         String ip = IpUtil.getIpAddr(httpServletRequest);
-        return Common.decorateReturnObject(compuOrgService.userVerifyEmail(emailVo.getEmail(), ip));
+        return Common.decorateReturnObject(compuOrgService.userVerifyEmail("-3835", emailVo.getEmail(), ip));
     }
 
     /**
-     * 用户发送验证码验证邮箱
+     * 用户验证旧邮箱
      * @author snow create 2021/01/23 16:41
      *            modified 2021/03/27 21:22
      * @param userId
      * @param httpServletRequest
      * @return
      */
-    @ApiOperation(value = "用户发送验证码验证邮箱", produces = "application/json")
+    @ApiOperation(value = "用户验证旧邮箱", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
 
@@ -396,12 +398,46 @@ public class UserController {
     })
     @Audit
     @GetMapping("email/verify")
-    public Object userVerifyEmail(@ApiIgnore @LoginUser Long userId,
+    public Object userVerifyOldEmail(@ApiIgnore @LoginUser Long userId,
                                   HttpServletRequest httpServletRequest){
         logger.debug("UserId: " + userId);
         String ip = IpUtil.getIpAddr(httpServletRequest);
 
         return Common.decorateReturnObject(compuOrgService.userVerifyEmail(userId, ip));
+    }
+
+    /**
+     * 用户验证新邮箱
+     * @author snow create 2021/03/28 21:12
+     * @param userId
+     * @param emailVo
+     * @param bindingResult
+     * @param httpServletRequest
+     * @return
+     */
+    @ApiOperation(value = "用户验证新邮箱", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "EmailVo", name = "emailVo", value = "邮箱", required = true),
+
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 700, message = "用户名不存在或者密码错误"),
+    })
+    @Audit
+    @PutMapping("email/verify/new")
+    public Object userVerifyNewEmail(@ApiIgnore @LoginUser Long userId,
+                                     @Validated @RequestBody EmailVo emailVo,
+                                     BindingResult bindingResult,
+                                     HttpServletRequest httpServletRequest){
+        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(returnObject != null){
+            return returnObject;
+        }
+        String ip = IpUtil.getIpAddr(httpServletRequest);
+        return Common.decorateReturnObject(compuOrgService.userVerifyEmail(userId.toString(), emailVo.getEmail(), ip));
+
     }
 
     /**
