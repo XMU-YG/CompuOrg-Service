@@ -123,6 +123,7 @@ public class UserController {
      */
     @ApiOperation(value = "教师注册", produces = "application/json")
     @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
             @ApiImplicitParam(paramType = "body", dataType = "UserVo", name = "teacherVo", value = "教师注册信息", required = true),
 
     })
@@ -142,7 +143,7 @@ public class UserController {
         if(returnObject != null){
             return returnObject;
         }
-
+        logger.debug("TeacherSignUp in departId: " + departId);
         ReturnObject retObj = compuOrgService.teacherSignUp(departId, teacherVo);
 
         if(retObj.getData() == null){
@@ -204,7 +205,7 @@ public class UserController {
      */
     @ApiOperation(value = "用户找回密码", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "body", dataType = "UserPasswordVo", name = "studentVo", value = "用户验证身份信息", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "UserPasswordVo", name = "userVo", value = "用户验证身份信息", required = true),
 
     })
     @ApiResponses({
@@ -413,6 +414,7 @@ public class UserController {
      */
     @ApiOperation(value = "用户修改邮箱", produces = "application/json")
     @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
             @ApiImplicitParam(paramType = "body", dataType = "UserModifyEmailVo", name = "userVo", value = "修改邮箱对象", required = true),
 
     })
@@ -424,14 +426,15 @@ public class UserController {
     })
     @Audit
     @PutMapping("email")
-    public Object userModifyEmail(@Validated @RequestBody UserModifyEmailVo userVo,
+    public Object userModifyEmail(@LoginUser @ApiIgnore Long userId,
+                                  @Validated @RequestBody UserModifyEmailVo userVo,
                                   BindingResult bindingResult){
         Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
         if(returnObject != null){
             return returnObject;
         }
 
-        return Common.decorateReturnObject(compuOrgService.userModifyEmail(userVo));
+        return Common.decorateReturnObject(compuOrgService.userModifyEmail(userId, userVo));
     }
 
     /**
