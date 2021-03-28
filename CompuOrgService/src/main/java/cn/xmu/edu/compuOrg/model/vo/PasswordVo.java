@@ -14,6 +14,6 @@ import javax.validation.constraints.NotNull;
 public class PasswordVo {
 
     @ApiModelProperty(value = "密码")
-    @NotNull
+    @NotNull(message = "密码不能为空")
     private String password;
 }

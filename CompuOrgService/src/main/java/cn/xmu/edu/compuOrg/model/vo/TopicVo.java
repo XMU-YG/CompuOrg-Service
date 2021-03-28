@@ -20,15 +20,15 @@ public class TopicVo {
     private Long experimentId;
 
     @ApiModelProperty(value = "类型")
-    @NotNull
+    @NotNull(message = "题目类型不能为空")
     private Byte type;
 
     @ApiModelProperty(value = "分值")
-    @NotNull
+    @NotNull(message = "题目分值不能为空")
     private Byte score;
 
     @ApiModelProperty(value = "内容")
-    @NotNull
+    @NotNull(message = "题目内容不能为空")
     private String content;
 
     @ApiModelProperty(value = "图片URL")

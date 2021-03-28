@@ -11,10 +11,10 @@ import javax.validation.constraints.NotNull;
 @Data
 public class TopicAnswerScoreVo {
     @ApiModelProperty(value = "题目答案id")
-    @NotNull
+    @NotNull(message = "题目答案不能为空")
     private Long topicAnswerId;
 
     @ApiModelProperty(value = "题目答案得分")
-    @NotNull
+    @NotNull(message = "答案得分不能为空")
     private Integer score;
 }

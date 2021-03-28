@@ -12,10 +12,10 @@ import javax.validation.constraints.NotNull;
 public class UserLoginVo {
 
     @ApiModelProperty(value = "用户名")
-    @NotNull
+    @NotNull(message = "用户名不能为空")
     private String userName;
 
     @ApiModelProperty(value = "密码")
-    @NotNull
+    @NotNull(message = "密码不能为空")
     private String password;
 }

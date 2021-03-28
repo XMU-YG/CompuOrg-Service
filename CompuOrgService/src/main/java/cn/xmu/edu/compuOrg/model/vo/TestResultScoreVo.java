@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 public class TestResultScoreVo {
     @ApiModelProperty(value = "测试结果id")
-    @NotNull
+    @NotNull(message = "测试结果id不能为空")
     private Long testResultId;
 
     @ApiModelProperty(value = "各题目答案得分")

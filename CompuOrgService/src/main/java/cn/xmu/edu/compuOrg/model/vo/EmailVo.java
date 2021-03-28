@@ -14,6 +14,6 @@ import javax.validation.constraints.NotNull;
 public class EmailVo {
 
     @ApiModelProperty(value = "邮箱")
-    @NotNull
+    @NotNull(message = "邮箱不能为空")
     private String email;
 }

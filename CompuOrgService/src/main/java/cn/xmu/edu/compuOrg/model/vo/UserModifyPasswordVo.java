@@ -14,10 +14,10 @@ import javax.validation.constraints.NotNull;
 public class UserModifyPasswordVo {
 
     @ApiModelProperty(value = "验证码")
-    @NotNull
+    @NotNull(message = "验证码不能为空")
     private String verifyCode;
 
     @ApiModelProperty(value = "新密码")
-    @NotNull
+    @NotNull(message = "新密码不能为空")
     private String password;
 }

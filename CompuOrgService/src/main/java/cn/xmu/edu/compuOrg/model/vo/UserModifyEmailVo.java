@@ -12,10 +12,10 @@ import javax.validation.constraints.NotNull;
 public class UserModifyEmailVo {
 
     @ApiModelProperty(value = "验证码")
-    @NotNull
+    @NotNull(message = "验证码不能为空")
     private String verifyCode;
 
     @ApiModelProperty(value = "新邮箱")
-    @NotNull
+    @NotNull(message = "新邮箱不能为空")
     private String email;
 }
