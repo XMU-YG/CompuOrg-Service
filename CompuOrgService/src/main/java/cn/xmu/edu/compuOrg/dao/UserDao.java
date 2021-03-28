@@ -150,7 +150,7 @@ public class UserDao {
     /**
      * 更新用户信息
      * @author snow create 2021/03/27 20:22
-     * @param student
+     * @param user
      * @return
      */
     public ReturnObject updateUserInformation(User user){
