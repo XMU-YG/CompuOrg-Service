@@ -71,6 +71,18 @@ public class CompuOrgService {
             return new ReturnObject<>(ResponseCode.AUTH_INVALID_ACCOUNT);
         }
         String jwt = new JwtHelper().createToken(user.getId(), Byte.toUnsignedLong(user.getRole()), jwtExpireTime);
+        if(adminDepartId.byteValue() == user.getRole()){
+                jwt = "adm" + jwt;
+        }
+        else if(teacherDepartId.byteValue()  == user.getRole()){
+            jwt = "tea" + jwt;
+        }
+        else if(studentDepartId.byteValue() == user.getRole()){
+            jwt = "stu" + jwt;
+        }
+        else{
+            jwt = "unk" + jwt;
+        }
         return new ReturnObject<>(jwt);
     }
 
@@ -152,8 +164,7 @@ public class CompuOrgService {
             String verifyCode = VerifyCode.generateVerifyCode(6);
             userDao.putVerifyCodeIntoRedis(verifyCode, user.getId().toString());
             String emailContent = "您正在【计算机组成原理平台】进行找回密码，您的验证码为：" + verifyCode + "，请于5分钟内完成验证！";
-            sendVerifyCode(resetPasswordEmailTitle, emailContent, userVo.getEmail());
-            return new ReturnObject(ResponseCode.OK);
+            return sendVerifyCode(resetPasswordEmailTitle, emailContent, userVo.getEmail());
         }
         else{
             return new ReturnObject(ResponseCode.AUTH_USER_FORBIDDEN);
@@ -199,6 +210,7 @@ public class CompuOrgService {
         }
         String verifyKey = VerifyCode.generateVerifyCode(6) + LocalDateTime.now();
         userDao.putVerifyCodeIntoRedis(verifyKey, userId.toString());
+        userDao.disableVerifyCodeAfterSuccessfullyModifyPassword(verifyCodeVo.getVerifyCode());
         return new ReturnObject(verifyKey);
     }
 
@@ -278,7 +290,7 @@ public class CompuOrgService {
     }
 
     /**
-     * 用户验证邮箱
+     * 用户验证旧邮箱
      * @author snow create 2021/01/23 16:32
      *            modified 2021/01/23 19:22
      *            modified 2021/03/27 21:23
@@ -300,8 +312,7 @@ public class CompuOrgService {
             userDao.putVerifyCodeIntoRedis(verifyCode, userId.toString());
             String emailContent = "您正在【计算机组成原理平台】进行邮箱验证，您的验证码为：" + verifyCode + "，请于5分钟内完成验证！";
             logger.debug(emailContent);
-            sendVerifyCode(verifyEmailTitle, emailContent, user.getDecryptEmail());
-            return new ReturnObject(ResponseCode.OK);
+            return sendVerifyCode(verifyEmailTitle, emailContent, user.getDecryptEmail());
         }
         else{
             logger.debug("busy try!");
@@ -310,9 +321,10 @@ public class CompuOrgService {
     }
 
     /**
-     * 用户注册前验证邮箱
+     * 用户验证邮箱
      * @author snow create 2021/03/27 22:25
      *            modified 2021/03/28 21:15
+     *            modified 2021/04/06 15:15
      * @param userId
      * @param email
      * @param ip
@@ -327,6 +339,9 @@ public class CompuOrgService {
             userDao.putVerifyCodeIntoRedis(verifyCode, userId);
             String emailContent, title;
             if("-3835".equals(userId)){
+                if(userDao.isEmailAlreadyExist(email)){
+                    return new ReturnObject(ResponseCode.EMAIL_REGISTERED);
+                }
                 title = registrationTitle;
                 emailContent = "您正在【计算机组成原理平台】进行注册，您的验证码为：" + verifyCode + "，请于5分钟内完成注册！";
             }
@@ -334,9 +349,8 @@ public class CompuOrgService {
                 title = verifyEmailTitle;
                 emailContent = "您正在【计算机组成原理平台】进行邮箱验证，您的验证码为：" + verifyCode + "，请于5分钟内完成验证！";
             }
-            logger.debug(emailContent);
-            sendVerifyCode(title, emailContent, email);
-            return new ReturnObject(ResponseCode.OK);
+//            logger.debug(emailContent);
+            return sendVerifyCode(title, emailContent, email);
         }
         else{
             logger.debug("busy try!");
@@ -386,16 +400,16 @@ public class CompuOrgService {
      * @param toEmailAddress
      * @return
      */
-    public Boolean sendVerifyCode(String title, String content, String toEmailAddress){
+    public ReturnObject sendVerifyCode(String title, String content, String toEmailAddress){
         try{
 
             //发送邮件
             SendEmail.sendEmail(toEmailAddress, title, content);
-            return true;
+            return new ReturnObject(ResponseCode.OK);
         }catch(Exception e){
             e.printStackTrace();
-            return false;
         }
+        return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
     }
 
     /**
@@ -582,6 +596,14 @@ public class CompuOrgService {
         return retObj;
     }
 
+    /**
+     * 根据实验序号获得测试结果详情
+     * @author snow create 2021/03/21 18:18
+     * @param studentId
+     * @param departId
+     * @param experimentId
+     * @return
+     */
     public ReturnObject getTestResultDetailByExperimentId(Long studentId, Long departId, Long experimentId){
         if(!studentDepartId.equals(departId)){
             return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
