@@ -392,7 +392,7 @@ public class TestDao {
                 return new ReturnObject(new TestResult(testResultPos.get(0)));
             }
             else{
-                return new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST);
+                return new ReturnObject(ResponseCode.NO_MORE_TEST_RESULT);
             }
         }
         catch (Exception e){
