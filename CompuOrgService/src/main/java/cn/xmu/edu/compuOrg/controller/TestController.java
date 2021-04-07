@@ -125,7 +125,7 @@ public class TestController {
             @ApiResponse(code = 0, message = "成功"),
     })
     @Audit
-    @PostMapping("topic/{topicId}")
+    @DeleteMapping("topic/{topicId}")
     public Object removeTopic(@ApiIgnore @Depart Long departId,
                               @PathVariable Long topicId){
         logger.debug("DepartId: " + departId + ", TopicId: " + topicId);
@@ -138,7 +138,6 @@ public class TestController {
      * @param departId
      * @param topicId
      * @param topicVo
-     * @param bindingResult
      * @return
      */
     @ApiOperation(value = "教师修改测试题目", produces = "application/json")
@@ -154,12 +153,10 @@ public class TestController {
     @PutMapping("topic/{topicId}")
     public Object modifyTopic(@ApiIgnore @Depart Long departId,
                                  @PathVariable Long topicId,
-                                 @Validated @RequestBody TopicVo topicVo,
-                                 BindingResult bindingResult){
+                                 @RequestBody TopicVo topicVo){
         logger.debug("DepartId: " + departId + ", TopicId: " + topicId + ", Topic: " + topicVo.toString());
-        Object returnObject = Common.processFieldErrors(bindingResult, httpServletResponse);
-        if(returnObject != null){
-            return returnObject;
+        if(topicVo.getExperimentId() != null && (topicVo.getExperimentId() < 1 || topicVo.getExperimentId() > 5)){
+            return Common.getNullRetObj(new ReturnObject(ResponseCode.FIELD_NOTVALID), httpServletResponse);
         }
         ReturnObject retObj = compuOrgService.modifyTopic(departId, topicId, topicVo);
         return Common.decorateReturnObject(retObj);
@@ -221,6 +218,7 @@ public class TestController {
     @Audit
     @PostMapping("result")
     public Object commitTest(@ApiIgnore @LoginUser Long studentId,
+                             @ApiIgnore @Depart Long departId,
                              @Validated @RequestBody TestVo testVo,
                              BindingResult bindingResult){
         logger.debug("StudentId: " + studentId + ", TestVo: " + testVo);
@@ -228,7 +226,7 @@ public class TestController {
         if(returnObject != null){
             return returnObject;
         }
-        ReturnObject retObj = compuOrgService.commitTestResult(studentId, testVo);
+        ReturnObject retObj = compuOrgService.commitTestResult(studentId, departId, testVo);
         if(retObj.getData() == null){
             return Common.decorateReturnObject(retObj);
         }
