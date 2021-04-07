@@ -348,6 +348,9 @@ public class UserController {
                                           @RequestParam(required = false) String userName,
                                           @RequestParam(defaultValue = "1") Integer page,
                                           @RequestParam(defaultValue = "5") Integer pageSize){
+        if(page < 1 || pageSize < 0){
+            return Common.getNullRetObj(new ReturnObject(ResponseCode.FIELD_NOTVALID), httpServletResponse);
+        }
         return Common.getPageRetObject(compuOrgService.adminGetUserInformation(departId, role, userName, page, pageSize));
     }
 
