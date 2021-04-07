@@ -6,6 +6,7 @@ import cn.xmu.edu.compuOrg.mapper.UserPoMapper;
 import cn.xmu.edu.compuOrg.model.bo.User;
 import cn.xmu.edu.compuOrg.model.po.UserPo;
 import cn.xmu.edu.compuOrg.model.po.UserPoExample;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -72,6 +73,32 @@ public class UserDao {
             e.printStackTrace();
         }
         return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
+    }
+
+    /**
+     * 根据条件查找用户
+     * @author snow create 2021/04/07 08:33
+     * @param role
+     * @param userName
+     * @return
+     */
+    public PageInfo<UserPo> findUsersInCondition(Byte role, String userName){
+        try{
+            UserPoExample example = new UserPoExample();
+            UserPoExample.Criteria criteria = example.createCriteria();
+            if(role != null){
+                criteria.andRoleEqualTo(role);
+            }
+            if(userName != null){
+                criteria.andUserNameLike(userName);
+            }
+            List<UserPo> userPos = userPoMapper.selectByExample(example);
+            return new PageInfo<>(userPos);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
