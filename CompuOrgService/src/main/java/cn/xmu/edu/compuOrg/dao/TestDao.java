@@ -439,6 +439,8 @@ public class TestDao {
                 List<TopicAnswer> topicAnswers = new ArrayList<>();
                 for (TopicAnswerPo topicAnswerPo : topicAnswerPos){
                     TopicAnswer topicAnswer = new TopicAnswer(topicAnswerPo);
+                    TopicPo topicPo = topicPoMapper.selectByPrimaryKey(topicAnswerPo.getTopicId());
+                    topicAnswer.addTopicInfo(topicPo);
                     topicAnswers.add(topicAnswer);
                 }
                 return topicAnswers;
