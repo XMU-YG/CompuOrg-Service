@@ -191,6 +191,9 @@ public class TestController {
                                     @RequestParam(defaultValue = "1") Integer page,
                                     @RequestParam(defaultValue = "5") Integer pageSize){
         logger.debug("DepartId: " + departId + ", ExperimentId: " + experimentId);
+        if(page < 1 || pageSize < 0){
+            return Common.getNullRetObj(new ReturnObject(ResponseCode.FIELD_NOTVALID), httpServletResponse);
+        }
         if(experimentId != null && (experimentId < 1 || experimentId > 5)){
             return Common.decorateReturnObject(new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST));
         }
@@ -272,6 +275,9 @@ public class TestController {
                                     @RequestParam(defaultValue = "1") Integer page,
                                     @RequestParam(defaultValue = "5") Integer pageSize){
         logger.debug("DepartId: " + departId + ", UserId: " + userId + ", ExperimentId: " + experimentId + ", StudentId: " + studentId);
+        if(page < 1 || pageSize < 0){
+            return Common.getNullRetObj(new ReturnObject(ResponseCode.FIELD_NOTVALID), httpServletResponse);
+        }
         if(experimentId != null && (experimentId < 1 || experimentId > 5)){
             return Common.decorateReturnObject(new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST));
         }
