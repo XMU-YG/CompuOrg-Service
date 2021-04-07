@@ -547,11 +547,17 @@ public class CompuOrgService {
      * @author snow create 2021/01/25 22:25
      *            modified 2021/01/25 23:43
      *            modified 2021/01/28 13:27
+     *            modified 2021/04/07 17:40
      * @param studentId
+     * @param departId
      * @param testVo
      * @return
      */
-    public ReturnObject commitTestResult(Long studentId, TestVo testVo){
+    public ReturnObject commitTestResult(Long studentId, Long departId, TestVo testVo){
+        ReturnObject retObj = getTestResultDetailByExperimentId(studentId, departId, testVo.getExperimentId());
+        if(retObj.getData() != null){
+            return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
+        }
         TestResult testResult = new TestResult();
         testResult.setStudentId(studentId);
         testResult.setExperimentId(testVo.getExperimentId());
