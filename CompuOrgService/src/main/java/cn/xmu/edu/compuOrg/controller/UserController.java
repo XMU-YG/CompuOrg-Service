@@ -321,6 +321,37 @@ public class UserController {
     }
 
     /**
+     * 管理员查看系统用户
+     * @author snow create 2021/04/07 08:16
+     * @param departId
+     * @param role
+     * @param userName
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "管理员查看系统用户", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "role", value = "用户角色", required = false),
+            @ApiImplicitParam(paramType = "query", dataType = "String", name = "userName", value = "用户名", required = false),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "page", value = "页码", defaultValue = "1", required = true),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "pageSize", value = "页大小", defaultValue = "5", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+    })
+    @Audit
+    @GetMapping("information/all")
+    public Object adminGetUserInformation(@ApiIgnore @Depart Long departId,
+                                          @RequestParam(required = false) Byte role,
+                                          @RequestParam(required = false) String userName,
+                                          @RequestParam(defaultValue = "1") Integer page,
+                                          @RequestParam(defaultValue = "5") Integer pageSize){
+        return Common.getPageRetObject(compuOrgService.adminGetUserInformation(departId, role, userName, page, pageSize));
+    }
+
+    /**
      * 用户修改基本信息
      * @author snow create 2021/01/23 14:11
      * @param userId

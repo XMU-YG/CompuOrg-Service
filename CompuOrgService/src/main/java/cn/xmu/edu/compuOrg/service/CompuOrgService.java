@@ -2,12 +2,16 @@ package cn.xmu.edu.compuOrg.service;
 
 import cn.xmu.edu.Core.model.VoObject;
 import cn.xmu.edu.Core.util.*;
-import cn.xmu.edu.compuOrg.dao.*;
-import cn.xmu.edu.compuOrg.model.bo.*;
+import cn.xmu.edu.compuOrg.dao.TestDao;
+import cn.xmu.edu.compuOrg.dao.UserDao;
+import cn.xmu.edu.compuOrg.model.bo.TestResult;
+import cn.xmu.edu.compuOrg.model.bo.Topic;
+import cn.xmu.edu.compuOrg.model.bo.TopicAnswer;
+import cn.xmu.edu.compuOrg.model.bo.User;
 import cn.xmu.edu.compuOrg.model.po.TestResultPo;
 import cn.xmu.edu.compuOrg.model.po.TopicPo;
+import cn.xmu.edu.compuOrg.model.po.UserPo;
 import cn.xmu.edu.compuOrg.model.vo.*;
-import cn.xmu.edu.compuOrg.model.vo.VerifyCodeVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
@@ -252,6 +256,36 @@ public class CompuOrgService {
      */
     public ReturnObject userGetBasicInformation(Long userId){
         return userDao.findUserById(userId);
+    }
+
+    /**
+     * 管理员查看用户信息
+     * @author snow create 2021/04/07 08:37
+     * @param departId
+     * @param role
+     * @param userName
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    public ReturnObject<PageInfo<VoObject>> adminGetUserInformation(Long departId, Byte role, String userName, Integer page, Integer pageSize){
+        if(!adminDepartId.equals(departId)){
+            return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
+        }
+        PageHelper.startPage(page, pageSize);
+        PageInfo<UserPo> userPo = userDao.findUsersInCondition(role, userName);
+        if(userPo == null){
+            return new ReturnObject<>(ResponseCode.INTERNAL_SERVER_ERR);
+        }
+        List<VoObject> userInfos = userPo.getList().stream().map(User::new).filter(User::isSignatureBeenModify).collect(Collectors.toList());
+
+        PageInfo<VoObject> retObj = new PageInfo<>(userInfos);
+        retObj.setPages(userPo.getPages());
+        retObj.setPageNum(userPo.getPageNum());
+        retObj.setPageSize(userPo.getPageSize());
+        retObj.setTotal(userPo.getTotal());
+
+        return new ReturnObject<>(retObj);
     }
 
     /**
