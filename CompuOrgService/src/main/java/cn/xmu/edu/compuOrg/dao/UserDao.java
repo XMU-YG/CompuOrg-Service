@@ -90,7 +90,7 @@ public class UserDao {
                 criteria.andRoleEqualTo(role);
             }
             if(userName != null){
-                criteria.andUserNameLike(userName);
+                criteria.andUserNameLike(userName + "%");
             }
             List<UserPo> userPos = userPoMapper.selectByExample(example);
             return new PageInfo<>(userPos);
