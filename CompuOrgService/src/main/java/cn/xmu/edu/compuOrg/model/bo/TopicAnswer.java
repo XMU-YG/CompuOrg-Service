@@ -2,6 +2,7 @@ package cn.xmu.edu.compuOrg.model.bo;
 
 import cn.xmu.edu.Core.model.VoObject;
 import cn.xmu.edu.compuOrg.model.po.TopicAnswerPo;
+import cn.xmu.edu.compuOrg.model.po.TopicPo;
 import cn.xmu.edu.compuOrg.model.vo.TopicAnswerVo;
 import lombok.Data;
 
@@ -18,6 +19,10 @@ public class TopicAnswer implements VoObject, Serializable {
     private Long testResultId;
     private String answer;
     private Integer score;
+    private Byte type;
+    private Byte totalScore;
+    private String content;
+    private String imgUrl;
     private LocalDateTime gmtCreate;
     private LocalDateTime gmtModified;
 
@@ -34,6 +39,13 @@ public class TopicAnswer implements VoObject, Serializable {
         this.score = topicAnswer.getScore();
         this.gmtCreate = topicAnswer.getGmtCreate();
         this.gmtModified = topicAnswer.getGmtModified();
+    }
+
+    public void addTopicInfo(TopicPo topicPo){
+        this.type = topicPo.getType();
+        this.totalScore = topicPo.getScore();
+        this.content = topicPo.getContent();
+        this.imgUrl = topicPo.getImgUrl();
     }
 
     /**
