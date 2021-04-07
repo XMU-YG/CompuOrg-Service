@@ -277,7 +277,7 @@ public class CompuOrgService {
         if(userPo == null){
             return new ReturnObject<>(ResponseCode.INTERNAL_SERVER_ERR);
         }
-        List<VoObject> userInfos = userPo.getList().stream().map(User::new).filter(User::isSignatureBeenModify).collect(Collectors.toList());
+        List<VoObject> userInfos = userPo.getList().stream().map(User::new).filter(User::authentic).collect(Collectors.toList());
 
         PageInfo<VoObject> retObj = new PageInfo<>(userInfos);
         retObj.setPages(userPo.getPages());
