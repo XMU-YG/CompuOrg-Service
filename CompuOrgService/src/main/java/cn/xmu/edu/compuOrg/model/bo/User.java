@@ -139,6 +139,10 @@ public class User implements VoObject, Serializable {
         return true;
     }
 
+    public Boolean authentic(){
+        return !isSignatureBeenModify();
+    }
+
     @Override
     public Object createVo() {
         return new UserRetVo(this);
