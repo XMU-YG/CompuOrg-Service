@@ -165,6 +165,7 @@ public class TestController {
     /**
      * 教师获取题目列表
      * @author snow create 2021/01/28 14:35
+     *            modified 2021/04/11 21:23
      * @param departId
      * @param experimentId
      * @param page
@@ -175,8 +176,8 @@ public class TestController {
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
             @ApiImplicitParam(paramType = "query", dataType = "int", name = "experimentId", value = "实验序号", required = false),
-            @ApiImplicitParam(paramType = "query", dataType = "int", name = "page", value = "页码", defaultValue = "1", required = true),
-            @ApiImplicitParam(paramType = "query", dataType = "int", name = "pageSize", value = "页大小", defaultValue = "5", required = true),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "page", value = "页码", required = false),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "pageSize", value = "页大小", required = false),
     })
     @ApiResponses({
             @ApiResponse(code = 0, message = "成功"),
@@ -185,8 +186,8 @@ public class TestController {
     @GetMapping("topic")
     public Object getTopicList(@ApiIgnore @Depart Long departId,
                                     @RequestParam(required = false) Long experimentId,
-                                    @RequestParam(defaultValue = "1") Integer page,
-                                    @RequestParam(defaultValue = "5") Integer pageSize){
+                                    @RequestParam(required = false, defaultValue = "1") Integer page,
+                                    @RequestParam(required = false, defaultValue = "2147483647") Integer pageSize){
         logger.debug("DepartId: " + departId + ", ExperimentId: " + experimentId);
         if(page < 1 || pageSize < 0){
             return Common.getNullRetObj(new ReturnObject(ResponseCode.FIELD_NOTVALID), httpServletResponse);
