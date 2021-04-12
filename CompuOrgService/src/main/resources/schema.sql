@@ -86,6 +86,26 @@ CREATE TABLE `topic` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `test_result`
+--
+
+DROP TABLE IF EXISTS `test_result`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `test_result` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `student_id` bigint NOT NULL,
+  `experiment_id` bigint NOT NULL,
+  `score` int DEFAULT NULL,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `test_result_student_id_idx` (`student_id`),
+  CONSTRAINT `test_result_student_id` FOREIGN KEY (`student_id`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `topic_answer`
 --
 
@@ -105,25 +125,5 @@ CREATE TABLE `topic_answer` (
   KEY `topic_answer_test_result_id_idx` (`test_result_id`),
   CONSTRAINT `topic_answer_test_result_id` FOREIGN KEY (`test_result_id`) REFERENCES `test_result` (`id`),
   CONSTRAINT `topic_answer_topic_id` FOREIGN KEY (`topic_id`) REFERENCES `topic` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `test_result`
---
-
-DROP TABLE IF EXISTS `test_result`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `test_result` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `student_id` bigint NOT NULL,
-  `experiment_id` bigint NOT NULL,
-  `score` int DEFAULT NULL,
-  `gmt_create` datetime DEFAULT NULL,
-  `gmt_modified` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `test_result_student_id_idx` (`student_id`),
-  CONSTRAINT `test_result_student_id` FOREIGN KEY (`student_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
