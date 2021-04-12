@@ -58,7 +58,8 @@ public enum ResponseCode {
      *    题目模块错误码
      **************************************************/
     NO_MORE_TOPIC(800,"暂无更多题目"),
-    NO_MORE_TEST_RESULT(801,"暂无更多测试结果");
+    NO_MORE_TEST_RESULT(801,"暂无更多测试结果"),
+    DELETE_TOPIC_FAILED(802, "因外键无法删除题目");
 
     private int code;
     private String message;
