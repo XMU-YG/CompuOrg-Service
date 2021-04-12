@@ -100,7 +100,11 @@ CREATE TABLE `topic_answer` (
   `score` int DEFAULT NULL,
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modified` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `topic_answer_topic_id_idx` (`topic_id`),
+  KEY `topic_answer_test_result_id_idx` (`test_result_id`),
+  CONSTRAINT `topic_answer_test_result_id` FOREIGN KEY (`test_result_id`) REFERENCES `test_result` (`id`),
+  CONSTRAINT `topic_answer_topic_id` FOREIGN KEY (`topic_id`) REFERENCES `topic` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -118,6 +122,8 @@ CREATE TABLE `test_result` (
   `score` int DEFAULT NULL,
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modified` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `test_result_student_id_idx` (`student_id`),
+  CONSTRAINT `test_result_student_id` FOREIGN KEY (`student_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
