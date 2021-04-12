@@ -5,7 +5,10 @@ import cn.xmu.edu.Core.util.ReturnObject;
 import cn.xmu.edu.compuOrg.mapper.TestResultPoMapper;
 import cn.xmu.edu.compuOrg.mapper.TopicAnswerPoMapper;
 import cn.xmu.edu.compuOrg.mapper.TopicPoMapper;
-import cn.xmu.edu.compuOrg.model.bo.*;
+import cn.xmu.edu.compuOrg.model.bo.TestResult;
+import cn.xmu.edu.compuOrg.model.bo.Tests;
+import cn.xmu.edu.compuOrg.model.bo.Topic;
+import cn.xmu.edu.compuOrg.model.bo.TopicAnswer;
 import cn.xmu.edu.compuOrg.model.po.*;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
@@ -15,6 +18,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -207,6 +211,10 @@ public class TestDao {
             }
         }
         catch (Exception e){
+            Throwable cause = e.getCause();
+            if(cause instanceof SQLIntegrityConstraintViolationException){
+                return new ReturnObject(ResponseCode.DELETE_TOPIC_FAILED);
+            }
             e.printStackTrace();
         }
         return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
