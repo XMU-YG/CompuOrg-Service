@@ -15,7 +15,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 @Api(value = "实验", tags = "experiment")
 @RestController /*Restful的Controller对象*/
-@RequestMapping(value = "/experiment", produces = "application/json;charset=UTF-8")
+@RequestMapping(value = "/user", produces = "application/json;charset=UTF-8")
 public class ExperimentController {
     private static final Logger logger = LoggerFactory.getLogger(ExperimentController.class);
 
@@ -31,7 +31,7 @@ public class ExperimentController {
      */
     @ApiOperation(value = "运算器运算", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = false),
+            //@ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = false),
             @ApiImplicitParam(paramType = "body", dataType = "ArithmeticExperimentVo", name = "arithmeticExperimentVo", value = "运算器输入参数", required = true),
 
     })
@@ -46,7 +46,7 @@ public class ExperimentController {
 
     @ApiOperation(value = "静态存储器读取数据", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = false),
+            //@ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required =false),
             @ApiImplicitParam(paramType = "query", dataType = "String", name = "address", value = "地址", required = true),
 
     })
@@ -61,7 +61,7 @@ public class ExperimentController {
 
     @ApiOperation(value = "静态存储器写入数据", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = false),
+          //  @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = false),
             @ApiImplicitParam(paramType = "body", dataType = "StaticMemWriteVo", name = "vo", value = "地址", required = true),
 
     })
