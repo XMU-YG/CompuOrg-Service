@@ -26,7 +26,7 @@ public class SendEmail {
 
     //发件人邮箱密码（授权码）
     //在开启SMTP服务时会获取到一个授权码，把授权码填在这里
-    private static String myEmailPassword = "aenrtlxsssvtbghd";
+    private static String myEmailPassword = "frdapighhbehcaai";
 
     /**
      * 邮件单发（自由编辑短信，并发送，适用于私信）
