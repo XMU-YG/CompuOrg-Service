@@ -118,6 +118,7 @@ CREATE TABLE `topic_answer` (
   `test_result_id` bigint NOT NULL,
   `answer` varchar(1024) DEFAULT NULL,
   `score` int DEFAULT NULL,
+  `comment` varchar(1024) DEFAULT NULL,
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
