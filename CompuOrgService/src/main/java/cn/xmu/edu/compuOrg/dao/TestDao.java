@@ -319,17 +319,19 @@ public class TestDao {
     /**
      * 更新题目答案评分
      * @author snow create 2021/01/27 22:04
+     *            modified 2021/04/18 20:09
      * @param topicAnswerId
      * @param score
      * @return
      */
-    public ReturnObject updateTopicAnswerScore(Long topicAnswerId, Integer score){
+    public ReturnObject updateTopicAnswerScore(Long topicAnswerId, Integer score, String comment){
         try {
             TopicAnswerPo topicAnswerPo = topicAnswerPoMapper.selectByPrimaryKey(topicAnswerId);
             if(topicAnswerPo == null){
                 return new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST);
             }
             topicAnswerPo.setScore(score);
+            topicAnswerPo.setComment(comment);
             topicAnswerPo.setGmtModified(LocalDateTime.now());
             int effectRows = topicAnswerPoMapper.updateByPrimaryKeySelective(topicAnswerPo);
             if (effectRows == 1){
