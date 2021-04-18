@@ -19,6 +19,7 @@ public class TopicAnswer implements VoObject, Serializable {
     private Long testResultId;
     private String answer;
     private Integer score;
+    private String comment;
     private Byte type;
     private Byte totalScore;
     private String content;
@@ -37,6 +38,7 @@ public class TopicAnswer implements VoObject, Serializable {
         this.testResultId = topicAnswer.getTestResultId();
         this.answer = topicAnswer.getAnswer();
         this.score = topicAnswer.getScore();
+        this.comment = topicAnswer.getComment();
         this.gmtCreate = topicAnswer.getGmtCreate();
         this.gmtModified = topicAnswer.getGmtModified();
     }
