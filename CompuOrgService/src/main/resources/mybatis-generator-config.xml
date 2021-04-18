@@ -163,7 +163,7 @@
             <property name="useActualColumnNames" value="false"/>
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
-        <table tableName="topic_answer" domainObjectName="TopicResultPo"
+        <table tableName="topic_answer" domainObjectName="TopicAnswerPo"
                enableCountByExample="false" enableUpdateByExample="true"
                enableDeleteByExample="false" enableSelectByExample="true"
                selectByExampleQueryId="false">
