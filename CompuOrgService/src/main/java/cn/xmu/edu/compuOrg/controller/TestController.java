@@ -348,8 +348,11 @@ public class TestController {
     /**
      * 教师提交测试结果评分
      * @author snow create 2021/01/27 23:08
-     * @param departId
-     * @return
+     *            modified 2021/04/18 20:21
+     * @param departId 角色id
+     * @param testResultId 测试结果id
+     * @param testResultScoreVo 评分Vo
+     * @return 操作结果
      */
     @ApiOperation(value = "教师提交测试结果评分", produces = "application/json")
     @ApiImplicitParams({
@@ -360,11 +363,12 @@ public class TestController {
             @ApiResponse(code = 0, message = "成功"),
     })
     @Audit
-    @PutMapping("result")
+    @PutMapping("result/{testResultId}")
     public Object commitTestResultScore(@ApiIgnore @Depart Long departId,
+                                        @PathVariable Long testResultId,
                                         @Validated @RequestBody TestResultScoreVo testResultScoreVo){
         logger.debug("DepartId: " + departId);
-        return Common.decorateReturnObject(compuOrgService.commitTestResultScore(departId, testResultScoreVo));
+        return Common.decorateReturnObject(compuOrgService.commitTestResultScore(departId, testResultId, testResultScoreVo));
     }
 
 

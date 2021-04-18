@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -660,23 +661,27 @@ public class CompuOrgService {
     /**
      * 教师提交测试结果评分
      * @author snow create 2021/01/27 23:03
-     * @param departId
-     * @param testResultScore
-     * @return
+     *            modified 2021/04/18 20:02
+     * @param departId 角色id
+     * @param testResultId 测试结果id
+     * @param testResultScore 得分与评语
+     * @return 操作结果
      */
-    public ReturnObject commitTestResultScore(Long departId, TestResultScoreVo testResultScore){
+    @Transactional
+    public ReturnObject commitTestResultScore(Long departId, Long testResultId, TestResultScoreVo testResultScore){
         if(studentDepartId.equals(departId)){
             return new ReturnObject(ResponseCode.RESOURCE_ID_OUTSCOPE);
         }
         Integer totalScore = 0;
-        ReturnObject retObj = null;
+        ReturnObject retObj;
         for(TopicAnswerScoreVo topicAnswerScore : testResultScore.getTopicAnswerScores()){
             totalScore += topicAnswerScore.getScore();
-            retObj = testDao.updateTopicAnswerScore(topicAnswerScore.getTopicAnswerId(), topicAnswerScore.getScore());
+            retObj = testDao.updateTopicAnswerScore(topicAnswerScore.getTopicAnswerId(),
+                    topicAnswerScore.getScore(), topicAnswerScore.getComment());
             if(retObj.getCode() != ResponseCode.OK){
                 return retObj;
             }
         }
-        return testDao.updateTestResultScore(testResultScore.getTestResultId(), totalScore);
+        return testDao.updateTestResultScore(testResultId, totalScore);
     }
 }
