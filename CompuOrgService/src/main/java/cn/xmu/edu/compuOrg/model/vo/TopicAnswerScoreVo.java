@@ -19,6 +19,5 @@ public class TopicAnswerScoreVo {
     private Integer score;
 
     @ApiModelProperty(value = "题目答案评语")
-    @NotNull(message = "答案评语不能为空")
     private String comment;
 }
