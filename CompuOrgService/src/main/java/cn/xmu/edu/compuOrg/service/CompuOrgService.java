@@ -329,9 +329,10 @@ public class CompuOrgService {
      * @author snow create 2021/01/23 16:32
      *            modified 2021/01/23 19:22
      *            modified 2021/03/27 21:23
-     * @param userId
-     * @param ip
-     * @return
+     *            modified 2021/05/24 11:37
+     * @param userId 用户id
+     * @param ip ip地址
+     * @return 操作结果
      */
     public ReturnObject userVerifyEmail(Long userId, String ip){
         ReturnObject<User> retObj = userDao.findUserById(userId);
@@ -339,6 +340,9 @@ public class CompuOrgService {
             return retObj;
         }
         User user = retObj.getData();
+        if(user.getDecryptEmail() == null){
+            return new ReturnObject(ResponseCode.EMAIL_EMPTY);
+        }
         if(userDao.isAllowRequestForVerifyCode(ip)) {
             //生成验证码
             logger.debug("Ok!");
