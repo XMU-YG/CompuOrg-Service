@@ -16,7 +16,7 @@ public class UserBasicInfoVo {
     private String realName;
 
     @ApiModelProperty(value = "性别")
-    private String gender;
+    private Byte gender;
 
     @ApiModelProperty(value = "电话号码")
     private String mobile;
