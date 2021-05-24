@@ -463,6 +463,9 @@ public class CompuOrgService {
      */
     public ReturnObject generateTest(Long studentId, Long departId, Long experimentId, Long size){
         ReturnObject retObj = getTestResultDetailByExperimentId(studentId, departId, experimentId);
+        if (retObj.getCode() == ResponseCode.AUTH_NOT_ALLOW){
+            return retObj;
+        }
         logger.error(retObj.getCode().toString());
         if(retObj.getData() != null){
             return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
