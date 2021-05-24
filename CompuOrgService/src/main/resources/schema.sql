@@ -7,7 +7,9 @@
 --
 -- Table structure for table `user`
 --
-
+DROP TABLE IF EXISTS `topic_answer`;
+DROP TABLE IF EXISTS `test_result`;
+DROP TABLE IF EXISTS `topic`;
 DROP TABLE IF EXISTS `user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
