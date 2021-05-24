@@ -49,9 +49,10 @@ public class TestDao {
      * @author snow create 2021/01/24 17:34
      *            modified 2021/01/28 10:00
      *            modified 2021/01/28 14:26
-     * @param experimentId
-     * @param size
-     * @return
+     *            modified 2021/05/24 16:24
+     * @param experimentId 实验序号
+     * @param size 题目数量
+     * @return 题目列表
      */
     public ReturnObject<Tests> getTest(Long experimentId, Long size){
         try {
@@ -73,7 +74,8 @@ public class TestDao {
                 }
             }
             test.setExperimentId(experimentId);
-            test.setSize(size);
+            Integer actualSize = topics.size();
+            test.setSize(actualSize.longValue());
             test.setTopics(topics);
             return new ReturnObject(test);
         }
