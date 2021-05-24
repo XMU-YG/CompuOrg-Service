@@ -589,20 +589,21 @@ public class CompuOrgService {
      * @author snow create 2021/01/25 23:15
      *            modified 2021/01/28 12:43
      *            modified 2021/03/25 10:24
-     * @param departId
-     * @param userId
-     * @param experimentId
-     * @param studentId
-     * @param modified
-     * @param page
-     * @param pageSize
-     * @return
+     *            modified 2021/05/24 13:18
+     * @param departId 角色id
+     * @param userId 用户id
+     * @param experimentId 实验序号
+     * @param studentId 学生id
+     * @param modified 是否已批改
+     * @param page 页码
+     * @param pageSize 页大小
+     * @return 结果列表
      */
     public ReturnObject<PageInfo<VoObject>> getTestResultList(Long departId, Long userId,
                                                         Long experimentId, Long studentId, Boolean modified,
                                                         Integer page, Integer pageSize){
-        if(studentDepartId.equals(departId) && !userId.equals(studentId)){
-            return new ReturnObject(ResponseCode.RESOURCE_ID_OUTSCOPE);
+        if(studentDepartId.equals(departId)){
+            studentId = userId;
         }
         PageHelper.startPage(page, pageSize);
         PageInfo<TestResultPo> testResultPo = testDao.findTestResult(experimentId, studentId, modified);
