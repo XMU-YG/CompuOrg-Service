@@ -45,6 +45,7 @@ public enum ResponseCode {
     EMAIL_SAME( 734,"新邮箱不能与旧邮箱相同"),
     MOBILE_REGISTERED(735,"电话已被注册"),
     MOBILE_SAME( 736,"新电话不能与旧电话相同"),
+    EMAIL_EMPTY(737, "系统预留邮箱为空"),
     PASSWORD_SAME(741,"新密码不能与旧密码相同"),
     PRIVILEGE_BIT_SAME(744,"权限位重复"),
     EMAIL_WRONG(745,"与系统预留的邮箱不一致"),
