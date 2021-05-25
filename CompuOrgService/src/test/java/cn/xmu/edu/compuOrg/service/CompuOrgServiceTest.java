@@ -7,22 +7,20 @@ import cn.xmu.edu.compuOrg.CompuOrgServiceApplication;
 import cn.xmu.edu.compuOrg.model.bo.TestResult;
 import cn.xmu.edu.compuOrg.model.bo.Tests;
 import cn.xmu.edu.compuOrg.model.bo.Topic;
-import cn.xmu.edu.compuOrg.model.vo.TestVo;
-import cn.xmu.edu.compuOrg.model.vo.TopicAnswerVo;
-import cn.xmu.edu.compuOrg.model.vo.TopicVo;
+import cn.xmu.edu.compuOrg.model.vo.*;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.Assert;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author snow create 2021/05/24 15:00
@@ -316,6 +314,9 @@ public class CompuOrgServiceTest {
         Assert.assertEquals(1, actualTestResult.getTopicAnswers().size());
     }
 
+    /**
+     * 成功
+     */
     @Test
     @Order(22)
     public void getTestResultList1(){
@@ -329,6 +330,9 @@ public class CompuOrgServiceTest {
         Assert.assertEquals(4, pageInfo.getList().size());
     }
 
+    /**
+     * 成功
+     */
     @Test
     @Order(23)
     public void getTestResultList2(){
@@ -342,6 +346,115 @@ public class CompuOrgServiceTest {
         Assert.assertEquals(1, pageInfo.getList().size());
     }
 
+    /**
+     * 资源不存在
+     */
+    @Test
+    @Order(24)
+    public void getTestResultDetailByTestResultId1(){
+        ReturnObject retObj = service.getTestResultDetailByTestResultId(2L, 2L, 0L);
+        Assert.assertEquals(ResponseCode.RESOURCE_ID_NOTEXIST, retObj.getCode());
+    }
 
+    /**
+     * 不是自己的测试结果
+     */
+    @Test
+    @Order(25)
+    public void getTestResultDetailByTestResultId2(){
+        ReturnObject retObj = service.getTestResultDetailByTestResultId(2L, 2L, 1L);
+        Assert.assertEquals(ResponseCode.RESOURCE_ID_OUTSCOPE, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(26)
+    public void getTestResultDetailByTestResultId3(){
+        ReturnObject retObj = service.getTestResultDetailByTestResultId(1L, 2L, 1L);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+        TestResult actualTestResult = (TestResult) retObj.getData();
+        Assert.assertEquals(1, actualTestResult.getExperimentId().intValue());
+        Assert.assertEquals(5, actualTestResult.getTopicAnswers().size());
+    }
+
+    /**
+     * 非学生用户访问
+     */
+    @Test
+    @Order(27)
+    public void getTestResultDetailByExperimentId1(){
+        ReturnObject retObj = service.getTestResultDetailByExperimentId(1L, 1L, 1L);
+        Assert.assertEquals(ResponseCode.AUTH_NOT_ALLOW, retObj.getCode());
+    }
+
+    /**
+     * 无测试结果
+     */
+    @Test
+    @Order(28)
+    public void getTestResultDetailByExperimentId2(){
+        ReturnObject retObj = service.getTestResultDetailByExperimentId(1L, 2L, 5L);
+        Assert.assertEquals(ResponseCode.NO_MORE_TEST_RESULT, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(29)
+    public void getTestResultDetailByExperimentId3(){
+        ReturnObject retObj = service.getTestResultDetailByExperimentId(1L, 2L, 1L);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+        TestResult actualTestResult = (TestResult) retObj.getData();
+        Assert.assertEquals(1, actualTestResult.getExperimentId().intValue());
+        Assert.assertEquals(5, actualTestResult.getTopicAnswers().size());
+    }
+
+    /**
+     * 无权限访问
+     */
+    @Test
+    @Order(30)
+    public void commitTestResultScore1(){
+        TestResultScoreVo testResultVo = new TestResultScoreVo();
+        ReturnObject retObj = service.commitTestResultScore(2L, 2L, testResultVo);
+        Assert.assertEquals(ResponseCode.AUTH_NOT_ALLOW, retObj.getCode());
+    }
+
+    /**
+     * 测试题目答案不存在
+     */
+    @Test
+    @Order(31)
+    public void commitTestResultScore2(){
+        TestResultScoreVo testResultVo = new TestResultScoreVo();
+        TopicAnswerScoreVo topicAnswerVo = new TopicAnswerScoreVo();
+        topicAnswerVo.setScore(5);
+        topicAnswerVo.setTopicAnswerId(13L);
+        List<TopicAnswerScoreVo> topicAnswerScoreVos = new ArrayList<>(1);
+        topicAnswerScoreVos.add(topicAnswerVo);
+        testResultVo.setTopicAnswerScores(topicAnswerScoreVos);
+        ReturnObject retObj = service.commitTestResultScore(1L, 2L, testResultVo);
+        Assert.assertEquals(ResponseCode.RESOURCE_ID_NOTEXIST, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(32)
+    public void commitTestResultScore3(){
+        TestResultScoreVo testResultVo = new TestResultScoreVo();
+        TopicAnswerScoreVo topicAnswerVo = new TopicAnswerScoreVo();
+        topicAnswerVo.setScore(5);
+        topicAnswerVo.setTopicAnswerId(12L);
+        List<TopicAnswerScoreVo> topicAnswerScoreVos = new ArrayList<>(1);
+        topicAnswerScoreVos.add(topicAnswerVo);
+        testResultVo.setTopicAnswerScores(topicAnswerScoreVos);
+        ReturnObject retObj = service.commitTestResultScore(1L, 2L, testResultVo);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+    }
 
 }
