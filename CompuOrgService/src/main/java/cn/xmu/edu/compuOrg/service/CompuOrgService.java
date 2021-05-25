@@ -608,9 +608,6 @@ public class CompuOrgService {
         }
         PageHelper.startPage(page, pageSize);
         PageInfo<TestResultPo> testResultPo = testDao.findTestResult(experimentId, studentId, modified);
-        if(testResultPo == null){
-            return new ReturnObject<>(ResponseCode.AUTH_NEED_LOGIN);
-        }
         List<VoObject> testResultBrief = testResultPo.getList().stream().map(TestResult::new).filter(TestResult::authentic).collect(Collectors.toList());
 
         PageInfo<VoObject> retObj = new PageInfo<>(testResultBrief);
