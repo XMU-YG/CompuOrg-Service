@@ -8,6 +8,9 @@ import cn.xmu.edu.compuOrg.model.bo.Topic;
 import cn.xmu.edu.compuOrg.model.vo.TopicVo;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,7 @@ import java.util.List;
 @SpringBootTest(classes = CompuOrgServiceApplication.class)
 @AutoConfigureMockMvc
 @Slf4j
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CompuOrgServiceTest {
     @Autowired
     private CompuOrgService service;
@@ -30,6 +34,7 @@ public class CompuOrgServiceTest {
      * 非学生用户访问
      */
     @Test
+    @Order(1)
     public void generateTest1(){
         ReturnObject retObj = service.generateTest(1L, 0L, 1L, 5L);
         Assert.assertEquals(ResponseCode.AUTH_NOT_ALLOW, retObj.getCode());
@@ -39,6 +44,7 @@ public class CompuOrgServiceTest {
      * 学生已测试
      */
     @Test
+    @Order(2)
     public void generateTest2(){
         ReturnObject retObj = service.generateTest(1L, 2L, 1L, 5L);
         Assert.assertEquals(ResponseCode.AUTH_NOT_ALLOW, retObj.getCode());
@@ -48,6 +54,7 @@ public class CompuOrgServiceTest {
      * 无测试题目
      */
     @Test
+    @Order(3)
     public void generateTest3(){
         ReturnObject retObj = service.generateTest(1L, 2L, 5L, 5L);
         Assert.assertEquals(ResponseCode.NO_MORE_TOPIC, retObj.getCode());
@@ -57,6 +64,7 @@ public class CompuOrgServiceTest {
      * 成功
      */
     @Test
+    @Order(4)
     public void generateTest4(){
         Long size = 5L, experimentId = 3L;
         ReturnObject retObj = service.generateTest(1L, 2L, experimentId, size);
@@ -70,6 +78,7 @@ public class CompuOrgServiceTest {
      * 成功
      */
     @Test
+    @Order(5)
     public void generateTest5(){
         Long size = 5L, experimentId = 3L;
         ReturnObject retObj = service.generateTest(1L, 2L, experimentId, size*2);
@@ -84,6 +93,7 @@ public class CompuOrgServiceTest {
      * 学生访问
      */
     @Test
+    @Order(6)
     public void appendTopic1(){
         ReturnObject retObj = service.appendTopic(2L, null);
         Assert.assertEquals(ResponseCode.AUTH_NOT_ALLOW, retObj.getCode());
@@ -93,6 +103,7 @@ public class CompuOrgServiceTest {
      * 成功
      */
     @Test
+    @Order(7)
     public void appendTopic2(){
         TopicVo topicVo = new TopicVo();
         topicVo.setType((byte)0);
@@ -111,6 +122,7 @@ public class CompuOrgServiceTest {
      * 学生访问
      */
     @Test
+    @Order(8)
     public void removeTopic1(){
         ReturnObject retObj = service.removeTopic(2L, 11L);
         Assert.assertEquals(ResponseCode.AUTH_NOT_ALLOW, retObj.getCode());
@@ -120,6 +132,7 @@ public class CompuOrgServiceTest {
      * 因外键删除失败
      */
     @Test
+    @Order(9)
     public void removeTopic2(){
         ReturnObject retObj = service.removeTopic(1L, 3L);
         Assert.assertEquals(ResponseCode.DELETE_TOPIC_FAILED, retObj.getCode());
@@ -129,6 +142,7 @@ public class CompuOrgServiceTest {
      * 成功
      */
     @Test
+    @Order(10)
     public void removeTopic3(){
         ReturnObject retObj = service.removeTopic(1L, 11L);
         Assert.assertEquals(ResponseCode.OK, retObj.getCode());
@@ -138,6 +152,7 @@ public class CompuOrgServiceTest {
      * 学生访问
      */
     @Test
+    @Order(11)
     public void alterTopic1(){
         ReturnObject retObj = service.modifyTopic(2L, 1L, null);
         Assert.assertEquals(ResponseCode.AUTH_NOT_ALLOW, retObj.getCode());
@@ -147,6 +162,7 @@ public class CompuOrgServiceTest {
      * 题目不存在
      */
     @Test
+    @Order(12)
     public void alterTopic2(){
         TopicVo topicVo = new TopicVo();
         topicVo.setContent("content");
@@ -158,6 +174,7 @@ public class CompuOrgServiceTest {
      * 成功
      */
     @Test
+    @Order(13)
     public void alterTopic3(){
         TopicVo topicVo = new TopicVo();
         topicVo.setContent("content");
