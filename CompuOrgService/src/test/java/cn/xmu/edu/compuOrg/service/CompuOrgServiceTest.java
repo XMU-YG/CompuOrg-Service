@@ -4,6 +4,8 @@ import cn.xmu.edu.Core.util.ResponseCode;
 import cn.xmu.edu.Core.util.ReturnObject;
 import cn.xmu.edu.compuOrg.CompuOrgServiceApplication;
 import cn.xmu.edu.compuOrg.model.bo.Tests;
+import cn.xmu.edu.compuOrg.model.bo.Topic;
+import cn.xmu.edu.compuOrg.model.vo.TopicVo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.Assert;
@@ -74,4 +76,59 @@ public class CompuOrgServiceTest {
         Assert.assertEquals(size, getTest.getSize());
         Assert.assertEquals(experimentId, getTest.getExperimentId());
     }
+
+    /**
+     * 学生访问
+     */
+    @Test
+    public void appendTopic1(){
+        ReturnObject retObj = service.appendTopic(2L, null);
+        Assert.assertEquals(ResponseCode.AUTH_NOT_ALLOW, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    public void appendTopic2(){
+        TopicVo topicVo = new TopicVo();
+        topicVo.setType((byte)0);
+        topicVo.setScore((byte)5);
+        topicVo.setContent("content");
+        topicVo.setExperimentId(4L);
+        ReturnObject retObj = service.appendTopic(1L, topicVo);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+        Topic actualTopic = (Topic) retObj.getData();
+        Topic expectTopic = new Topic(topicVo);
+        expectTopic.setId(actualTopic.getId());
+        Assert.assertEquals(expectTopic, actualTopic);
+    }
+
+    /**
+     * 学生访问
+     */
+    @Test
+    public void removeTopic1(){
+        ReturnObject retObj = service.removeTopic(2L, 11L);
+        Assert.assertEquals(ResponseCode.AUTH_NOT_ALLOW, retObj.getCode());
+    }
+
+    /**
+     * 因外键删除失败
+     */
+    @Test
+    public void removeTopic2(){
+        ReturnObject retObj = service.removeTopic(1L, 3L);
+        Assert.assertEquals(ResponseCode.DELETE_TOPIC_FAILED, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    public void removeTopic3(){
+        ReturnObject retObj = service.removeTopic(1L, 11L);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+    }
+
 }
