@@ -6,12 +6,15 @@ import cn.xmu.edu.compuOrg.CompuOrgServiceApplication;
 import cn.xmu.edu.compuOrg.model.bo.Tests;
 import cn.xmu.edu.compuOrg.model.bo.Topic;
 import cn.xmu.edu.compuOrg.model.vo.TopicVo;
+import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.List;
 
 /**
  * @author snow create 2021/05/24 15:00
@@ -130,5 +133,45 @@ public class CompuOrgServiceTest {
         ReturnObject retObj = service.removeTopic(1L, 11L);
         Assert.assertEquals(ResponseCode.OK, retObj.getCode());
     }
+
+    /**
+     * 学生访问
+     */
+    @Test
+    public void alterTopic1(){
+        ReturnObject retObj = service.modifyTopic(2L, 1L, null);
+        Assert.assertEquals(ResponseCode.AUTH_NOT_ALLOW, retObj.getCode());
+    }
+
+    /**
+     * 题目不存在
+     */
+    @Test
+    public void alterTopic2(){
+        TopicVo topicVo = new TopicVo();
+        topicVo.setContent("content");
+        ReturnObject retObj = service.modifyTopic(1L, 0L, topicVo);
+        Assert.assertEquals(ResponseCode.RESOURCE_ID_NOTEXIST, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    public void alterTopic3(){
+        TopicVo topicVo = new TopicVo();
+        topicVo.setContent("content");
+        ReturnObject retObj = service.modifyTopic(1L, 1L, topicVo);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+        retObj = service.getTopicList(1L, 1L, 1, 1);
+        if (retObj.getData() instanceof PageInfo) {
+            PageInfo pageInfo = (PageInfo)retObj.getData();
+            List list = pageInfo.getList();
+            Topic actualTopic = (Topic) list.get(0);
+            Assert.assertEquals(topicVo.getContent(), actualTopic.getContent());
+        }
+    }
+
+
 
 }
