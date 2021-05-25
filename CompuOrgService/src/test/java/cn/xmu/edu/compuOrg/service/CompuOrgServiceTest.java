@@ -18,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @author snow create 2021/05/24 15:00
@@ -186,6 +187,52 @@ public class CompuOrgServiceTest {
             List list = pageInfo.getList();
             Topic actualTopic = (Topic) list.get(0);
             Assert.assertEquals(topicVo.getContent(), actualTopic.getContent());
+        }
+    }
+
+    /**
+     * 学生访问
+     */
+    @Test
+    @Order(14)
+    public void getTopics1(){
+        ReturnObject retObj = service.getTopicList(2L, 1L, 1, 5);
+        Assert.assertEquals(ResponseCode.AUTH_NOT_ALLOW, retObj.getCode());
+    }
+
+    /**
+     * 无题目
+     */
+    @Test
+    @Order(15)
+    public void getTopics2(){
+        ReturnObject retObj = service.getTopicList(1L, 5L, 1, 5);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+        if (retObj.getData() instanceof PageInfo) {
+            PageInfo pageInfo = (PageInfo)retObj.getData();
+            Assert.assertEquals(1, pageInfo.getPageNum());
+            Assert.assertEquals(5, pageInfo.getPageSize());
+            Assert.assertEquals(0, pageInfo.getTotal());
+            Assert.assertEquals(0, pageInfo.getPages());
+            Assert.assertEquals(new ArrayList<>(), pageInfo.getList());
+        }
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(16)
+    public void getTopics3(){
+        ReturnObject retObj = service.getTopicList(1L, null, 1, 5);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+        if (retObj.getData() instanceof PageInfo) {
+            PageInfo pageInfo = (PageInfo)retObj.getData();
+            Assert.assertEquals(1, pageInfo.getPageNum());
+            Assert.assertEquals(5, pageInfo.getPageSize());
+            Assert.assertEquals(15, pageInfo.getTotal());
+            Assert.assertEquals(3, pageInfo.getPages());
+            Assert.assertNotNull(pageInfo.getList());
         }
     }
 
