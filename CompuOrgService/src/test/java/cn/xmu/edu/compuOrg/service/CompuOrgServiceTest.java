@@ -1,5 +1,6 @@
 package cn.xmu.edu.compuOrg.service;
 
+import cn.xmu.edu.Core.model.VoObject;
 import cn.xmu.edu.Core.util.ResponseCode;
 import cn.xmu.edu.Core.util.ReturnObject;
 import cn.xmu.edu.compuOrg.CompuOrgServiceApplication;
@@ -313,6 +314,32 @@ public class CompuOrgServiceTest {
         Assert.assertEquals(1, actualTestResult.getStudentId().intValue());
         Assert.assertEquals(4, actualTestResult.getExperimentId().intValue());
         Assert.assertEquals(1, actualTestResult.getTopicAnswers().size());
+    }
+
+    @Test
+    @Order(22)
+    public void getTestResultList1(){
+        ReturnObject<PageInfo<VoObject>> pageInfoReturnObject =
+                service.getTestResultList(2L, 1L, null, null, null, 1, 5);
+        PageInfo<VoObject> pageInfo = pageInfoReturnObject.getData();
+        Assert.assertEquals(1, pageInfo.getPageNum());
+        Assert.assertEquals(5, pageInfo.getPageSize());
+        Assert.assertEquals(4, pageInfo.getTotal());
+        Assert.assertEquals(1, pageInfo.getPages());
+        Assert.assertEquals(4, pageInfo.getList().size());
+    }
+
+    @Test
+    @Order(23)
+    public void getTestResultList2(){
+        ReturnObject<PageInfo<VoObject>> pageInfoReturnObject =
+                service.getTestResultList(1L, 1L, 2L, 1L, true, 1, 5);
+        PageInfo<VoObject> pageInfo = pageInfoReturnObject.getData();
+        Assert.assertEquals(1, pageInfo.getPageNum());
+        Assert.assertEquals(5, pageInfo.getPageSize());
+        Assert.assertEquals(1, pageInfo.getTotal());
+        Assert.assertEquals(1, pageInfo.getPages());
+        Assert.assertEquals(1, pageInfo.getList().size());
     }
 
 
