@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * @author snow create 2021/01/28 09:50
@@ -23,6 +24,8 @@ public class Topic implements VoObject, Serializable {
     private String content;
     private String imgUrl;
     private Long experimentId;
+    private LocalDateTime gmtCreate;
+    private LocalDateTime gmtModified;
 
     public Topic(TopicVo topicVo){
         this.type = topicVo.getType();
@@ -39,6 +42,8 @@ public class Topic implements VoObject, Serializable {
         this.imgUrl = topicPo.getImgUrl();
         this.content = topicPo.getContent();
         this.experimentId = topicPo.getExperimentId();
+        this.gmtCreate = topicPo.getGmtCreate();
+        this.gmtModified = topicPo.getGmtModified();
     }
 
     public TopicPo createTopicPo(){
@@ -49,6 +54,8 @@ public class Topic implements VoObject, Serializable {
         topicPo.setImgUrl(this.imgUrl);
         topicPo.setContent(this.content);
         topicPo.setExperimentId(this.experimentId);
+        topicPo.setGmtCreate(this.gmtCreate);
+        topicPo.setGmtModified(this.gmtModified);
         return topicPo;
     }
 
