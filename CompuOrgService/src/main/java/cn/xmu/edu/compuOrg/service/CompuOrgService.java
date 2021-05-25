@@ -673,7 +673,7 @@ public class CompuOrgService {
     @Transactional
     public ReturnObject commitTestResultScore(Long departId, Long testResultId, TestResultScoreVo testResultScore){
         if(studentDepartId.equals(departId)){
-            return new ReturnObject(ResponseCode.RESOURCE_ID_OUTSCOPE);
+            return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
         }
         Integer totalScore = 0;
         ReturnObject retObj;
