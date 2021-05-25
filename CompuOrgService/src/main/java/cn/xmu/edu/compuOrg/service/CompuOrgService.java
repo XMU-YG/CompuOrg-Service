@@ -553,14 +553,15 @@ public class CompuOrgService {
      *            modified 2021/01/25 23:43
      *            modified 2021/01/28 13:27
      *            modified 2021/04/07 17:40
-     * @param studentId
-     * @param departId
-     * @param testVo
-     * @return
+     *            modified 2021/05/25 17:41
+     * @param studentId 学生id
+     * @param departId 角色id
+     * @param testVo 测试结果
+     * @return 操作结果
      */
     public ReturnObject commitTestResult(Long studentId, Long departId, TestVo testVo){
         ReturnObject retObj = getTestResultDetailByExperimentId(studentId, departId, testVo.getExperimentId());
-        if(retObj.getData() != null){
+        if(retObj.getData() != null || retObj.getCode() == ResponseCode.AUTH_NOT_ALLOW){
             return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
         }
         TestResult testResult = new TestResult();
