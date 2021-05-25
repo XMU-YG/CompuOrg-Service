@@ -536,9 +536,6 @@ public class CompuOrgService {
         }
         PageHelper.startPage(page, pageSize);
         PageInfo<TopicPo> topicPos = testDao.findTopicList(experimentId);
-        if(topicPos == null){
-            return new ReturnObject<>(ResponseCode.NO_MORE_TOPIC);
-        }
         List<VoObject> topicList = topicPos.getList().stream().map(Topic::new).filter(Topic::authentic).collect(Collectors.toList());
 
         PageInfo<VoObject> retObj = new PageInfo<>(topicList);
