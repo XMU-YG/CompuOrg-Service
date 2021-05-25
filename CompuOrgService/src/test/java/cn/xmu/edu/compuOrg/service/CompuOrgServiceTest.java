@@ -3,8 +3,11 @@ package cn.xmu.edu.compuOrg.service;
 import cn.xmu.edu.Core.util.ResponseCode;
 import cn.xmu.edu.Core.util.ReturnObject;
 import cn.xmu.edu.compuOrg.CompuOrgServiceApplication;
+import cn.xmu.edu.compuOrg.model.bo.TestResult;
 import cn.xmu.edu.compuOrg.model.bo.Tests;
 import cn.xmu.edu.compuOrg.model.bo.Topic;
+import cn.xmu.edu.compuOrg.model.vo.TestVo;
+import cn.xmu.edu.compuOrg.model.vo.TopicAnswerVo;
 import cn.xmu.edu.compuOrg.model.vo.TopicVo;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -234,6 +237,82 @@ public class CompuOrgServiceTest {
             Assert.assertEquals(3, pageInfo.getPages());
             Assert.assertNotNull(pageInfo.getList());
         }
+    }
+
+    /**
+     * 非学生访问
+     */
+    @Test
+    @Order(17)
+    public void commitTestResult1(){
+        TestVo testVo = new TestVo();
+        testVo.setExperimentId(1L);
+        ReturnObject retObj = service.commitTestResult(1L, 1L, testVo);
+        Assert.assertEquals(ResponseCode.AUTH_NOT_ALLOW, retObj.getCode());
+    }
+
+    /**
+     * 已测试
+     */
+    @Test
+    @Order(18)
+    public void commitTestResult2(){
+        TestVo testVo = new TestVo();
+        testVo.setExperimentId(1L);
+        ReturnObject retObj = service.commitTestResult(1L, 2L, testVo);
+        Assert.assertEquals(ResponseCode.AUTH_NOT_ALLOW, retObj.getCode());
+    }
+
+    /**
+     * 学生不存在
+     */
+    @Test
+    @Order(19)
+    public void commitTestResult3(){
+        TestVo testVo = new TestVo();
+        testVo.setExperimentId(3L);
+        ReturnObject retObj = service.commitTestResult(2L, 2L, testVo);
+        Assert.assertEquals(ResponseCode.INTERNAL_SERVER_ERR, retObj.getCode());
+    }
+
+    /**
+     * 答案对应的题目不存在
+     */
+    @Test
+    @Order(20)
+    public void commitTestResult4(){
+        TestVo testVo = new TestVo();
+        testVo.setExperimentId(3L);
+        TopicAnswerVo topicAnswerVo = new TopicAnswerVo();
+        topicAnswerVo.setTopicId(0L);
+        topicAnswerVo.setAnswer("answer");
+        List<TopicAnswerVo> topicAnswerVos = new ArrayList<>(1);
+        topicAnswerVos.add(topicAnswerVo);
+        testVo.setTopicAnswerVos(topicAnswerVos);
+        ReturnObject retObj = service.commitTestResult(1L, 2L, testVo);
+        Assert.assertEquals(ResponseCode.INTERNAL_SERVER_ERR, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(21)
+    public void commitTestResult5(){
+        TestVo testVo = new TestVo();
+        testVo.setExperimentId(4L);
+        TopicAnswerVo topicAnswerVo = new TopicAnswerVo();
+        topicAnswerVo.setTopicId(12L);
+        topicAnswerVo.setAnswer("answer");
+        List<TopicAnswerVo> topicAnswerVos = new ArrayList<>(1);
+        topicAnswerVos.add(topicAnswerVo);
+        testVo.setTopicAnswerVos(topicAnswerVos);
+        ReturnObject retObj = service.commitTestResult(1L, 2L, testVo);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+        TestResult actualTestResult = (TestResult) retObj.getData();
+        Assert.assertEquals(1, actualTestResult.getStudentId().intValue());
+        Assert.assertEquals(4, actualTestResult.getExperimentId().intValue());
+        Assert.assertEquals(1, actualTestResult.getTopicAnswers().size());
     }
 
 
