@@ -7,6 +7,7 @@ import cn.xmu.edu.compuOrg.CompuOrgServiceApplication;
 import cn.xmu.edu.compuOrg.model.bo.TestResult;
 import cn.xmu.edu.compuOrg.model.bo.Tests;
 import cn.xmu.edu.compuOrg.model.bo.Topic;
+import cn.xmu.edu.compuOrg.model.bo.User;
 import cn.xmu.edu.compuOrg.model.vo.*;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -270,7 +271,7 @@ public class CompuOrgServiceTest {
     public void commitTestResult3(){
         TestVo testVo = new TestVo();
         testVo.setExperimentId(3L);
-        ReturnObject retObj = service.commitTestResult(2L, 2L, testVo);
+        ReturnObject retObj = service.commitTestResult(20L, 2L, testVo);
         Assert.assertEquals(ResponseCode.INTERNAL_SERVER_ERR, retObj.getCode());
     }
 
@@ -455,6 +456,130 @@ public class CompuOrgServiceTest {
         testResultVo.setTopicAnswerScores(topicAnswerScoreVos);
         ReturnObject retObj = service.commitTestResultScore(1L, 2L, testResultVo);
         Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+    }
+
+    /**
+     * 用户名不存在
+     */
+    @Test
+    @Order(33)
+    public void userLogin1(){
+        UserLoginVo userVo = new UserLoginVo();
+        userVo.setUserName("123");
+        userVo.setPassword("123456");
+        ReturnObject retObj = service.userLogin(userVo);
+        Assert.assertEquals(ResponseCode.AUTH_INVALID_ACCOUNT, retObj.getCode());
+    }
+
+    /**
+     * 用户信息被篡改
+     */
+    @Test
+    @Order(34)
+    public void userLogin2(){
+        UserLoginVo userVo = new UserLoginVo();
+        userVo.setUserName("snow3");
+        userVo.setPassword("123456");
+        ReturnObject retObj = service.userLogin(userVo);
+        Assert.assertEquals(ResponseCode.RESOURCE_FALSIFY, retObj.getCode());
+    }
+
+    /**
+     * 用户预留邮箱未确认
+     */
+    @Test
+    @Order(35)
+    public void userLogin3(){
+        UserLoginVo userVo = new UserLoginVo();
+        userVo.setUserName("snow4");
+        userVo.setPassword("123456");
+        ReturnObject retObj = service.userLogin(userVo);
+        Assert.assertEquals(ResponseCode.EMAIL_NOT_VERIFIED, retObj.getCode());
+    }
+
+    /**
+     * 密码错误
+     */
+    @Test
+    @Order(36)
+    public void userLogin4(){
+        UserLoginVo userVo = new UserLoginVo();
+        userVo.setUserName("snow");
+        userVo.setPassword("123");
+        ReturnObject retObj = service.userLogin(userVo);
+        Assert.assertEquals(ResponseCode.AUTH_INVALID_ACCOUNT, retObj.getCode());
+    }
+
+    /**
+     * 管理员登录成功
+     */
+    @Test
+    @Order(37)
+    public void userLogin5(){
+        UserLoginVo userVo = new UserLoginVo();
+        userVo.setUserName("snow");
+        userVo.setPassword("123456");
+        ReturnObject retObj = service.userLogin(userVo);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+        String actualStr = (String) retObj.getData();
+        Assert.assertEquals("adm", actualStr.substring(0, 3));
+    }
+
+    /**
+     * 教师登录成功
+     */
+    @Test
+    @Order(38)
+    public void userLogin6(){
+        UserLoginVo userVo = new UserLoginVo();
+        userVo.setUserName("snow1");
+        userVo.setPassword("123456");
+        ReturnObject retObj = service.userLogin(userVo);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+        String actualStr = (String) retObj.getData();
+        Assert.assertEquals("tea", actualStr.substring(0, 3));
+    }
+
+    /**
+     * 学生登录成功
+     */
+    @Test
+    @Order(39)
+    public void userLogin7(){
+        UserLoginVo userVo = new UserLoginVo();
+        userVo.setUserName("snow2");
+        userVo.setPassword("123456");
+        ReturnObject retObj = service.userLogin(userVo);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+        String actualStr = (String) retObj.getData();
+        Assert.assertEquals("stu", actualStr.substring(0, 3));
+    }
+
+    /**
+     * 其他角色登录成功
+     */
+    @Test
+    @Order(40)
+    public void userLogin8(){
+        UserLoginVo userVo = new UserLoginVo();
+        userVo.setUserName("snow5");
+        userVo.setPassword("123456");
+        ReturnObject retObj = service.userLogin(userVo);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+        String actualStr = (String) retObj.getData();
+        Assert.assertEquals("unk", actualStr.substring(0, 3));
+    }
+
+    public void createUser(){
+        UserVo userVo = new UserVo();
+        userVo.setPassword("123456");
+        userVo.setEmail("126@qq.com");
+        userVo.setUserName("snow5");
+        userVo.setVerifyCode("1");
+        User user = new User(userVo);
+        user.setRole((byte)3);
+        user.setSignature(user.createSignature());
+        System.out.println(user);
     }
 
 }
