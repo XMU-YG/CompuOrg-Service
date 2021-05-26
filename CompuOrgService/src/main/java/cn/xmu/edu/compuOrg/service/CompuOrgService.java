@@ -377,7 +377,7 @@ public class CompuOrgService {
             logger.debug("VerifyCode: " + verifyCode);
             userDao.putVerifyCodeIntoRedis(verifyCode, userId);
             String emailContent, title;
-            if(userDao.isEmailAlreadyExist(email)){
+            if(userDao.isEmailAlreadyExist(AES.encrypt(email, User.AES_PASS))){
                 return new ReturnObject(ResponseCode.EMAIL_REGISTERED);
             }
             if("-3835".equals(userId)){
