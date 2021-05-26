@@ -739,6 +739,32 @@ public class CompuOrgServiceTest {
         Assert.assertNotNull(retObj.getData());
     }
 
+    /**
+     * 验证码不正确或已过期
+     */
+    @Test
+    @Order(54)
+    public void userVerifyCode1(){
+        VerifyCodeVo codeVo = new VerifyCodeVo();
+        codeVo.setVerifyCode("123878787");
+        ReturnObject retObj = service.userVerifyCode(codeVo);
+        Assert.assertEquals(ResponseCode.VERIFY_CODE_EXPIRE, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(55)
+    public void userVerifyCode2(){
+        redisTemplate.opsForValue().set("cp_123456", "1");
+        VerifyCodeVo codeVo = new VerifyCodeVo();
+        codeVo.setVerifyCode("123456");
+        ReturnObject retObj = service.userVerifyCode(codeVo);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+        Assert.assertNotNull(retObj.getData());
+    }
+
     public void createUser(){
         UserVo userVo = new UserVo();
         userVo.setPassword("123456");
