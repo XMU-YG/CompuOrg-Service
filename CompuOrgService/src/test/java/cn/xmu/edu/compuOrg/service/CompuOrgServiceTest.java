@@ -708,6 +708,37 @@ public class CompuOrgServiceTest {
         Assert.assertEquals(ResponseCode.AUTH_USER_FORBIDDEN, retObj.getCode());
     }
 
+    /**
+     * 用户不存在
+     */
+    @Test
+    @Order(51)
+    public void userVerifyPassword1(){
+        ReturnObject retObj = service.userVerifyPassword(0L, "123456");
+        Assert.assertEquals(ResponseCode.RESOURCE_ID_NOTEXIST, retObj.getCode());
+    }
+
+    /**
+     * 密码不正确
+     */
+    @Test
+    @Order(52)
+    public void userVerifyPassword2(){
+        ReturnObject retObj = service.userVerifyPassword(1L, "123");
+        Assert.assertEquals(ResponseCode.AUTH_INVALID_ACCOUNT, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(53)
+    public void userVerifyPassword3(){
+        ReturnObject retObj = service.userVerifyPassword(1L, "123456");
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+        Assert.assertNotNull(retObj.getData());
+    }
+
     public void createUser(){
         UserVo userVo = new UserVo();
         userVo.setPassword("123456");
