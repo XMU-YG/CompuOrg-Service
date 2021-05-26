@@ -1073,6 +1073,16 @@ public class CompuOrgServiceTest {
         Assert.assertEquals(ResponseCode.OK, retObj.getCode());
     }
 
+    /**
+     * 无效邮箱地址
+     */
+    @Test
+    @Order(81)
+    public void sendEmail(){
+        ReturnObject retObj = service.sendVerifyCode("title", "content", "123");
+        Assert.assertEquals(ResponseCode.INTERNAL_SERVER_ERR, retObj.getCode());
+    }
+
     public void createUser(){
         UserVo userVo = new UserVo();
         userVo.setPassword("123456");
