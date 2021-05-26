@@ -851,6 +851,77 @@ public class CompuOrgServiceTest {
         Assert.assertEquals(ResponseCode.OK, retObj.getCode());
     }
 
+    /**
+     * 用户不存在
+     */
+    @Test
+    @Order(63)
+    public void userModifyBasicInformation1(){
+        ReturnObject retObj = service.userModifyBasicInformation(0L, null);
+        Assert.assertEquals(ResponseCode.RESOURCE_ID_NOTEXIST, retObj.getCode());
+    }
+
+    /**
+     * 新用户名与旧用户名相同
+     */
+    @Test
+    @Order(64)
+    public void userModifyBasicInformation2(){
+        UserBasicInfoVo infoVo = new UserBasicInfoVo();
+        infoVo.setUserName("snow");
+        ReturnObject retObj = service.userModifyBasicInformation(1L, infoVo);
+        Assert.assertEquals(ResponseCode.USER_NAME_SAME, retObj.getCode());
+    }
+
+    /**
+     * 用户名已被注册
+     */
+    @Test
+    @Order(65)
+    public void userModifyBasicInformation3(){
+        UserBasicInfoVo infoVo = new UserBasicInfoVo();
+        infoVo.setUserName("snow1");
+        ReturnObject retObj = service.userModifyBasicInformation(1L, infoVo);
+        Assert.assertEquals(ResponseCode.USER_NAME_REGISTERED, retObj.getCode());
+    }
+
+    /**
+     * 用户名已被注册
+     */
+    @Test
+    @Order(66)
+    public void userModifyBasicInformation4(){
+        UserBasicInfoVo infoVo = new UserBasicInfoVo();
+        infoVo.setUserName("snow-1111");
+        infoVo.setMobile("18575118843");
+        ReturnObject retObj = service.userModifyBasicInformation(1L, infoVo);
+        Assert.assertEquals(ResponseCode.MOBILE_SAME, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(67)
+    public void userModifyBasicInformation5(){
+        UserBasicInfoVo infoVo = new UserBasicInfoVo();
+        infoVo.setMobile("18050103835");
+        ReturnObject retObj = service.userModifyBasicInformation(2L, infoVo);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+    }
+
+    /**
+     * 电话号码已被注册
+     */
+    @Test
+    @Order(68)
+    public void userModifyBasicInformation6(){
+        UserBasicInfoVo infoVo = new UserBasicInfoVo();
+        infoVo.setMobile("18050103835");
+        ReturnObject retObj = service.userModifyBasicInformation(1L, infoVo);
+        Assert.assertEquals(ResponseCode.MOBILE_REGISTERED, retObj.getCode());
+    }
+
     public void createUser(){
         UserVo userVo = new UserVo();
         userVo.setPassword("123456");
