@@ -963,6 +963,116 @@ public class CompuOrgServiceTest {
         Assert.assertEquals(ResponseCode.OK, retObj.getCode());
     }
 
+    /**
+     * 1分钟内重复请求验证码
+     */
+    @Test
+    @Order(73)
+    public void userVerifyEmail5(){
+        redisTemplate.opsForValue().set("ip_127.0.0.2", "127.0.0.2");
+        ReturnObject retObj = service.userVerifyEmail("1", null, "127.0.0.2");
+        Assert.assertEquals(ResponseCode.AUTH_USER_FORBIDDEN, retObj.getCode());
+    }
+
+    /**
+     * 邮箱已被注册
+     */
+    @Test
+    @Order(74)
+    public void userVerifyEmail6(){
+        ReturnObject retObj = service.userVerifyEmail("-3835", "snow02203835@163.com", "127.0.0.4");
+        Assert.assertEquals(ResponseCode.EMAIL_REGISTERED, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(75)
+    public void userVerifyEmail7(){
+        ReturnObject retObj = service.userVerifyEmail("-3835", "snows@stu.xmu.edu.cn", "127.0.0.5");
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(75)
+    public void userVerifyEmail8(){
+        ReturnObject retObj = service.userVerifyEmail("1", "snows@stu.xmu.edu.cn", "127.0.0.6");
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+    }
+
+    /**
+     * 验证码不正确或已过期
+     */
+    @Test
+    @Order(76)
+    public void userModifyEmail1(){
+        UserModifyEmailVo emailVo = new UserModifyEmailVo();
+        emailVo.setEmail("snows@stu.xmu.edu.cn");
+        emailVo.setVerifyCode("894377983205548");
+        ReturnObject retObj = service.userModifyEmail(1L, emailVo);
+        Assert.assertEquals(ResponseCode.VERIFY_CODE_EXPIRE, retObj.getCode());
+    }
+
+    /**
+     * 用户不存在
+     */
+    @Test
+    @Order(77)
+    public void userModifyEmail2(){
+        redisTemplate.opsForValue().set("cp_12345", "12345");
+        UserModifyEmailVo emailVo = new UserModifyEmailVo();
+        emailVo.setEmail("snows@stu.xmu.edu.cn");
+        emailVo.setVerifyCode("12345");
+        ReturnObject retObj = service.userModifyEmail(0L, emailVo);
+        Assert.assertEquals(ResponseCode.RESOURCE_ID_NOTEXIST, retObj.getCode());
+    }
+
+    /**
+     * 新邮箱与旧邮箱一致
+     */
+    @Test
+    @Order(78)
+    public void userModifyEmail3(){
+        redisTemplate.opsForValue().set("cp_12346", "12346");
+        UserModifyEmailVo emailVo = new UserModifyEmailVo();
+        emailVo.setEmail("snow02203835@163.com");
+        emailVo.setVerifyCode("12346");
+        ReturnObject retObj = service.userModifyEmail(1L, emailVo);
+        Assert.assertEquals(ResponseCode.EMAIL_SAME, retObj.getCode());
+    }
+
+    /**
+     * 邮箱已被注册
+     */
+    @Test
+    @Order(79)
+    public void userModifyEmail4(){
+        redisTemplate.opsForValue().set("cp_12347", "12347");
+        UserModifyEmailVo emailVo = new UserModifyEmailVo();
+        emailVo.setEmail("123@qq.com");
+        emailVo.setVerifyCode("12347");
+        ReturnObject retObj = service.userModifyEmail(1L, emailVo);
+        Assert.assertEquals(ResponseCode.EMAIL_REGISTERED, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(80)
+    public void userModifyEmail5(){
+        redisTemplate.opsForValue().set("cp_12348", "12348");
+        UserModifyEmailVo emailVo = new UserModifyEmailVo();
+        emailVo.setEmail("snows@stu.xmu.edu.cn");
+        emailVo.setVerifyCode("12348");
+        ReturnObject retObj = service.userModifyEmail(1L, emailVo);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+    }
+
     public void createUser(){
         UserVo userVo = new UserVo();
         userVo.setPassword("123456");
