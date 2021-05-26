@@ -570,6 +570,33 @@ public class CompuOrgServiceTest {
         Assert.assertEquals("unk", actualStr.substring(0, 3));
     }
 
+    /**
+     * 验证码不正确或已过期
+     */
+    @Test
+    @Order(41)
+    public void studentSignUp1(){
+        UserVo userVo = new UserVo();
+        userVo.setVerifyCode("202189473298");
+        ReturnObject retObj = service.studentSignUp(userVo);
+        Assert.assertEquals(ResponseCode.VERIFY_CODE_EXPIRE, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(42)
+    public void studentSignUp2(){
+        UserVo userVo = new UserVo();
+        userVo.setUserName("snow2021");
+        userVo.setPassword("123456");
+        userVo.setEmail("127@qq.com");
+        userVo.setVerifyCode("1");
+        ReturnObject retObj = service.studentSignUp(userVo);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+    }
+
     public void createUser(){
         UserVo userVo = new UserVo();
         userVo.setPassword("123456");
