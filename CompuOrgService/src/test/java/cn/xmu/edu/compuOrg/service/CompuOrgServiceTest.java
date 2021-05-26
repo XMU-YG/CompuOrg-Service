@@ -922,6 +922,47 @@ public class CompuOrgServiceTest {
         Assert.assertEquals(ResponseCode.MOBILE_REGISTERED, retObj.getCode());
     }
 
+    /**
+     * 用户不存在
+     */
+    @Test
+    @Order(69)
+    public void userVerifyEmail1(){
+        ReturnObject retObj = service.userVerifyEmail(0L, null);
+        Assert.assertEquals(ResponseCode.RESOURCE_ID_NOTEXIST, retObj.getCode());
+    }
+
+    /**
+     * 用户预留的邮箱为空
+     */
+    @Test
+    @Order(70)
+    public void userVerifyEmail2(){
+        ReturnObject retObj = service.userVerifyEmail(5L, null);
+        Assert.assertEquals(ResponseCode.EMAIL_EMPTY, retObj.getCode());
+    }
+
+    /**
+     * 1分钟内重复请求验证码
+     */
+    @Test
+    @Order(71)
+    public void userVerifyEmail3(){
+        redisTemplate.opsForValue().set("ip_127.0.0.2", "127.0.0.2");
+        ReturnObject retObj = service.userVerifyEmail(1L, "127.0.0.2");
+        Assert.assertEquals(ResponseCode.AUTH_USER_FORBIDDEN, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(72)
+    public void userVerifyEmail4(){
+        ReturnObject retObj = service.userVerifyEmail(1L, "127.0.0.3");
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+    }
+
     public void createUser(){
         UserVo userVo = new UserVo();
         userVo.setPassword("123456");
