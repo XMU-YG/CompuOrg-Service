@@ -831,6 +831,26 @@ public class CompuOrgServiceTest {
         Assert.assertNotNull(retObj.getData());
     }
 
+    /**
+     * 无权限访问
+     */
+    @Test
+    @Order(61)
+    public void adminGetUserInformation1(){
+        ReturnObject retObj = service.adminGetUserInformation(1L, null, null, 1, 5);
+        Assert.assertEquals(ResponseCode.AUTH_NOT_ALLOW, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(62)
+    public void adminGetUserInformation2(){
+        ReturnObject retObj = service.adminGetUserInformation(0L, null, null, 1, 5);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+    }
+
     public void createUser(){
         UserVo userVo = new UserVo();
         userVo.setPassword("123456");
