@@ -597,6 +597,60 @@ public class CompuOrgServiceTest {
         Assert.assertEquals(ResponseCode.OK, retObj.getCode());
     }
 
+    /**
+     * 无权限访问
+     */
+    @Test
+    @Order(43)
+    public void teacherSignUp1(){
+        UserVo userVo = new UserVo();
+        userVo.setVerifyCode("202189473298");
+        ReturnObject retObj = service.teacherSignUp(2L, userVo);
+        Assert.assertEquals(ResponseCode.AUTH_NOT_ALLOW, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(44)
+    public void teacherSignUp2(){
+        UserVo userVo = new UserVo();
+        userVo.setUserName("teacher2021");
+        userVo.setPassword("123456");
+        userVo.setEmail("128@qq.com");
+        userVo.setVerifyCode("1");
+        ReturnObject retObj = service.teacherSignUp(1L, userVo);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+    }
+
+    /**
+     * 无权限访问
+     */
+    @Test
+    @Order(45)
+    public void appendAdmin1(){
+        UserVo userVo = new UserVo();
+        userVo.setVerifyCode("202189473298");
+        ReturnObject retObj = service.appendAdmin(1L, userVo);
+        Assert.assertEquals(ResponseCode.AUTH_NOT_ALLOW, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(46)
+    public void appendAdmin2(){
+        UserVo userVo = new UserVo();
+        userVo.setUserName("admin2021");
+        userVo.setPassword("123456");
+        userVo.setEmail("129@qq.com");
+        userVo.setVerifyCode("1");
+        ReturnObject retObj = service.appendAdmin(0L, userVo);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+    }
+
     public void createUser(){
         UserVo userVo = new UserVo();
         userVo.setPassword("123456");
