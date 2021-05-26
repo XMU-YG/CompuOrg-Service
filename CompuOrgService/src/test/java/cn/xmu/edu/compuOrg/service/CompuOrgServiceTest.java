@@ -820,6 +820,17 @@ public class CompuOrgServiceTest {
         Assert.assertEquals(ResponseCode.OK, retObj.getCode());
     }
 
+    /**
+     * 成功
+     */
+    @Test
+    @Order(60)
+    public void userGetBasicInformation1(){
+        ReturnObject retObj = service.userGetBasicInformation(1L);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+        Assert.assertNotNull(retObj.getData());
+    }
+
     public void createUser(){
         UserVo userVo = new UserVo();
         userVo.setPassword("123456");
