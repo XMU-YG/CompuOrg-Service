@@ -377,10 +377,10 @@ public class CompuOrgService {
             logger.debug("VerifyCode: " + verifyCode);
             userDao.putVerifyCodeIntoRedis(verifyCode, userId);
             String emailContent, title;
+            if(userDao.isEmailAlreadyExist(email)){
+                return new ReturnObject(ResponseCode.EMAIL_REGISTERED);
+            }
             if("-3835".equals(userId)){
-                if(userDao.isEmailAlreadyExist(email)){
-                    return new ReturnObject(ResponseCode.EMAIL_REGISTERED);
-                }
                 title = registrationTitle;
                 emailContent = "您正在【计算机组成原理平台】进行注册，您的验证码为：" + verifyCode + "，请于5分钟内完成注册！";
             }
