@@ -765,6 +765,61 @@ public class CompuOrgServiceTest {
         Assert.assertNotNull(retObj.getData());
     }
 
+    /**
+     * 验证码不正确或已过期
+     */
+    @Test
+    @Order(56)
+    public void userModifyPassword1(){
+        UserModifyPasswordVo passwordVo = new UserModifyPasswordVo();
+        passwordVo.setPassword("1234");
+        passwordVo.setVerifyCode("123878787");
+        ReturnObject retObj = service.userModifyPassword(passwordVo);
+        Assert.assertEquals(ResponseCode.VERIFY_CODE_EXPIRE, retObj.getCode());
+    }
+
+    /**
+     * 用户不存在
+     */
+    @Test
+    @Order(57)
+    public void userModifyPassword2(){
+        redisTemplate.opsForValue().set("cp_123456", "0");
+        UserModifyPasswordVo passwordVo = new UserModifyPasswordVo();
+        passwordVo.setPassword("1234");
+        passwordVo.setVerifyCode("123456");
+        ReturnObject retObj = service.userModifyPassword(passwordVo);
+        Assert.assertEquals(ResponseCode.RESOURCE_ID_NOTEXIST, retObj.getCode());
+    }
+
+    /**
+     * 新密码与旧密码相同
+     */
+    @Test
+    @Order(58)
+    public void userModifyPassword3(){
+        redisTemplate.opsForValue().set("cp_123456", "1");
+        UserModifyPasswordVo passwordVo = new UserModifyPasswordVo();
+        passwordVo.setPassword("123456");
+        passwordVo.setVerifyCode("123456");
+        ReturnObject retObj = service.userModifyPassword(passwordVo);
+        Assert.assertEquals(ResponseCode.PASSWORD_SAME, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(59)
+    public void userModifyPassword4(){
+        redisTemplate.opsForValue().set("cp_123456", "1");
+        UserModifyPasswordVo passwordVo = new UserModifyPasswordVo();
+        passwordVo.setPassword("123");
+        passwordVo.setVerifyCode("123456");
+        ReturnObject retObj = service.userModifyPassword(passwordVo);
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+    }
+
     public void createUser(){
         UserVo userVo = new UserVo();
         userVo.setPassword("123456");
