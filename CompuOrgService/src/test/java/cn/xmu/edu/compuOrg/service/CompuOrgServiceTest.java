@@ -19,7 +19,9 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +35,8 @@ import java.util.List;
 public class CompuOrgServiceTest {
     @Autowired
     private CompuOrgService service;
+    @Autowired
+    private RedisTemplate<String, Serializable> redisTemplate;
 
     /**
      * 非学生用户访问
@@ -649,6 +653,59 @@ public class CompuOrgServiceTest {
         userVo.setVerifyCode("1");
         ReturnObject retObj = service.appendAdmin(0L, userVo);
         Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+    }
+
+    /**
+     * 用户名不存在
+     */
+    @Test
+    @Order(47)
+    public void userResetPassword1(){
+        UserPasswordVo userVo = new UserPasswordVo();
+        userVo.setUserName("202189473298");
+        userVo.setEmail("123@qq.com");
+        ReturnObject retObj = service.userResetPassword(userVo, "127.0.0.1");
+        Assert.assertEquals(ResponseCode.AUTH_INVALID_ACCOUNT, retObj.getCode());
+    }
+
+    /**
+     * 与预留邮箱不一致
+     */
+    @Test
+    @Order(48)
+    public void userResetPassword2(){
+        UserPasswordVo userVo = new UserPasswordVo();
+        userVo.setUserName("snow");
+        userVo.setEmail("snow0220@163.com");
+        ReturnObject retObj = service.userResetPassword(userVo, "127.0.0.1");
+        Assert.assertEquals(ResponseCode.EMAIL_WRONG, retObj.getCode());
+    }
+
+    /**
+     * 成功
+     */
+    @Test
+    @Order(49)
+    public void userResetPassword3(){
+        UserPasswordVo userVo = new UserPasswordVo();
+        userVo.setUserName("snow");
+        userVo.setEmail("snow02203835@163.com");
+        ReturnObject retObj = service.userResetPassword(userVo, "127.0.0.1");
+        Assert.assertEquals(ResponseCode.OK, retObj.getCode());
+    }
+
+    /**
+     * 一分钟内重复请求验证码
+     */
+    @Test
+    @Order(50)
+    public void userResetPassword4(){
+        UserPasswordVo userVo = new UserPasswordVo();
+        userVo.setUserName("snow");
+        userVo.setEmail("snow02203835@163.com");
+        redisTemplate.opsForValue().set("ip_127.0.0.2", "127.0.0.2");
+        ReturnObject retObj = service.userResetPassword(userVo, "127.0.0.2");
+        Assert.assertEquals(ResponseCode.AUTH_USER_FORBIDDEN, retObj.getCode());
     }
 
     public void createUser(){
